@@ -1,252 +1,380 @@
-import { useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { X, RotateCw } from 'lucide-react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { X, RotateCw, Mic, MicOff, Square, Volume2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { VoiceConnection, VoiceEvent } from '@workspace/consultation';
+import { getSpecialistProfile, SPECIALISTS, type SpecialistId, type VoiceConnection, type VoiceEvent } from '@workspace/consultation';
 import { useRuntime, useRuntimeKeys } from '@/lib/runtime-context';
 import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
-
 import { NeuralCore, type CoreState } from '@/components/neural-core';
-
-/** Simulated speech envelope: ~4 syllables/s grouped into words and phrases. Replace with live audio RMS later. */
-function useSimulatedVoice(active: boolean, amplitude: MutableRefObject<number>) {
-  const [speaking, setSpeaking] = useState(false);
-  useEffect(() => {
-    if (!active) {
-      amplitude.current = 0;
-      setSpeaking(false);
-      return;
-    }
-    let raf = 0;
-    const start = performance.now();
-    const loop = (now: number) => {
-      const t = (now - start) / 1000;
-      const cycle = t % 8.5; // ~5.2s speaking, then listening
-      const on = cycle > 1.2 && cycle < 6.4;
-      setSpeaking((p) => (p !== on ? on : p));
-      if (on) {
-        const syl = Math.pow(0.5 + 0.5 * Math.sin(t * Math.PI * 2 * 4.1 + Math.sin(t * 1.7) * 2.2), 1.5);
-        const word = Math.min(1, Math.max(0, (Math.sin(t * Math.PI * 2 * 0.85 + Math.sin(t * 0.6)) + 0.55) * 1.6));
-        const phrase = 0.62 + 0.38 * Math.sin(t * 0.9);
-        const edge = Math.min(1, (cycle - 1.2) * 3, (6.4 - cycle) * 3);
-        amplitude.current = Math.min(1, (0.12 + syl * 0.88) * word * phrase * edge);
-      } else amplitude.current = 0;
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [active, amplitude]);
-  return speaking;
-}
+import { VoiceSpecialistRail, SPECIALIST_VISUALS } from '@/components/voice-specialist-rail';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 /** Any surface can open voice mode by dispatching this window event. */
 export const OPEN_VOICE_EVENT = 'dp:open-voice';
 
-const LINES = [
-  'Voice animation preview only.',
-  'No microphone or audio channel is connected here.',
-  'Continue in chat while native voice is connected in AgentPlace.',
-];
-const THINKING_LABELS = ['Evaluating', 'Calculating', 'Preparing a response'];
+type Caption = Extract<VoiceEvent, { type: 'transcript' }>;
+type VoiceFailure = Omit<Extract<VoiceEvent, { type: 'error' }>, 'type'>;
+type TransportState = Extract<VoiceEvent, { type: 'state' }>['state'];
 
-function SpokenLine({ text }: { text: string }) {
-  const words = text.split(' ');
-  return (
-    <p className="text-balance text-xl font-light leading-snug tracking-tight text-foreground/90 sm:text-[26px]">
-      {words.map((w, i) => (
-        <motion.span
-          key={i}
-          className="inline-block whitespace-pre"
-          initial={{ opacity: 0, y: 6, filter: 'blur(8px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ delay: 0.15 + i * 0.16, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {w}{i < words.length - 1 ? ' ' : ''}
-        </motion.span>
-      ))}
-    </p>
-  );
+function captionMatches(previous: Caption | null, next: Caption) {
+  return previous?.id === next.id && previous?.role === next.role &&
+    previous?.text === next.text && previous?.final === next.final;
 }
 
 export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { runtime, native } = useRuntime();
+  const { runtime, native, scope } = useRuntime();
   const { getGetConversationQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
-  const { ensureConversation, conversationId, depth } = useAdvisor();
+  const { ensureConversation, depth } = useAdvisor();
   const qc = useQueryClient();
-  const [boot, setBoot] = useState<string | null>(null);
-  const [nativeState, setNativeState] = useState<CoreState>('connecting');
-  const [thinking, setThinking] = useState(false);
-  const [thinkingLabel, setThinkingLabel] = useState(0);
-  const [transcript, setTranscript] = useState('');
+  const reduceMotion = useReducedMotion();
+  const compact = useMediaQuery('(max-width: 639px)');
+  const [failure, setFailure] = useState<VoiceFailure | null>(null);
+  const [transportState, setTransportState] = useState<TransportState>('connecting');
+  const [caption, setCaption] = useState<Caption | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [connection, setConnection] = useState<VoiceConnection | null>(null);
+  const [muted, setMuted] = useState(false);
+  const [controlPending, setControlPending] = useState(false);
+  const [specialist, setSpecialist] = useState<SpecialistId>('syntra');
+  const [inputSpeaking, setInputSpeaking] = useState(false);
+  const [switching, setSwitching] = useState(false);
+  const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
+  const [, refreshControls] = useState(0);
+  const [size, setSize] = useState(560);
   const amplitude = useRef(0);
-  const [line, setLine] = useState(-1);
-  const [size, setSize] = useState(640);
-
-  const provision = () => setAttempt(n => n + 1);
+  const connectionRef = useRef<VoiceConnection | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const captionRef = useRef<HTMLDivElement>(null);
+  const depthRef = useRef(depth);
+  depthRef.current = depth;
+  const specialistRef = useRef(specialist);
+  specialistRef.current = specialist;
+  const switchingRef = useRef(false);
 
   useEffect(() => {
     if (!open) return;
-    setLine(-1); setBoot(null); setTranscript(''); setNativeState('connecting'); setThinking(false);
+    setFailure(null); setCaption(null); setTransportState('connecting');
+    setConnection(null); setMuted(false); setControlPending(false); amplitude.current = 0;
+    setInputSpeaking(false); setSwitching(false); setSelectionNotice(null); switchingRef.current = false;
     if (!runtime.voice.available) return;
+    const initialSpecialist = runtime.voice.specialists?.includes(specialistRef.current) ? specialistRef.current : 'syntra';
+    specialistRef.current = initialSpecialist; setSpecialist(initialSpecialist);
     const controller = new AbortController();
-    let connection: VoiceConnection | undefined;
-    let voiceConversationId = conversationId;
+    let ownedConnection: VoiceConnection | undefined;
+    let voiceConversationId: number | undefined;
     const handleEvent = (event: VoiceEvent) => {
       if (controller.signal.aborted) return;
       switch (event.type) {
-        case 'amplitude': amplitude.current = Math.max(0, Math.min(1, event.value)); break;
+        case 'specialist':
+          // The adapter may restore a pending turn with a different role after reload.
+          if (event.specialist !== specialistRef.current) setCaption(null);
+          specialistRef.current = event.specialist; setSpecialist(event.specialist);
+          break;
+        case 'input':
+          setInputSpeaking(event.speaking);
+          break;
+        case 'amplitude':
+          amplitude.current = Number.isFinite(event.value) ? Math.max(0, Math.min(1, event.value)) : 0;
+          break;
         case 'state':
           amplitude.current = 0;
-          setThinking(event.state === 'thinking');
-          setNativeState(event.state === 'speaking' ? 'speaking' : event.state === 'connecting' || event.state === 'thinking' ? 'connecting' : event.state === 'closed' ? 'error' : 'idle');
-          if (event.state === 'closed') setBoot('Voice connection closed. Reconnect when ready.');
+          setTransportState(event.state);
+          if (event.state === 'closed') {
+            setFailure(previous => previous ?? { message: 'The voice connection closed. Reconnect when you are ready.' });
+          }
           break;
-        case 'transcript': setTranscript(event.text); break;
+        case 'transcript':
+          setCaption(previous => captionMatches(previous, event) ? previous : event);
+          // Accepted speech can move past a local notice; uncertain sends require explicit recovery.
+          if (event.role === 'visitor') setFailure(previous =>
+            previous?.recovery === 'playback' ||
+            (event.final && previous?.recoverable && previous.retryable === false && !previous.recovery) ? null : previous);
+          break;
         case 'conversation-updated':
-          void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId ?? 0) });
-          void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId ?? 0) });
+          // Capability getters can change even when the visible transport state stays listening.
+          refreshControls(value => value + 1);
+          if (voiceConversationId) {
+            void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId) });
+            void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId) });
+          }
           break;
-        case 'error': setBoot(event.message); setNativeState('error'); setThinking(false); amplitude.current = 0; break;
+        case 'error':
+          setFailure(event); amplitude.current = 0;
+          break;
       }
     };
     void (async () => {
       try {
         const id = await ensureConversation();
-        await runtime.sessions.setDepth?.(id, depth);
+        if (controller.signal.aborted) return;
+        await runtime.sessions.setDepth?.(id, depthRef.current);
         voiceConversationId = id;
         if (controller.signal.aborted) return;
-        const connected = await runtime.voice.connect(id, handleEvent, controller.signal);
-        if (controller.signal.aborted) await connected.close();
-        else connection = connected;
+        const connected = await runtime.voice.connect(id, handleEvent, controller.signal, { depth: depthRef.current, specialist: initialSpecialist });
+        if (controller.signal.aborted) {
+          await connected.close();
+        } else {
+          ownedConnection = connected;
+          connectionRef.current = connected;
+          setConnection(connected);
+        }
       } catch (error) {
-        if (!controller.signal.aborted) { setBoot(error instanceof Error ? error.message : 'Voice connection failed.'); setNativeState('error'); setThinking(false); }
+        if (!controller.signal.aborted) {
+          setFailure({ message: error instanceof Error ? error.message : 'Voice could not connect. Your consultation is still available in chat.' });
+        }
       }
     })();
     return () => {
       controller.abort(); amplitude.current = 0;
-      if (connection) void Promise.resolve(connection.close()).catch(() => {});
+      switchingRef.current = false;
+      if (connectionRef.current === ownedConnection) connectionRef.current = null;
+      if (ownedConnection) void Promise.resolve(ownedConnection.close()).catch(() => {});
     };
-  }, [open, attempt, ensureConversation, qc]);
+  }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey]);
 
   useEffect(() => {
-    setThinkingLabel(0);
-    if (!open || !thinking || boot) return;
-    // Presentation only: actual transport events start/stop the pending state.
-    const timer = window.setInterval(() => setThinkingLabel(index => (index + 1) % THINKING_LABELS.length), 2400);
-    return () => window.clearInterval(timer);
-  }, [open, thinking, boot]);
-
-  useEffect(() => {
-    const f = () => setSize(Math.round(Math.min(window.innerWidth * 0.92, window.innerHeight * 0.56, 560)));
-    f();
-    window.addEventListener('resize', f);
-    return () => window.removeEventListener('resize', f);
-  }, []);
+    if (!open || !stageRef.current) return;
+    const stage = stageRef.current;
+    const resize = () => setSize(Math.round(Math.max(100, Math.min(stage.clientWidth * 0.92, stage.clientHeight - 140, 560))));
+    const observer = new ResizeObserver(resize);
+    observer.observe(stage);
+    resize();
+    window.addEventListener('resize', resize);
+    return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [open, onClose]);
-
-  const failed = !!boot;
-  const demoSpeaking = useSimulatedVoice(open && !runtime.voice.available && !failed, amplitude);
-  const speaking = runtime.voice.available ? nativeState === 'speaking' : demoSpeaking;
+    const root = dialogRef.current?.getRootNode();
+    const previousFocus = (root instanceof ShadowRoot ? root.activeElement : document.activeElement) as HTMLElement | null;
+    const frame = requestAnimationFrame(() => closeButtonRef.current?.focus({ preventScroll: true }));
+    return () => {
+      cancelAnimationFrame(frame);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [open]);
 
   useEffect(() => {
-    if (speaking) setLine((l) => (l + 1) % LINES.length);
-  }, [speaking]);
+    if (captionRef.current) captionRef.current.scrollTop = captionRef.current.scrollHeight;
+  }, [caption]);
 
-  const state: CoreState = failed ? 'error' : runtime.voice.available ? nativeState : speaking ? 'speaking' : 'idle';
-  const label = !runtime.voice.available ? 'Preview · voice not connected' : thinking && !failed ? THINKING_LABELS[thinkingLabel] : { connecting: 'Waking', idle: 'Listening', speaking: 'Speaking', error: 'Offline' }[state];
+  useEffect(() => {
+    if (!selectionNotice) return;
+    const timer = window.setTimeout(() => setSelectionNotice(null), 4500);
+    return () => window.clearTimeout(timer);
+  }, [selectionNotice]);
+
+  function containFocus(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape') { event.preventDefault(); onClose(); return; }
+    if (event.key !== 'Tab') return;
+    const elements = dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], [tabindex="0"]');
+    if (!elements?.length) return;
+    const first = elements[0];
+    const last = elements[elements.length - 1];
+    const root = dialogRef.current?.getRootNode();
+    const focused = root instanceof ShadowRoot ? root.activeElement : document.activeElement;
+    if (event.shiftKey && (focused === first || focused === dialogRef.current)) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && focused === last) { event.preventDefault(); first.focus(); }
+  }
+
+  async function changeMute() {
+    const current = connectionRef.current;
+    if (!current?.setMuted || controlPending) return;
+    setControlPending(true);
+    try {
+      await current.setMuted(!muted);
+      if (connectionRef.current === current) setMuted(!muted);
+    } catch {
+      if (connectionRef.current === current) setFailure({ message: 'The microphone setting could not be changed. End voice to release the microphone.' });
+    } finally {
+      if (connectionRef.current === current) setControlPending(false);
+    }
+  }
+
+  async function interrupt() {
+    const current = connectionRef.current;
+    if (!current?.interrupt) return;
+    try { await current.interrupt(); }
+    catch {
+      if (connectionRef.current === current) setFailure({ message: 'Playback could not be stopped. End voice to close the audio connection.' });
+    }
+  }
+
+  async function recover() {
+    if (!failure || controlPending) return;
+    const current = connectionRef.current;
+    const retry = failure.recovery === 'turn' ? current?.retryTurn : failure.recovery === 'playback' ? current?.retryPlayback : undefined;
+    // Ambiguous sends must be recovered through their original connection and request ID.
+    if (failure.recovery && !retry) return;
+    if (!failure.recovery) { setAttempt(value => value + 1); return; }
+    const previousFailure = failure;
+    setControlPending(true); setFailure(null);
+    try { await retry!.call(current); }
+    catch (error) {
+      if (connectionRef.current === current) setFailure({ ...previousFailure, message: error instanceof Error ? error.message : previousFailure.message });
+    } finally {
+      if (connectionRef.current === current) setControlPending(false);
+    }
+  }
+
+  async function chooseSpecialist(id: SpecialistId) {
+    if (id === specialistRef.current || switchingRef.current || controlPending) return;
+    if (!runtime.voice.available) {
+      specialistRef.current = id; setSpecialist(id); setCaption(null); setSelectionNotice(null);
+      return;
+    }
+    const current = connectionRef.current;
+    if (!current?.setSpecialist || !runtime.voice.specialists?.includes(id) || failure || inputSpeaking ||
+        transportState === 'thinking' || transportState === 'connecting' || transportState === 'closed' ||
+        current.canSwitchSpecialist?.() === false) return;
+    switchingRef.current = true; setSwitching(true); setSelectionNotice(null);
+    try {
+      await current.setSpecialist(id);
+      if (connectionRef.current !== current) return;
+      specialistRef.current = id; setSpecialist(id); setCaption(null);
+      amplitude.current = 0;
+    } catch (error) {
+      if (connectionRef.current === current) setSelectionNotice(error instanceof Error ? error.message : 'The specialist could not change. Your current conversation is still open.');
+    } finally {
+      if (connectionRef.current === current) { switchingRef.current = false; setSwitching(false); }
+    }
+  }
+
+  const available = runtime.voice.available;
+  const state: CoreState = failure ? 'error' : !available ? 'idle' :
+    transportState === 'speaking' ? 'speaking' :
+    transportState === 'connecting' || transportState === 'thinking' ? 'connecting' : 'idle';
+  const label = !available ? 'Voice not connected' : failure ? 'Voice paused' :
+    muted && transportState === 'listening' ? 'Microphone paused' :
+    { connecting: 'Connecting', listening: 'Listening', thinking: 'Preparing a response', speaking: 'Speaking', closed: 'Disconnected' }[transportState];
+  const canRecover = Boolean(failure && failure.retryable !== false &&
+    (!failure.recovery || (failure.recovery === 'turn' ? connection?.retryTurn : connection?.retryPlayback)));
+  const recoveryLabel = failure?.recovery === 'turn' ? 'Retry this turn' : failure?.recovery === 'playback' ? 'Replay response' : 'Reconnect';
+  const discloseProvider = available && !native;
+  const stageBottom = canRecover ? discloseProvider ? 196 : 160 : discloseProvider ? 144 : 128;
+  const profile = getSpecialistProfile(specialist);
+  const visual = SPECIALIST_VISUALS[specialist];
+  const supported = !available ? SPECIALISTS.map(item => item.id) : runtime.voice.specialists ?? ['syntra'] as const;
+  const lockedReason = !available ? undefined : failure ? 'Resolve the current voice issue before changing specialist.' :
+    switching || controlPending ? 'Please wait for the current action.' : !connection || transportState === 'connecting' ? 'Connecting your voice session.' :
+    inputSpeaking ? 'Finish speaking before changing specialist.' : transportState === 'thinking' || connection.canSwitchSpecialist?.() === false ? 'Let the current turn finish before changing specialist.' :
+    transportState === 'closed' ? 'Reconnect voice to change specialist.' : !connection.setSpecialist ? 'Specialist switching is not available in this voice session.' : undefined;
 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <motion.div ref={dialogRef}
           className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          role="dialog"
-          aria-label="Voice console"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          exit={{ opacity: 0, transition: { duration: reduceMotion ? 0 : .4 } }}
+          transition={{ duration: reduceMotion ? 0 : .55, ease: [0.16, 1, 0.3, 1] }}
+          role="dialog" aria-modal="true" aria-label="Syntra voice conversation" tabIndex={-1}
+          onKeyDown={containFocus}
         >
-          {/* deep space */}
-          <div className="absolute inset-0 bg-[#04030B]" onClick={onClose} />
-          <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(60% 55% at 50% 45%, rgba(29,78,216,.16), rgba(34,211,238,.05) 40%, transparent 70%)' }} />
+          <div className="absolute inset-0 bg-[#04030B]" />
+          <motion.div className="pointer-events-none absolute inset-0" animate={{ filter: `hue-rotate(${visual.hue}deg)` }}
+            transition={{ duration: reduceMotion ? 0 : .6 }}
+            style={{ background: 'radial-gradient(60% 55% at 50% 45%, rgba(29,78,216,.16), rgba(34,211,238,.05) 40%, transparent 70%)' }} />
           <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.75))' }} />
 
-          {/* top bar */}
-          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between px-6 py-5 sm:px-8">
-            <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-white/45">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className={cn('absolute inset-0 rounded-full', state === 'error' ? 'bg-rose-400' : 'bg-primary', state !== 'error' && 'animate-ping opacity-60')} />
-                <span className={cn('relative h-1.5 w-1.5 rounded-full', state === 'error' ? 'bg-rose-400' : 'bg-primary')} />
+          <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 sm:px-8 sm:py-5">
+            <div className="flex min-w-0 items-center gap-2.5 font-mono text-[9px] uppercase tracking-[.22em] text-white/45 sm:text-[10px] sm:tracking-[.3em]">
+              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                <span className={cn('absolute inset-0 rounded-full', failure ? 'bg-rose-400' : 'bg-primary', available && !failure && !muted && 'motion-safe:animate-ping opacity-60')} />
+                <span className={cn('relative h-1.5 w-1.5 rounded-full', failure ? 'bg-rose-400' : 'bg-primary')} />
               </span>
-              <span>Prodigy</span>
-              <span className="text-white/20">/</span>
-              <AnimatePresence mode="wait">
-                <motion.span key={label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className={state === 'error' ? 'text-rose-300/80' : 'text-primary/80'}>{label}</motion.span>
-              </AnimatePresence>
+              <span>{profile.name}</span><span className="text-white/20">/</span>
+              <span role="status" className={cn('truncate', failure ? 'text-rose-300/80' : 'text-primary/80')} data-testid="status-voice-state">{label}</span>
             </div>
-            <button onClick={onClose} aria-label="Close voice console" data-testid="button-close-voice" className="grid h-10 w-10 place-items-center rounded-full text-white/40 transition hover:bg-white/[0.04] hover:text-white">
+            <button ref={closeButtonRef} onClick={onClose} aria-label="Close voice conversation" data-testid="button-close-voice"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-white/45 transition hover:bg-white/[.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
               <X className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
-          {/* the intelligence */}
-          <motion.div
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.06, opacity: 0, filter: 'blur(12px)' }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            className="pointer-events-none relative z-[5] -mt-10"
-          >
-            <NeuralCore state={state} amplitude={amplitude} size={size} />
-          </motion.div>
+          <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
+            lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
 
-          {/* spoken words */}
-          <div className="relative z-10 -mt-6 flex h-24 w-full max-w-2xl items-start justify-center px-6 text-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={state === 'speaking' ? `l${line}` : state}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, filter: 'blur(6px)', transition: { duration: 0.5 } }}
-              >
-                {runtime.voice.available && thinking && !failed ? (
-                  <p role="status" aria-live="polite" className="font-mono text-[11px] uppercase tracking-[0.35em] text-primary/80" data-testid="status-voice-thinking">{THINKING_LABELS[thinkingLabel]}…</p>
-                ) : runtime.voice.available && transcript ? <SpokenLine text={transcript} /> : !runtime.voice.available && state === 'speaking' && line >= 0 ? (
-                  <SpokenLine text={LINES[line]} />
-                ) : (
-                  <p className={cn('font-mono text-[11px] uppercase tracking-[0.45em]', state === 'error' ? 'text-rose-300/70' : 'text-white/35')}>
-                    {!runtime.voice.available ? 'Animation preview · microphone not connected' : state === 'connecting' ? 'Waking the advisor' : state === 'error' ? (boot ?? 'Voice channel unavailable') : 'Go ahead, I am listening'}
-                  </p>
-                )}
+          <div ref={stageRef} className="absolute inset-x-0 flex min-h-0 flex-col items-center justify-center sm:left-20 sm:right-2 lg:left-0 lg:right-0" style={{ top: compact ? 132 : 68, bottom: stageBottom }}>
+            <motion.div initial={reduceMotion ? false : { scale: .94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: reduceMotion ? 0 : 1, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none relative z-[5] shrink-0">
+              <motion.div animate={{ filter: `hue-rotate(${failure ? 0 : visual.hue}deg)` }} transition={{ duration: reduceMotion ? 0 : .55 }}>
+                <NeuralCore state={state} amplitude={amplitude} size={size} />
               </motion.div>
-            </AnimatePresence>
+              <motion.div className="absolute inset-[17%] rounded-[50%] border border-transparent"
+                animate={{ rotate: visual.orbit, scaleY: specialist === 'technical' ? .65 : specialist === 'automation' ? .42 : .54, opacity: failure ? 0 : .3 }}
+                transition={{ duration: reduceMotion ? 0 : .6 }} style={{ borderTopColor: `${visual.color}55`, borderBottomColor: `${visual.color}18` }} />
+            </motion.div>
+
+            <div className="relative z-10 -mt-4 w-full max-w-2xl px-6 text-center sm:-mt-6">
+              <div className="mb-3" data-testid="voice-active-specialist">
+                <motion.p key={profile.id} initial={reduceMotion ? false : { opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: reduceMotion ? 0 : .24 }} className="font-display text-[15px] font-light tracking-[.18em]" style={{ color: visual.color }}>{profile.name}</motion.p>
+                <p className="mt-1 font-mono text-[8px] uppercase tracking-[.18em] text-white/35">{profile.title}</p>
+                {selectionNotice && <p role="status" className="mx-auto mt-2 max-w-md text-[11px] leading-relaxed text-amber-200/85">{selectionNotice}</p>}
+              </div>
+              {failure ? (
+                <div role="alert" className="mx-auto max-w-lg" data-testid="status-voice-error">
+                  <p className="text-sm leading-relaxed text-rose-200/90">{failure.message}</p>
+                  {failure.recovery === 'turn' && <p className="mt-2 text-xs leading-relaxed text-white/45">Retry preserves your original turn. Your saved conversation and brief stay together.</p>}
+                </div>
+              ) : caption?.text ? (
+                <div>
+                  <div className="mb-2 font-mono text-[9px] uppercase tracking-[.25em] text-primary/65">
+                    {caption.role === 'visitor' ? 'You' : profile.name}{!caption.final && <span className="text-white/30"> / live</span>}
+                  </div>
+                  <div ref={captionRef} className="max-h-[min(19dvh,160px)] overflow-y-auto overscroll-contain scroll-thin"
+                    tabIndex={0} aria-label={caption.role === 'visitor' ? 'Your live transcript' : `${profile.name} response`} data-testid="voice-transcript">
+                    <p aria-live={caption.final ? 'polite' : 'off'} aria-atomic="true"
+                      className="whitespace-pre-wrap break-words text-[18px] font-light leading-relaxed tracking-tight text-foreground/90 sm:text-[24px]">
+                      {caption.text}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="mx-auto max-w-md text-sm font-light leading-relaxed text-white/50" data-testid="voice-idle-guidance">
+                  {!available ? 'Voice is not connected in this environment. Continue your consultation in chat.' :
+                    muted ? 'Your microphone is paused. Unmute when you are ready.' :
+                    transportState === 'connecting' ? 'Connecting your microphone and voice.' :
+                    transportState === 'thinking' ? 'Preparing your response…' : 'Go ahead. I’m listening.'}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* controls */}
-          <div className="absolute bottom-8 left-0 right-0 z-10 flex items-center justify-center gap-3">
-            {failed && (
-              <button onClick={provision} data-testid="button-retry-voice" className="flex items-center gap-2 rounded-full border border-primary/30 px-5 py-2.5 text-sm text-primary transition hover:bg-primary/10">
-                <RotateCw className="h-4 w-4" strokeWidth={1.5} /> Reconnect
+          <div className={cn('absolute inset-x-0 z-10 flex flex-col items-center gap-3 px-4', discloseProvider ? 'bottom-14' : 'bottom-7 sm:bottom-8')}>
+            {canRecover && <button onClick={() => void recover()} disabled={controlPending} data-testid="button-retry-voice"
+              className="flex items-center gap-2 rounded-full border border-primary/30 bg-[#04030B]/85 px-5 py-2.5 text-sm text-primary transition hover:bg-primary/10 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+              <RotateCw className={cn('h-4 w-4', controlPending && 'motion-safe:animate-spin')} strokeWidth={1.5} /> {controlPending ? 'Recovering…' : recoveryLabel}
+            </button>}
+            <div className="flex items-center justify-center gap-2.5">
+              {connection?.setMuted && <button onClick={() => void changeMute()} disabled={controlPending}
+                aria-label={muted ? 'Unmute microphone' : 'Mute microphone'} aria-pressed={muted} title={muted ? 'Unmute microphone' : 'Mute microphone'}
+                data-testid="button-mute-voice"
+                className={cn('grid h-11 w-11 place-items-center rounded-full border transition disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary', muted ? 'border-amber-300/35 bg-amber-300/10 text-amber-200' : 'border-white/10 bg-white/[.035] text-white/65 hover:border-primary/30 hover:text-primary')}>
+                {muted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>}
+              {connection?.interrupt && !failure && (transportState === 'speaking' || transportState === 'thinking') && <button onClick={() => void interrupt()}
+                aria-label="Stop spoken response" title="Stop spoken response" data-testid="button-interrupt-voice"
+                className="flex h-11 items-center gap-2 rounded-full border border-primary/25 bg-primary/[.06] px-4 text-xs text-primary transition hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                <Square className="h-3 w-3 fill-current" /> Stop
+              </button>}
+              <button onClick={onClose} data-testid="button-end-voice"
+                className="flex h-11 items-center gap-2.5 rounded-full border border-white/10 bg-white/[.035] px-5 text-[13px] text-white/60 backdrop-blur transition hover:border-rose-400/30 hover:text-rose-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-400/70" /> {available ? 'End voice' : 'Continue in chat'}
               </button>
-            )}
-            <button onClick={onClose} data-testid="button-end-voice" className="group flex items-center gap-2.5 rounded-full border border-white/[0.07] bg-white/[0.02] px-5 py-2.5 text-[13px] text-white/50 backdrop-blur transition hover:border-rose-400/30 hover:text-rose-200">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-400/70 transition group-hover:bg-rose-400" /> End conversation
-            </button>
-          </div>
-          {open && (
-            <div className="absolute bottom-3 left-0 right-0 z-10 text-center font-mono text-[9px] uppercase tracking-[0.3em] text-white/20" data-testid="status-voice-session">
-              {runtime.voice.available ? native ? 'AgentPlace native voice' : 'Realtime development voice' : 'Demo only / no audio transport'}
             </div>
-          )}
+          </div>
+          <div className="absolute inset-x-5 bottom-2 z-10 text-center" data-testid="status-voice-session">
+            <div className="flex items-center justify-center gap-1.5 font-mono text-[8px] uppercase tracking-[.2em] text-white/25">
+              {available && <Volume2 className="h-2.5 w-2.5" />}
+              {available ? native ? 'AgentPlace native voice · shared consultation' : 'Voice · shared consultation' : 'No audio connection'}
+            </div>
+            {discloseProvider && <p className="mx-auto mt-1 max-w-md text-[10px] leading-relaxed text-white/40">Microphone audio is processed by the configured speech provider.</p>}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -6,3 +6,5 @@ export * from "./types.ts";
 export * from "./engine.ts";
 export * from "./handoff.ts";
 export * from "./business.ts";
+export * from "./voice-controller.ts";
+export * from "./specialists.ts";

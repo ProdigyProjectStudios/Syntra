@@ -232,7 +232,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
       const speed = reduce ? 0.15 : 1;
       t += dt * speed;
       const st = stateRef.current;
-      const target = st === 'speaking' ? (external ? amplitude.current : 0.34 + 0.2 * Math.sin(t * 1.7) * Math.sin(t * 0.63)) : st === 'connecting' ? 0.12 + 0.08 * Math.sin(t * 3) : st === 'error' ? 0 : 0.035;
+      const target = st === 'speaking' ? (external ? amplitude.current : 0.34 + 0.2 * Math.sin(t * 1.7) * Math.sin(t * 0.63)) : st === 'connecting' ? 0.12 + 0.08 * Math.sin(t * 3) : st === 'error' ? 0 : external ? Math.max(0.035, amplitude.current * 0.75) : 0.035;
       smooth += (target - smooth) * Math.min(1, dt * 3.2);
       const amp = smooth;
       errMix += ((st === 'error' ? 1 : 0) - errMix) * Math.min(1, dt * 3);

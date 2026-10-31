@@ -5,6 +5,7 @@
   "scripts": {
     "test": "pnpm --filter @workspace/consultation test",
     "test:agentplace": "node integrations/agentplace/validate.mjs",
+    "test:voice": "node --experimental-strip-types --test artifacts/digital-prodigy/tests/*.test.ts artifacts/api-server/tests/speech-provider.test.ts",
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",

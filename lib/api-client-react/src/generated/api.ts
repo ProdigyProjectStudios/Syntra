@@ -807,8 +807,9 @@ export const getCreateVoiceSessionUrl = () => {
 }
 
 /**
- * Provisions a real-time voice session for hands-free conversation with the advisor
- * @summary Provision a voice session
+ * Legacy compatibility endpoint; it does not create a working audio connection. Native AgentPlace owns provisioning. The optional Replit speech adapter uses /voice/token after consultation ownership checks.
+ * @deprecated
+ * @summary Legacy native voice provisioning status
  */
 export const createVoiceSession = async (voiceSessionInput: VoiceSessionInput, options?: Parameters<typeof customFetch>[1]): Promise<VoiceSession> => {
 
@@ -874,7 +875,8 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateVoiceSessionMutationVariables = {data: BodyType<VoiceSessionInput>}
 
     /**
- * @summary Provision a voice session
+ * @deprecated
+ * @summary Legacy native voice provisioning status
  */
 export const useCreateVoiceSession = <TError = ErrorType<unknown>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createVoiceSession>>, TError,CreateVoiceSessionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}

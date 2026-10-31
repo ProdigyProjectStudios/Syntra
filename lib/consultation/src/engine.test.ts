@@ -175,6 +175,49 @@ test("a full conversation rejects a new model call while preserving completed re
   assert.equal(await service.send("owner-a", 1, { content: "Design reviews", depth: "concise", requestId: "same" }), f.saved);
   assert.equal(f.received(), undefined);
 });
+test("specialist consultation uses the same provider history and manually edited brief", async () => {
+  const f = fixture();
+  f.c.messages.push({ id: 20, role: "visitor", content: "We use HubSpot and have a £5000 budget", depth: "detailed", createdAt: "" });
+  f.c.brief = manualBrief(empty(), { budget: "£5000", integrations: "HubSpot" }, 0);
+  await new ConsultationService(f.repository, f.provider).send("owner-a", 1, {
+    content: "Now design the integration", depth: "deep_dive", requestId: "technical-1", specialist: "technical",
+  });
+  const input = f.received() as { specialist: string; history: { content: string }[]; currentBrief: Brief };
+  assert.equal(input.specialist, "technical");
+  assert.equal(input.history[0].content, "We use HubSpot and have a £5000 budget");
+  assert.equal(input.currentBrief.budget, "£5000");
+  assert.equal(input.currentBrief.provenance.budget?.status, "manual");
+  assert.equal(f.commits(), 1);
+});
+test("legacy replay belongs to Syntra and cannot be reinterpreted as another specialist", async () => {
+  const f = fixture();
+  f.repository.replay = async () => f.saved;
+  const service = new ConsultationService(f.repository, f.provider);
+  const input = { content: "Design reviews", depth: "concise" as const, requestId: "same" };
+  assert.equal(await service.send("owner-a", 1, { ...input, specialist: "syntra" }), f.saved);
+  await assert.rejects(service.send("owner-a", 1, { ...input, specialist: "technical" }), { status: 409 });
+  assert.equal(f.received(), undefined);
+  assert.equal(f.commits(), 0);
+});
+test("specialist replay rejects identity changes without another provider invocation", async () => {
+  const f = fixture();
+  f.saved.specialist = "technical";
+  f.repository.replay = async () => f.saved;
+  const service = new ConsultationService(f.repository, f.provider);
+  const input = { content: "Design reviews", depth: "concise" as const, requestId: "same" };
+  assert.equal(await service.send("owner-a", 1, { ...input, specialist: "technical" }), f.saved);
+  await assert.rejects(service.send("owner-a", 1, { ...input, specialist: "automation" }), { status: 409 });
+  await assert.rejects(service.send("owner-a", 1, input), { status: 409 });
+  assert.equal(f.received(), undefined);
+});
+test("unrecognized specialist identifiers are rejected before model or persistence", async () => {
+  const f = fixture();
+  await assert.rejects(new ConsultationService(f.repository, f.provider).send("owner-a", 1, {
+    content: "Plan my project", depth: "detailed", requestId: "invalid-role", specialist: "unapproved" as never,
+  }), { status: 400 });
+  assert.equal(f.received(), undefined);
+  assert.equal(f.commits(), 0);
+});
 test("old quotes cannot revert a corrected confirmed answer", () => {
   const current = { ...empty(), budget: "£9000", provenance: { budget: { status: "confirmed" as const, evidence: "£9000" } } };
   const b = mergeBrief(current, result({ budget: { value: "£5000", status: "confirmed", evidence: "£5000" } }), ["£5000", "Actually £9000", "Show options"], "Show options");

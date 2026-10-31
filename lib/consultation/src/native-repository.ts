@@ -6,9 +6,11 @@ import type {
   Depth,
   FieldProvenance,
   SessionSummary,
+  SpecialistId,
 } from './types.ts';
 import { BRIEF_KEYS, EMPTY_FIELDS } from './types.ts';
 import { ConsultationError, manualBrief, mergeBrief } from './engine.ts';
+import { isSpecialistId, normalizeSpecialist } from './specialists.ts';
 
 const RECORD_PATH = 'private/syntra-consultation.json';
 const MAX_TURNS = 120;
@@ -17,6 +19,7 @@ const MAX_CONTEXT_CHARACTERS = 120000;
 interface PendingTurn {
   content: string;
   depth: Depth;
+  specialist?: SpecialistId;
   changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>;
   responseId?: string;
   createdAt: string;
@@ -28,6 +31,7 @@ interface SavedTurn {
   responseId: string;
   content: string;
   depth: Depth;
+  specialist?: SpecialistId;
   createdAt: string;
   reply: string;
 }
@@ -54,7 +58,7 @@ export interface SessionSnapshot {
   updatedAt: string;
   messageCount: number;
   brief: Brief;
-  turns: Array<{ requestId: string; responseId: string; depth: Depth; createdAt: string }>;
+  turns: Array<{ requestId: string; responseId: string; depth: Depth; createdAt: string; specialist?: SpecialistId }>;
 }
 
 const locks = new Map<string, Promise<void>>();
@@ -203,8 +207,10 @@ export class SyntraConsultationRepository {
     return this.getSnapshot();
   }
 
-  async beginTurn(id: number, requestId: string, content: string, depth: Depth) {
+  async beginTurn(id: number, requestId: string, content: string, depth: Depth, selectedSpecialist?: SpecialistId) {
     assertConversationId(id);
+    if (selectedSpecialist !== undefined && !isSpecialistId(selectedSpecialist)) throw new ConsultationError(400, 'Choose a valid consultation specialist.');
+    const specialist = normalizeSpecialist(selectedSpecialist);
     const text = content.trim();
     if (!text || text.length > 12000) {
       throw new ConsultationError(400, 'Messages must contain 1–12000 characters.');
@@ -217,20 +223,23 @@ export class SyntraConsultationRepository {
       const record = await this.#load();
       const completed = record.turns.find((turn) => turn.requestId === requestId);
       if (completed) {
-        if (completed.content !== text || completed.depth !== depth) {
+        if (completed.content !== text || completed.depth !== depth || normalizeSpecialist(completed.specialist) !== specialist) {
           throw new ConsultationError(409, 'This request ID was already used for another turn.');
         }
         return { status: 'completed' as const, responseId: completed.responseId };
       }
       const pending = record.pendingTurns[requestId];
       if (pending) {
-        if (pending.content !== text || pending.depth !== depth) {
+        if (pending.content !== text || pending.depth !== depth || normalizeSpecialist(pending.specialist) !== specialist) {
           throw new ConsultationError(409, 'This request ID was already used for another turn.');
         }
         return { status: 'pending' as const, responseId: pending.responseId };
       }
       if (Object.keys(record.pendingTurns).length) {
         throw new ConsultationError(409, 'A native consultation turn is already reserved. Resolve it in Agent controls before starting another.');
+      }
+      if (Object.keys(record.pendingVoice ?? {}).length) {
+        throw new ConsultationError(409, 'Your voice response is still finishing. Wait for it to complete, then retry this message. If it has stopped, resolve the turn in Agent controls.');
       }
 
       const historyCharacters = record.turns.reduce((sum, turn) => sum + turn.content.length + (turn.reply?.length ?? 0), 0)
@@ -249,6 +258,7 @@ export class SyntraConsultationRepository {
       record.pendingTurns[requestId] = {
         content: text,
         depth,
+        specialist,
         changes: {},
         createdAt: new Date().toISOString(),
         baseBrief: structuredClone(record.brief),
@@ -304,7 +314,7 @@ export class SyntraConsultationRepository {
       }
       pending.changes = { ...pending.changes, ...staged };
       await this.#save(record);
-      return { brief: candidate, stagedFields: Object.keys(staged), depth: pending.depth };
+      return { brief: candidate, stagedFields: Object.keys(staged), depth: pending.depth, specialist: normalizeSpecialist(pending.specialist) };
     });
   }
 
@@ -347,6 +357,7 @@ export class SyntraConsultationRepository {
         responseId,
         content: pending.content,
         depth: pending.depth,
+        specialist: normalizeSpecialist(pending.specialist),
         createdAt: pending.createdAt,
         reply,
       });
@@ -364,17 +375,24 @@ export class SyntraConsultationRepository {
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
       if (record.voiceTurnIds.includes(turnId)) return { brief: record.brief, depth: record.depth };
-      if (record.turns.length + record.voiceTurnIds.length >= MAX_TURNS ||
-          record.voiceMessages.reduce((n, text) => n + text.length, content.length) +
-          record.turns.reduce((n, turn) => n + turn.content.length + (turn.reply?.length ?? 0), 0) > MAX_CONTEXT_CHARACTERS) {
-        throw new ConsultationError(422, 'This consultation has reached its limit. Start a new native session.');
-      }
-      if (Object.keys(record.pendingVoice ?? {}).length >= MAX_TURNS && !record.pendingVoice?.[turnId]) {
-        throw new ConsultationError(422, 'Too many unfinished native voice turns.');
+      const prior = record.pendingVoice?.[turnId];
+      if (prior && prior.content !== content) throw new ConsultationError(409, 'This voice turn is already bound to another transcript.');
+      // Repeated tool calls belong to the existing reservation. Keep them resumable,
+      // including legacy records with overlapping drafts, but admit no fresh overlap.
+      if (!prior) {
+        if (Object.keys(record.pendingTurns).length) {
+          throw new ConsultationError(409, 'Your text response is still finishing. Wait for it to complete before continuing in voice. If it has stopped, resolve the turn in Agent controls.');
+        }
+        if (Object.keys(record.pendingVoice ?? {}).length) {
+          throw new ConsultationError(409, 'A voice response is still finishing. Wait for it to complete before starting another. If it has stopped, resolve the turn in Agent controls.');
+        }
+        if (record.turns.length + record.voiceTurnIds.length >= MAX_TURNS ||
+            record.voiceMessages.reduce((n, text) => n + text.length, content.length) +
+            record.turns.reduce((n, turn) => n + turn.content.length + (turn.reply?.length ?? 0), 0) > MAX_CONTEXT_CHARACTERS) {
+          throw new ConsultationError(422, 'This consultation has reached its limit. Start a new native session.');
+        }
       }
       record.pendingVoice ??= {};
-      const prior = record.pendingVoice[turnId];
-      if (prior && prior.content !== content) throw new ConsultationError(409, 'This voice turn is already bound to another transcript.');
       record.pendingVoice[turnId] = {
         content, changes: { ...prior?.changes, ...changes },
         baseBrief: prior?.baseBrief ?? structuredClone(record.brief),
@@ -439,7 +457,7 @@ export class SyntraConsultationRepository {
       updatedAt: record.updatedAt,
       messageCount: (record.turns.length + record.voiceTurnIds.length) * 2,
       brief: record.brief,
-      turns: record.turns.map(({ requestId, responseId, depth, createdAt }) => ({ requestId, responseId, depth, createdAt })),
+      turns: record.turns.map(({ requestId, responseId, depth, createdAt, specialist }) => ({ requestId, responseId, depth, createdAt, specialist: normalizeSpecialist(specialist) })),
     };
   }
 }

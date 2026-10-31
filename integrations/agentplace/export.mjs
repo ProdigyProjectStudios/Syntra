@@ -44,7 +44,7 @@ for (const host of ['agent-dev-client', 'agent-dev-server']) {
 const frontend = path.join(root, 'artifacts/digital-prodigy/src');
 for (const file of await files(frontend)) {
   const relative = path.relative(frontend, file);
-  if (['main.tsx', 'lib/runtime.ts', 'vite-env.d.ts'].includes(relative) || relative.startsWith('assets/')) continue;
+  if (['main.tsx', 'lib/runtime.ts', 'vite-env.d.ts'].includes(relative) || relative.startsWith('assets/') || relative.startsWith('lib/development-voice/')) continue;
   let content = await fs.readFile(file, 'utf8');
   if (/\.(tsx?|css)$/.test(file)) {
     const imported = specifier => {

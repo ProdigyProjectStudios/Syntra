@@ -1,5 +1,11 @@
 # Assessment conversion QA
 
+## Current milestone — 31 October 2026
+
+The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 105 passing consultation, native, handoff, controller, PCM and token-broker tests; full TypeScript/build; and 128 transfer checksums with 124 TS/TSX syntax files. The real external enquiry page was inspected, without submitting a message. The new speech transport and three-specialist interface have not yet passed rendered Replit or live microphone checks. See [Voice intelligence](VOICE-INTELLIGENCE.md) for the pending acceptance matrix.
+
+## Earlier Replit checkpoint
+
 Reviewed upstream feature/assessment-conversion at bf9a1f29122893cf21248585215d22943cb57472. The recent Replit mobile composer, welcome-screen and animation-budget refinements were retained rather than overwritten by the older GitHub baseline.
 
 ## Fixes

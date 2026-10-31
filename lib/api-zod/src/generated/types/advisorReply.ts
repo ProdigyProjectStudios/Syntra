@@ -7,8 +7,10 @@
  */
 import type { Brief } from './brief';
 import type { Message } from './message';
+import type { SpecialistId } from './specialistId';
 
 export interface AdvisorReply {
+  specialist?: SpecialistId;
   visitorMessage: Message;
   message: Message;
   brief: Brief;

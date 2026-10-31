@@ -1,7 +1,7 @@
 import { and, eq, desc, sql } from "drizzle-orm";
 import { db, conversationsTable as sessions, messagesTable as messages, briefsTable as briefs, turnsTable } from "@workspace/db";
 import {
-  BRIEF_KEYS, EMPTY_FIELDS, ConsultationError, manualBrief, mergeBrief,
+  BRIEF_KEYS, EMPTY_FIELDS, ConsultationError, manualBrief, mergeBrief, normalizeSpecialist,
   type Brief, type Conversation, type ConversationRepository, type Depth, type Message, type TurnReply,
 } from "@workspace/consultation";
 
@@ -57,7 +57,7 @@ export const repository: ConversationRepository = {
       const [receipt] = await tx.select().from(turnsTable).where(and(eq(turnsTable.conversationId, s.id), eq(turnsTable.requestId, input.requestId)));
       if (receipt) {
         const original = receipt.response as TurnReply;
-        if (original.visitorMessage.content !== input.content || original.visitorMessage.depth !== input.depth) throw new ConsultationError(409, "This request ID was already used for a different message.");
+        if (original.visitorMessage.content !== input.content || original.visitorMessage.depth !== input.depth || normalizeSpecialist(original.specialist) !== normalizeSpecialist(input.specialist)) throw new ConsultationError(409, "This request ID was already used for a different message or specialist.");
         const [latest] = await tx.select().from(briefs).where(eq(briefs.conversationId, s.id));
         return { ...original, brief: brief(latest) };
       }
@@ -75,7 +75,7 @@ export const repository: ConversationRepository = {
       const [advisor] = await tx.insert(messages).values({ conversationId: s.id, role: "advisor", content: result.reply, depth: input.depth }).returning();
       await tx.update(briefs).set(merged).where(eq(briefs.conversationId, s.id));
       await tx.update(sessions).set({ depth: input.depth, ...(result.title ? { title: result.title } : {}) }).where(eq(sessions.id, s.id));
-      const reply: TurnReply = { visitorMessage: message(visitor), message: message(advisor), brief: merged, suggestedNextSteps: result.suggestedNextSteps };
+      const reply: TurnReply = { visitorMessage: message(visitor), message: message(advisor), brief: merged, suggestedNextSteps: result.suggestedNextSteps, specialist: normalizeSpecialist(input.specialist) };
       await tx.insert(turnsTable).values({ conversationId: s.id, requestId: input.requestId, response: reply });
       return reply;
     });

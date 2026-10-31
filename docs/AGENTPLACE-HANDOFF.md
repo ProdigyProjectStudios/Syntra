@@ -17,6 +17,7 @@ Develop and verify the canonical UI here, push it to GitHub, then integrate the 
 ```sh
 pnpm install --frozen-lockfile
 pnpm test
+pnpm test:voice
 PORT=5173 BASE_PATH=/ pnpm build
 pnpm test:agentplace
 ```
@@ -31,7 +32,11 @@ AgentPlace retains its native Luna, bidirectional audio, permission handling, se
 
 Existing voice state events remain valid. A transport may additionally emit `state: thinking` while a real response is pending. Emit `listening`, `speaking`, `closed` or `error` when that state actually changes. The UI displays short progress labels; it does not expose private reasoning or delay an answer to imitate thinking.
 
-The requested Replit development experience is interruption-capable realtime speech with a natural female voice, using the existing consultation engine for intelligence. A separate speech-provider connection is required. Until that connection and adapter are implemented and verified, Replit voice remains explicitly unconnected; UI animation/status support alone is not operational voice. Never replace AgentPlace's working native voice with the development provider.
+The Replit development adapter now implements continuous Azure speech recognition and streamed PCM playback through the existing consultation engine. It remains disabled until both client/server configuration and real Speech credentials are supplied. See [Voice intelligence](VOICE-INTELLIGENCE.md) for setup and outstanding live checks. The exporter excludes `lib/development-voice/` and the Replit runtime composition; do not install Azure credentials or its SDK into AgentPlace for this transfer.
+
+Specialists are optional capabilities. The development adapter advertises three profiles and changes personality/voice within the same conversation. The native adapter forwards only capabilities the actual host advertises. Until a native hook implements safe profile changes and distinct voices, the native UI permits Syntra only. Do not label UI-only profile changes as a successful native specialist connection. The optional specialist field defaults to Syntra for historical requests and receipts.
+
+Voice errors distinguish retrying an uncertain original consultation turn from replaying an already-saved response. Preserve that distinction in any native integration; replaying audio must never resubmit the model turn. A finalized native transcript pair must share its response identity, as specified in the registration notes.
 
 ## Safety and acceptance
 

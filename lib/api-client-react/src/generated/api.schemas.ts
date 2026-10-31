@@ -120,7 +120,20 @@ export interface ConversationInput {
   depth: ResponseDepth;
 }
 
+/**
+ * Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.
+ */
+export type SpecialistId = typeof SpecialistId[keyof typeof SpecialistId];
+
+
+export const SpecialistId = {
+  syntra: 'syntra',
+  technical: 'technical',
+  automation: 'automation',
+} as const;
+
 export interface MessageInput {
+  specialist?: SpecialistId;
   requestId: string;
   /**
      * @minLength 1
@@ -131,6 +144,7 @@ export interface MessageInput {
 }
 
 export interface AdvisorReply {
+  specialist?: SpecialistId;
   visitorMessage: Message;
   message: Message;
   brief: Brief;

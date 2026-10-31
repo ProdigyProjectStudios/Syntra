@@ -31,6 +31,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Consultation regression tests
         run: pnpm test
+      - name: Development audio and authorization regressions
+        run: pnpm test:voice
       - name: TypeScript
         run: pnpm run typecheck
       - name: AgentPlace transfer validation

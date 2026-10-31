@@ -159,6 +159,7 @@ export const sendMessageBodyContentMax = 12000;
 
 
 export const SendMessageBody = zod.object({
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).optional().describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
   "requestId": zod.string().uuid(),
   "content": zod.string().min(1).max(sendMessageBodyContentMax),
   "depth": zod.enum(['concise', 'detailed', 'deep_dive'])
@@ -169,6 +170,7 @@ export const sendMessageResponseBriefRevisionMin = 0;
 
 
 export const SendMessageResponse = zod.object({
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).optional().describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
   "visitorMessage": zod.object({
   "id": zod.number().int(),
   "role": zod.enum(['visitor', 'advisor']),
@@ -277,8 +279,9 @@ export const UpdateBriefResponse = zod.object({
 
 
 /**
- * Provisions a real-time voice session for hands-free conversation with the advisor
- * @summary Provision a voice session
+ * Legacy compatibility endpoint; it does not create a working audio connection. Native AgentPlace owns provisioning. The optional Replit speech adapter uses /voice/token after consultation ownership checks.
+ * @deprecated
+ * @summary Legacy native voice provisioning status
  */
 export const CreateVoiceSessionBody = zod.object({
   "conversationId": zod.number().int()

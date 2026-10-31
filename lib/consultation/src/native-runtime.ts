@@ -1,4 +1,5 @@
-import type { Brief, BriefFields, ConsultationRuntime, Conversation, Depth, Message, ServiceArea, SessionSummary, TurnInput, VoiceAdapter, BookingAdapter } from "./types.ts";
+import type { Brief, BriefFields, ConsultationRuntime, Conversation, Depth, Message, ServiceArea, SessionSummary, SpecialistId, TurnInput, VoiceAdapter, BookingAdapter } from "./types.ts";
+import { normalizeSpecialist } from "./specialists.ts";
 
 /** Native infrastructure is injected. No SDK, transport, storage or model is owned here. */
 export interface NativePorts {
@@ -24,7 +25,7 @@ export interface NativePorts {
   };
   messaging: {
     busy(): boolean;
-    send(content: string, metadata: { syntraDepth: Depth; syntraRequestId: string }, admitted: (responseId: string) => void): Promise<void>;
+    send(content: string, metadata: { syntraDepth: Depth; syntraRequestId: string; syntraSpecialist?: SpecialistId }, admitted: (responseId: string) => void): Promise<void>;
     /** Read the single canonical persisted pair; never fabricate IDs or append a voice transcript. */
     pair(responseId: string, depth: Depth): { visitorMessage: Message; message: Message } | null;
   };
@@ -71,12 +72,13 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
     },
     voice: {
       available: ports.voice.available,
-      async connect(id, onEvent, signal) {
+      ...(ports.voice.specialists ? { specialists: ports.voice.specialists } : {}),
+      async connect(id, onEvent, signal, options) {
         assertScope();
         if (signal.aborted) throw new Error("Voice connection canceled.");
         const connection = await ports.voice.connect(id, event => {
           if (!signal.aborted && ports.currentScope() === ports.scope) onEvent(event);
-        }, signal);
+        }, signal, options);
         if (signal.aborted || ports.currentScope() !== ports.scope) {
           await connection.close();
           throw new Error("Voice connection canceled.");
@@ -87,6 +89,7 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
     messages: {
       async send(id, input) {
         assertScope();
+        const specialist = normalizeSpecialist(input.specialist);
         if (sending) throw new Error("A consultation response is already in progress.");
         sending = true;
         try {
@@ -97,7 +100,7 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
             // A durable reservation is returned only once. Lost/uncertain admissions never resend.
             let attached: Promise<void> | undefined;
             await scoped(() => ports.messaging.send(input.content, {
-              syntraDepth: input.depth, syntraRequestId: input.requestId,
+              syntraDepth: input.depth, syntraRequestId: input.requestId, syntraSpecialist: specialist,
             }, nativeId => {
               responseId = nativeId;
               attached = scoped(() => ports.turns.attach(input.requestId, nativeId));
@@ -111,7 +114,7 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
           const pair = ports.messaging.pair(responseId, input.depth);
           if (!pair) throw new Error("The native transcript is still settling. Retry to reload this completed turn, not resend it.");
           assertScope();
-          return { ...pair, brief, suggestedNextSteps: [] };
+          return { ...pair, brief, suggestedNextSteps: [], specialist };
         } finally { sending = false; }
       },
     },

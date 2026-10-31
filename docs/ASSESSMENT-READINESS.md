@@ -12,10 +12,18 @@ Baseline: `feature/assessment-conversion` at `dd977aa9894da38234dca25b1cf74b5294
 
 ## Validation for this checkpoint
 
-- 63 domain/runtime regression tests passed (26 consultation, 23 native, 14 handoff).
+- 105 regression tests passed: 30 consultation, 30 native, 14 handoff, 18 voice-controller, 6 PCM player and 7 speech-token broker.
 - Full workspace TypeScript checks and production builds passed.
-- Deterministic transfer: 123 checksums, 119 TS/TSX syntax files and scoped CSS compilation passed. Exported tests were executed; native SDK typing and real audio are separate gates.
+- Deterministic transfer: 128 checksums, 124 TS/TSX syntax files and scoped CSS compilation passed. Exported tests were executed; native SDK typing and real audio are separate gates.
 - All three engineering roles reviewed the same changes. Existing working branches and the native runtime are preserved.
+
+## Voice and specialist implementation
+
+The replaceable development adapter implements continuous recognition, finalized-turn coalescing, streaming PCM audio, immediate local playback cancellation, live captions, genuine input/output amplitude, microphone mute/cleanup and explicit recovery, including empty audio streams. Uncertain requests retain their original ID, depth and specialist; replaying saved audio does not rerun the model. Long-lived subscription keys remain on the development server and the adapter is excluded from the native transfer.
+
+The voice-only selector contains Syntra, Caelis (technical) and Veyra (automation), with distinct adult British female Azure profiles. Caelis and Veyra are provisional identities. They share one consultation model, canonical conversation and editable brief. Switching is blocked during an unfinished or uncertain turn; switching during playback first stops owned audio. Native specialist controls require real host support and are disabled otherwise.
+
+This is implemented source, not a live audio certification. Model output currently completes before speech synthesis begins. No Azure latency, subjective quality, speaker echo, mobile microphone or token-renewal measurement is claimed. Setup, provider evidence and the exact live checks are in [Voice intelligence](VOICE-INTELLIGENCE.md).
 
 ## Remaining release gates
 
@@ -25,4 +33,4 @@ Baseline: `feature/assessment-conversion` at `dd977aa9894da38234dca25b1cf74b5294
 4. Run native consultation, depth/persistence, actual microphone, spoken response, interruption and reconnect tests.
 5. Verify the external enquiry handoff, then publish and test the public URL without sign-in. The official assessment is at <https://agentplace.io/careers/ai-agent-builder>.
 
-The available browser reaches AgentPlace's sign-in screen, so native integration and publication are not claimed. The original assessment requires a publicly published AgentPlace agent using free Luna; a passing Replit build or a generated transfer is not completion of that requirement.
+The available browser reaches AgentPlace's sign-in screen and Replit's public landing page. It cannot reach the separate local preview server. This workspace has no live development model/database or Azure Speech credentials. Consequently, no new rendered Replit pass, real audio session, native integration, successful enquiry delivery or publication is claimed. The original assessment requires a publicly published AgentPlace agent using free Luna; a passing build or generated transfer is not completion of that requirement.

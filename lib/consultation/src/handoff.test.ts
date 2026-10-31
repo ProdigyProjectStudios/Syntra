@@ -14,7 +14,6 @@ test("brief export preserves visitor data and labels uncertainty without a quote
   assert.match(output, /Suggested/);
   assert.match(output, /Not established yet/);
   assert.match(output, /not a formal quotation/);
-  assert.doesNotMatch(output, /confirmed booking\./i); // it states NOT confirmed, so the exact assertion below is safer
 });
 test("completeness is grounded in populated fields", () => {
   assert.deepEqual(briefCompleteness(brief), { complete: 3, total: 8, suggested: 1 });

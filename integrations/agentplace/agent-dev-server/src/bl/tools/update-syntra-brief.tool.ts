@@ -5,13 +5,13 @@ import {
   type AgentState,
   type ToolExecuteContext,
   type ToolExecuteResult,
-} from '../../agent/agent-library.ts';
-import { getRequestMetadata, getSessionKey, getUserQuery, type DevServerAppState } from '../../agent/agent-state.ts';
-import type { AgentStorageFactoryService } from '../../../services/agent-storage-factory.service.ts';
-import { BRIEF_KEYS } from '../../syntra/consultation-types.ts';
-import type { BriefChange, BriefKey, Depth } from '../../syntra/consultation-types.ts';
-import { DEPTH_GUIDANCE } from '../../syntra/consultation-engine.ts';
-import { SyntraConsultationRepository } from '../../syntra/consultation-repository.ts';
+} from '../agent/agent-library.ts';
+import { getRequestMetadata, getSessionKey, getUserQuery, type DevServerAppState } from '../agent/agent-state.ts';
+import type { AgentStorageFactoryService } from '../../services/agent-storage-factory.service.ts';
+import { BRIEF_KEYS } from '../syntra/consultation-types.ts';
+import type { BriefChange, BriefKey, Depth } from '../syntra/consultation-types.ts';
+import { DEPTH_GUIDANCE } from '../syntra/consultation-engine.ts';
+import { SyntraConsultationRepository } from '../syntra/consultation-repository.ts';
 
 const changeSchema = z.object({
   value: z.string().max(4000).nullable(),

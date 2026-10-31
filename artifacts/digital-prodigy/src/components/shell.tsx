@@ -71,7 +71,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
           })}
         </nav>
         <div className="mt-auto flex flex-col gap-2">
-          <RailButton label="New session" testId="button-new-conversation" onClick={() => setConversationId(null)}><Plus className="h-[18px] w-[18px]" strokeWidth={1.6} /></RailButton>
+          <RailButton label={sending ? "Wait for the current reply" : "New session"} testId="button-new-conversation" onClick={() => setConversationId(null)}><Plus className="h-[18px] w-[18px]" strokeWidth={1.6} /></RailButton>
           <RailButton label="Sessions" testId="button-open-history-rail" onClick={() => setHist(true)}><History className="h-[18px] w-[18px]" strokeWidth={1.6} /></RailButton>
         </div>
       </aside>

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RotateCw } from 'lucide-react';
-import { useCreateVoiceSession } from '@workspace/api-client-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { getGetConversationQueryKey, getGetBriefQueryKey } from '@workspace/api-client-react';
+import type { VoiceConnection, VoiceEvent } from '@workspace/consultation';
+import { runtime } from '@/lib/runtime';
 import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
 
@@ -42,9 +45,9 @@ function useSimulatedVoice(active: boolean, amplitude: MutableRefObject<number>)
 export const OPEN_VOICE_EVENT = 'dp:open-voice';
 
 const LINES = [
-  'Channel open. I can hear the shape of your idea.',
-  'Tell me who it is for, and what changes for them.',
-  'I will keep the brief updated as we talk.',
+  'Voice animation preview only.',
+  'No microphone or audio channel is connected here.',
+  'Continue in chat while native voice is connected in AgentPlace.',
 ];
 
 function SpokenLine({ text }: { text: string }) {
@@ -67,32 +70,59 @@ function SpokenLine({ text }: { text: string }) {
 }
 
 export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { ensureConversation } = useAdvisor();
-  const voice = useCreateVoiceSession();
-  const mutateRef = useRef(voice.mutate);
-  mutateRef.current = voice.mutate;
-  const resetRef = useRef(voice.reset);
-  resetRef.current = voice.reset;
+  const { ensureConversation, conversationId } = useAdvisor();
+  const qc = useQueryClient();
   const [boot, setBoot] = useState<string | null>(null);
+  const [nativeState, setNativeState] = useState<CoreState>('connecting');
+  const [transcript, setTranscript] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const amplitude = useRef(0);
   const [line, setLine] = useState(-1);
   const [size, setSize] = useState(640);
 
-  const provision = async () => {
-    setBoot(null);
-    resetRef.current();
-    try {
-      const id = await ensureConversation();
-      mutateRef.current({ data: { conversationId: id } });
-    } catch {
-      setBoot('Could not open a conversation for voice.');
-    }
-  };
+  const provision = () => setAttempt(n => n + 1);
 
   useEffect(() => {
-    if (open) { setLine(-1); provision(); }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+    if (!open) return;
+    setLine(-1); setBoot(null); setTranscript(''); setNativeState('connecting');
+    if (!runtime.voice.available) return;
+    const controller = new AbortController();
+    let connection: VoiceConnection | undefined;
+    let voiceConversationId = conversationId;
+    const handleEvent = (event: VoiceEvent) => {
+      if (controller.signal.aborted) return;
+      switch (event.type) {
+        case 'amplitude': amplitude.current = Math.max(0, Math.min(1, event.value)); break;
+        case 'state':
+          amplitude.current = 0;
+          setNativeState(event.state === 'speaking' ? 'speaking' : event.state === 'connecting' ? 'connecting' : event.state === 'closed' ? 'error' : 'idle');
+          if (event.state === 'closed') setBoot('Voice connection closed. Reconnect when ready.');
+          break;
+        case 'transcript': setTranscript(event.text); break;
+        case 'conversation-updated':
+          void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId ?? 0) });
+          void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId ?? 0) });
+          break;
+        case 'error': setBoot(event.message); setNativeState('error'); amplitude.current = 0; break;
+      }
+    };
+    void (async () => {
+      try {
+        const id = await ensureConversation();
+        voiceConversationId = id;
+        if (controller.signal.aborted) return;
+        const connected = await runtime.voice.connect(id, handleEvent, controller.signal);
+        if (controller.signal.aborted) await connected.close();
+        else connection = connected;
+      } catch (error) {
+        if (!controller.signal.aborted) { setBoot(error instanceof Error ? error.message : 'Voice connection failed.'); setNativeState('error'); }
+      }
+    })();
+    return () => {
+      controller.abort(); amplitude.current = 0;
+      if (connection) void Promise.resolve(connection.close()).catch(() => {});
+    };
+  }, [open, attempt, ensureConversation, qc]);
 
   useEffect(() => {
     const f = () => setSize(Math.round(Math.min(window.innerWidth * 0.92, window.innerHeight * 0.56, 560)));
@@ -108,16 +138,16 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
     return () => window.removeEventListener('keydown', k);
   }, [open, onClose]);
 
-  const session = voice.data;
-  const failed = voice.isError || !!boot;
-  const speaking = useSimulatedVoice(open && !!session && !failed, amplitude);
+  const failed = !!boot;
+  const demoSpeaking = useSimulatedVoice(open && !runtime.voice.available && !failed, amplitude);
+  const speaking = runtime.voice.available ? nativeState === 'speaking' : demoSpeaking;
 
   useEffect(() => {
     if (speaking) setLine((l) => (l + 1) % LINES.length);
   }, [speaking]);
 
-  const state: CoreState = failed ? 'error' : !session ? 'connecting' : speaking ? 'speaking' : 'idle';
-  const label = { connecting: 'Waking', idle: 'Listening', speaking: 'Speaking', error: 'Offline' }[state];
+  const state: CoreState = failed ? 'error' : runtime.voice.available ? nativeState : speaking ? 'speaking' : 'idle';
+  const label = !runtime.voice.available ? 'Preview · voice not connected' : { connecting: 'Waking', idle: 'Listening', speaking: 'Speaking', error: 'Offline' }[state];
 
   return (
     <AnimatePresence>
@@ -174,11 +204,11 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, filter: 'blur(6px)', transition: { duration: 0.5 } }}
               >
-                {state === 'speaking' && line >= 0 ? (
+                {runtime.voice.available && transcript ? <SpokenLine text={transcript} /> : !runtime.voice.available && state === 'speaking' && line >= 0 ? (
                   <SpokenLine text={LINES[line]} />
                 ) : (
                   <p className={cn('font-mono text-[11px] uppercase tracking-[0.45em]', state === 'error' ? 'text-rose-300/70' : 'text-white/35')}>
-                    {state === 'connecting' ? 'Waking the advisor' : state === 'error' ? (boot ?? 'Voice channel unavailable') : 'Go ahead, I am listening'}
+                    {!runtime.voice.available ? 'Animation preview · microphone not connected' : state === 'connecting' ? 'Waking the advisor' : state === 'error' ? (boot ?? 'Voice channel unavailable') : 'Go ahead, I am listening'}
                   </p>
                 )}
               </motion.div>
@@ -196,9 +226,9 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
               <span className="h-1.5 w-1.5 rounded-full bg-rose-400/70 transition group-hover:bg-rose-400" /> End conversation
             </button>
           </div>
-          {session && (
+          {open && (
             <div className="absolute bottom-3 left-0 right-0 z-10 text-center font-mono text-[9px] uppercase tracking-[0.3em] text-white/20" data-testid="status-voice-session">
-              {session.status} / {session.transport}
+              {runtime.voice.available ? 'Native host voice' : 'Demo only / no audio transport'}
             </div>
           )}
         </motion.div>

@@ -5,8 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { BriefProvenance } from './briefProvenance';
 
 export interface Brief {
+  /** @minimum 0 */
+  revision: number;
+  provenance: BriefProvenance;
   /** @nullable */
   objective: string | null;
   /** @nullable */

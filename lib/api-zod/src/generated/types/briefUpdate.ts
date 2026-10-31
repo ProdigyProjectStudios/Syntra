@@ -7,6 +7,8 @@
  */
 
 export interface BriefUpdate {
+  /** @minimum 0 */
+  revision: number;
   /** @nullable */
   objective?: string | null;
   /** @nullable */

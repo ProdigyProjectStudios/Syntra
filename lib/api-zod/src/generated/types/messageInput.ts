@@ -8,7 +8,11 @@
 import type { ResponseDepth } from './responseDepth';
 
 export interface MessageInput {
-  /** @minLength 1 */
+  requestId: string;
+  /**
+     * @minLength 1
+     * @maxLength 12000
+     */
   content: string;
   depth: ResponseDepth;
 }

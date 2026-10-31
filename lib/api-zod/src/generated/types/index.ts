@@ -8,12 +8,15 @@
 
 export * from './advisorReply';
 export * from './brief';
+export * from './briefProvenance';
 export * from './briefUpdate';
 export * from './contactOption';
 export * from './contactOptionKind';
 export * from './conversation';
 export * from './conversationInput';
 export * from './conversationSummary';
+export * from './fieldProvenance';
+export * from './fieldProvenanceStatus';
 export * from './healthStatus';
 export * from './message';
 export * from './messageInput';

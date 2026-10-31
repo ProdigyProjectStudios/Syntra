@@ -68,6 +68,10 @@ export const CreateConversationBody = zod.object({
   "depth": zod.enum(['concise', 'detailed', 'deep_dive'])
 })
 
+export const createConversationResponseBriefRevisionMin = 0;
+
+
+
 export const CreateConversationResponse = zod.object({
   "id": zod.number().int(),
   "title": zod.string(),
@@ -82,6 +86,11 @@ export const CreateConversationResponse = zod.object({
   "createdAt": zod.coerce.date()
 })),
   "brief": zod.object({
+  "revision": zod.number().int().min(createConversationResponseBriefRevisionMin),
+  "provenance": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['confirmed', 'suggested', 'manual']),
+  "evidence": zod.string()
+})),
   "objective": zod.string().nullable(),
   "service": zod.string().nullable(),
   "proposedSolution": zod.string().nullable(),
@@ -102,6 +111,10 @@ export const GetConversationParams = zod.object({
   "id": zod.coerce.number().int()
 })
 
+export const getConversationResponseBriefRevisionMin = 0;
+
+
+
 export const GetConversationResponse = zod.object({
   "id": zod.number().int(),
   "title": zod.string(),
@@ -116,6 +129,11 @@ export const GetConversationResponse = zod.object({
   "createdAt": zod.coerce.date()
 })),
   "brief": zod.object({
+  "revision": zod.number().int().min(getConversationResponseBriefRevisionMin),
+  "provenance": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['confirmed', 'suggested', 'manual']),
+  "evidence": zod.string()
+})),
   "objective": zod.string().nullable(),
   "service": zod.string().nullable(),
   "proposedSolution": zod.string().nullable(),
@@ -136,15 +154,28 @@ export const SendMessageParams = zod.object({
   "id": zod.coerce.number().int()
 })
 
+export const sendMessageBodyContentMax = 12000;
 
 
 
 export const SendMessageBody = zod.object({
-  "content": zod.string().min(1),
+  "requestId": zod.string().uuid(),
+  "content": zod.string().min(1).max(sendMessageBodyContentMax),
   "depth": zod.enum(['concise', 'detailed', 'deep_dive'])
 })
 
+export const sendMessageResponseBriefRevisionMin = 0;
+
+
+
 export const SendMessageResponse = zod.object({
+  "visitorMessage": zod.object({
+  "id": zod.number().int(),
+  "role": zod.enum(['visitor', 'advisor']),
+  "content": zod.string(),
+  "depth": zod.enum(['concise', 'detailed', 'deep_dive']),
+  "createdAt": zod.coerce.date()
+}),
   "message": zod.object({
   "id": zod.number().int(),
   "role": zod.enum(['visitor', 'advisor']),
@@ -153,6 +184,11 @@ export const SendMessageResponse = zod.object({
   "createdAt": zod.coerce.date()
 }),
   "brief": zod.object({
+  "revision": zod.number().int().min(sendMessageResponseBriefRevisionMin),
+  "provenance": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['confirmed', 'suggested', 'manual']),
+  "evidence": zod.string()
+})),
   "objective": zod.string().nullable(),
   "service": zod.string().nullable(),
   "proposedSolution": zod.string().nullable(),
@@ -174,7 +210,16 @@ export const GetBriefParams = zod.object({
   "id": zod.coerce.number().int()
 })
 
+export const getBriefResponseRevisionMin = 0;
+
+
+
 export const GetBriefResponse = zod.object({
+  "revision": zod.number().int().min(getBriefResponseRevisionMin),
+  "provenance": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['confirmed', 'suggested', 'manual']),
+  "evidence": zod.string()
+})),
   "objective": zod.string().nullable(),
   "service": zod.string().nullable(),
   "proposedSolution": zod.string().nullable(),
@@ -194,7 +239,12 @@ export const UpdateBriefParams = zod.object({
   "id": zod.coerce.number().int()
 })
 
+export const updateBriefBodyRevisionMin = 0;
+
+
+
 export const UpdateBriefBody = zod.object({
+  "revision": zod.number().int().min(updateBriefBodyRevisionMin),
   "objective": zod.string().nullish(),
   "service": zod.string().nullish(),
   "proposedSolution": zod.string().nullish(),
@@ -205,7 +255,16 @@ export const UpdateBriefBody = zod.object({
   "nextStep": zod.string().nullish()
 })
 
+export const updateBriefResponseRevisionMin = 0;
+
+
+
 export const UpdateBriefResponse = zod.object({
+  "revision": zod.number().int().min(updateBriefResponseRevisionMin),
+  "provenance": zod.record(zod.string(), zod.object({
+  "status": zod.enum(['confirmed', 'suggested', 'manual']),
+  "evidence": zod.string()
+})),
   "objective": zod.string().nullable(),
   "service": zod.string().nullable(),
   "proposedSolution": zod.string().nullable(),
@@ -227,7 +286,7 @@ export const CreateVoiceSessionBody = zod.object({
 
 export const CreateVoiceSessionResponse = zod.object({
   "id": zod.string(),
-  "status": zod.enum(['provisioned']),
+  "status": zod.enum(['unavailable']),
   "conversationId": zod.number().int(),
   "transport": zod.string(),
   "detail": zod.string()

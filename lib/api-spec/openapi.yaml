@@ -352,18 +352,25 @@ components:
     MessageInput:
       type: object
       properties:
+        requestId:
+          type: string
+          format: uuid
         content:
           type: string
           minLength: 1
+          maxLength: 12000
         depth:
           $ref: "#/components/schemas/ResponseDepth"
       required:
+        - requestId
         - content
         - depth
 
     AdvisorReply:
       type: object
       properties:
+        visitorMessage:
+          $ref: "#/components/schemas/Message"
         message:
           $ref: "#/components/schemas/Message"
         brief:
@@ -373,6 +380,7 @@ components:
           items:
             type: string
       required:
+        - visitorMessage
         - message
         - brief
         - suggestedNextSteps
@@ -384,6 +392,13 @@ components:
     Brief:
       type: object
       properties:
+        revision:
+          type: integer
+          minimum: 0
+        provenance:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FieldProvenance"
         objective:
           type: ["string", "null"]
         service:
@@ -401,6 +416,8 @@ components:
         nextStep:
           type: ["string", "null"]
       required:
+        - revision
+        - provenance
         - objective
         - service
         - proposedSolution
@@ -413,6 +430,9 @@ components:
     BriefUpdate:
       type: object
       properties:
+        revision:
+          type: integer
+          minimum: 0
         objective:
           type: ["string", "null"]
         service:
@@ -429,6 +449,18 @@ components:
           type: ["string", "null"]
         nextStep:
           type: ["string", "null"]
+      required:
+        - revision
+
+    FieldProvenance:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [confirmed, suggested, manual]
+        evidence:
+          type: string
+      required: [status, evidence]
 
     VoiceSessionInput:
       type: object
@@ -445,7 +477,7 @@ components:
           type: string
         status:
           type: string
-          enum: [provisioned]
+          enum: [unavailable]
         conversationId:
           type: integer
         transport:

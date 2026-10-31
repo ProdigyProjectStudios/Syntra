@@ -1,321 +1,86 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, sql } from "drizzle-orm";
-import { db, conversationsTable, messagesTable, briefsTable } from "@workspace/db";
 import {
-  ListServicesResponse,
-  ListContactOptionsResponse,
-  ListConversationsResponse,
-  CreateConversationBody,
-  CreateConversationResponse,
-  GetConversationParams,
-  GetConversationResponse,
-  SendMessageParams,
-  SendMessageBody,
-  SendMessageResponse,
-  GetBriefParams,
-  GetBriefResponse,
-  UpdateBriefParams,
-  UpdateBriefBody,
-  UpdateBriefResponse,
-  CreateVoiceSessionBody,
-  CreateVoiceSessionResponse,
+  ListServicesResponse, ListContactOptionsResponse, ListConversationsResponse,
+  CreateConversationBody, CreateConversationResponse, GetConversationParams, GetConversationResponse,
+  SendMessageParams, SendMessageBody, SendMessageResponse, GetBriefParams, GetBriefResponse,
+  UpdateBriefParams, UpdateBriefBody, UpdateBriefResponse, CreateVoiceSessionBody, CreateVoiceSessionResponse,
 } from "@workspace/api-zod";
+import { BRIEF_KEYS, ConsultationError, ConsultationService, type BriefFields } from "@workspace/consultation";
 import { SERVICE_AREAS, CONTACT_OPTIONS } from "../lib/advisor-data";
-import { runAdvisor, type BriefFields, type Depth } from "../lib/advisor-ai";
+import { replitAI } from "../lib/advisor-ai";
+import { repository } from "../lib/consultation-repository";
+import { privateSession } from "../middlewares/privacy";
 
 const router: IRouter = Router();
-
-const EMPTY_BRIEF: BriefFields = {
-  objective: null,
-  service: null,
-  proposedSolution: null,
-  requirements: null,
-  integrations: null,
-  budget: null,
-  timeline: null,
-  nextStep: null,
-};
-
-const OPENING_MESSAGE =
-  "Welcome to Digital Prodigy. I can help you work out what to build, which service direction fits, and what a useful first release might include. You can describe the problem in your own words — you don't need a polished spec or budget to start. What are you hoping to make easier or possible?";
-
-type BriefRowShape = typeof briefsTable.$inferSelect;
-
-function briefToFields(brief: BriefRowShape | undefined): BriefFields {
-  if (!brief) return { ...EMPTY_BRIEF };
-  return {
-    objective: brief.objective,
-    service: brief.service,
-    proposedSolution: brief.proposedSolution,
-    requirements: brief.requirements,
-    integrations: brief.integrations,
-    budget: brief.budget,
-    timeline: brief.timeline,
-    nextStep: brief.nextStep,
-  };
-}
-
-async function loadConversation(id: number) {
-  const [conversation] = await db
-    .select()
-    .from(conversationsTable)
-    .where(eq(conversationsTable.id, id));
-  if (!conversation) return null;
-
-  const messages = await db
-    .select()
-    .from(messagesTable)
-    .where(eq(messagesTable.conversationId, id))
-    .orderBy(messagesTable.createdAt, messagesTable.id);
-
-  const [brief] = await db
-    .select()
-    .from(briefsTable)
-    .where(eq(briefsTable.conversationId, id));
-
-  return { conversation, messages, brief };
-}
-
-router.get("/services", async (_req, res): Promise<void> => {
-  res.json(ListServicesResponse.parse(SERVICE_AREAS));
+const service = new ConsultationService(repository, replitAI);
+router.get("/services", (_req, res) => { res.json(ListServicesResponse.parse(SERVICE_AREAS)); });
+router.get("/contact-options", (_req, res) => { res.json(ListContactOptionsResponse.parse(CONTACT_OPTIONS)); });
+router.use(privateSession);
+router.get("/conversations", async (_req, res) => {
+  res.json(ListConversationsResponse.parse(await repository.list(res.locals.owner)));
+});
+router.post("/conversations", async (req, res) => {
+  const input = CreateConversationBody.safeParse(req.body);
+  if (!input.success) { res.status(400).json({ error: "Choose a valid response depth." }); return; }
+  res.status(201).json(CreateConversationResponse.parse(await repository.create(res.locals.owner, input.data.depth)));
+});
+router.get("/conversations/:id", async (req, res) => {
+  const { id } = GetConversationParams.parse(req.params);
+  const conversation = await repository.get(res.locals.owner, id);
+  if (!conversation) throw new ConsultationError(404, "Conversation not found");
+  res.json(GetConversationResponse.parse(conversation));
 });
 
-router.get("/contact-options", async (_req, res): Promise<void> => {
-  res.json(ListContactOptionsResponse.parse(CONTACT_OPTIONS));
+// Bound costly model work; database locking additionally protects against multiple server instances.
+const busy = new Set<string>();
+const rate = new Map<string, { count: number; until: number }>();
+router.post("/conversations/:id/messages", async (req, res) => {
+  const { id } = SendMessageParams.parse(req.params);
+  const input = SendMessageBody.safeParse(req.body);
+  if (!input.success || !input.data.content.trim()) { res.status(400).json({ error: "Provide a message, a response depth and a valid request ID." }); return; }
+  const owner = res.locals.owner as string;
+  const key = `${owner}:${id}`;
+  if (busy.has(key)) throw new ConsultationError(409, "A response is already being prepared for this session.");
+  const replay = await repository.replay(owner, id, input.data.requestId);
+  if (replay) {
+    if (replay.visitorMessage.content !== input.data.content || replay.visitorMessage.depth !== input.data.depth) throw new ConsultationError(409, "This request ID was already used for a different message.");
+    res.json(SendMessageResponse.parse(replay)); return;
+  }
+  const now = Date.now();
+  for (const [k, r] of rate) if (r.until < now) rate.delete(k);
+  const limit = rate.get(owner) ?? { count: 0, until: now + 60000 };
+  if (limit.count >= 12) { res.setHeader("Retry-After", "60"); throw new ConsultationError(429, "Please wait a minute before sending more messages."); }
+  rate.set(owner, { ...limit, count: limit.count + 1 });
+  busy.add(key);
+  try {
+    res.json(SendMessageResponse.parse(await service.send(owner, id, input.data)));
+  } finally { busy.delete(key); }
 });
-
-router.get("/conversations", async (_req, res): Promise<void> => {
-  const rows = await db
-    .select({
-      id: conversationsTable.id,
-      title: conversationsTable.title,
-      depth: conversationsTable.depth,
-      createdAt: conversationsTable.createdAt,
-      updatedAt: conversationsTable.updatedAt,
-      messageCount: sql<number>`(select count(*)::int from ${messagesTable} where ${messagesTable.conversationId} = ${conversationsTable.id})`,
-    })
-    .from(conversationsTable)
-    .orderBy(desc(conversationsTable.updatedAt));
-
-  res.json(ListConversationsResponse.parse(rows));
+router.get("/conversations/:id/brief", async (req, res) => {
+  const { id } = GetBriefParams.parse(req.params);
+  const conversation = await repository.get(res.locals.owner, id);
+  if (!conversation) throw new ConsultationError(404, "Conversation not found");
+  res.json(GetBriefResponse.parse(conversation.brief));
 });
-
-router.post("/conversations", async (req, res): Promise<void> => {
-  const parsed = CreateConversationBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
+router.patch("/conversations/:id/brief", async (req, res) => {
+  const { id } = UpdateBriefParams.parse(req.params);
+  const input = UpdateBriefBody.safeParse(req.body);
+  if (!input.success) { res.status(400).json({ error: "A brief revision and valid fields are required." }); return; }
+  const changes: Partial<BriefFields> = {};
+  for (const key of BRIEF_KEYS) {
+    const value = input.data[key];
+    if (typeof value === "string" && value.length > 4000) throw new ConsultationError(400, "Brief fields must be at most 4000 characters.");
+    if (value !== undefined) changes[key] = value;
   }
-
-  const [conversation] = await db
-    .insert(conversationsTable)
-    .values({ depth: parsed.data.depth })
-    .returning();
-
-  await db.insert(briefsTable).values({ conversationId: conversation.id });
-
-  const [opening] = await db
-    .insert(messagesTable)
-    .values({
-      conversationId: conversation.id,
-      role: "advisor",
-      content: OPENING_MESSAGE,
-      depth: parsed.data.depth,
-    })
-    .returning();
-
-  res.status(201).json(
-    CreateConversationResponse.parse({
-      ...conversation,
-      messages: [opening],
-      brief: { ...EMPTY_BRIEF },
-    }),
-  );
+  if (!Object.keys(changes).length) throw new ConsultationError(400, "No brief fields supplied.");
+  res.json(UpdateBriefResponse.parse(await repository.editBrief(res.locals.owner, id, changes, input.data.revision)));
 });
-
-router.get("/conversations/:id", async (req, res): Promise<void> => {
-  const params = GetConversationParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const loaded = await loadConversation(params.data.id);
-  if (!loaded) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-
-  res.json(
-    GetConversationResponse.parse({
-      ...loaded.conversation,
-      messages: loaded.messages,
-      brief: briefToFields(loaded.brief),
-    }),
-  );
-});
-
-router.post("/conversations/:id/messages", async (req, res): Promise<void> => {
-  const params = SendMessageParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const parsed = SendMessageBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const loaded = await loadConversation(params.data.id);
-  if (!loaded) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-
-  const history = loaded.messages.map((m) => ({
-    role: m.role as "visitor" | "advisor",
-    content: m.content,
+router.post("/voice/sessions", async (req, res) => {
+  const { conversationId } = CreateVoiceSessionBody.parse(req.body);
+  if (!await repository.get(res.locals.owner, conversationId)) throw new ConsultationError(404, "Conversation not found");
+  res.json(CreateVoiceSessionResponse.parse({
+    id: "unavailable", conversationId, status: "unavailable", transport: "none",
+    detail: "Realtime voice is not connected in this development runtime. AgentPlace must supply its native voice adapter.",
   }));
-  const isFirstMessage = !loaded.messages.some((m) => m.role === "visitor");
-
-  await db.insert(messagesTable).values({
-    conversationId: loaded.conversation.id,
-    role: "visitor",
-    content: parsed.data.content,
-    depth: parsed.data.depth,
-  });
-
-  history.push({ role: "visitor", content: parsed.data.content });
-
-  const result = await runAdvisor({
-    history,
-    currentBrief: briefToFields(loaded.brief),
-    depth: parsed.data.depth as Depth,
-    isFirstMessage,
-  });
-
-  const [advisorMessage] = await db
-    .insert(messagesTable)
-    .values({
-      conversationId: loaded.conversation.id,
-      role: "advisor",
-      content: result.reply,
-      depth: parsed.data.depth,
-    })
-    .returning();
-
-  if (Object.keys(result.brief).length > 0) {
-    await db
-      .update(briefsTable)
-      .set(result.brief)
-      .where(eq(briefsTable.conversationId, loaded.conversation.id));
-  }
-
-  await db
-    .update(conversationsTable)
-    .set({
-      depth: parsed.data.depth,
-      ...(result.title ? { title: result.title } : {}),
-    })
-    .where(eq(conversationsTable.id, loaded.conversation.id));
-
-  const [updatedBrief] = await db
-    .select()
-    .from(briefsTable)
-    .where(eq(briefsTable.conversationId, loaded.conversation.id));
-
-  res.json(
-    SendMessageResponse.parse({
-      message: advisorMessage,
-      brief: briefToFields(updatedBrief),
-      suggestedNextSteps: result.suggestedNextSteps,
-    }),
-  );
 });
-
-router.get("/conversations/:id/brief", async (req, res): Promise<void> => {
-  const params = GetBriefParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-
-  const [brief] = await db
-    .select()
-    .from(briefsTable)
-    .where(eq(briefsTable.conversationId, params.data.id));
-
-  if (!brief) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-
-  res.json(GetBriefResponse.parse(briefToFields(brief)));
-});
-
-router.patch("/conversations/:id/brief", async (req, res): Promise<void> => {
-  const params = UpdateBriefParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const parsed = UpdateBriefBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const updates = Object.fromEntries(
-    Object.entries(parsed.data).filter(([, v]) => v !== undefined),
-  );
-
-  const [updated] = await db
-    .update(briefsTable)
-    .set(updates)
-    .where(eq(briefsTable.conversationId, params.data.id))
-    .returning();
-
-  if (!updated) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-
-  res.json(UpdateBriefResponse.parse(briefToFields(updated)));
-});
-
-router.post("/voice/sessions", async (req, res): Promise<void> => {
-  const parsed = CreateVoiceSessionBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const [conversation] = await db
-    .select()
-    .from(conversationsTable)
-    .where(eq(conversationsTable.id, parsed.data.conversationId));
-
-  if (!conversation) {
-    res.status(404).json({ error: "Conversation not found" });
-    return;
-  }
-
-  req.log.info(
-    { conversationId: conversation.id },
-    "Voice session provisioned",
-  );
-
-  res.status(201).json(
-    CreateVoiceSessionResponse.parse({
-      id: crypto.randomUUID(),
-      status: "provisioned",
-      conversationId: conversation.id,
-      transport: "webrtc",
-      detail:
-        "Real-time voice channel reserved for this conversation. The advisor will speak and listen here once the voice transport connects.",
-    }),
-  );
-});
-
 export default router;

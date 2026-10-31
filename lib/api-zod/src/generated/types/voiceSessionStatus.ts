@@ -10,5 +10,5 @@ export type VoiceSessionStatus = typeof VoiceSessionStatus[keyof typeof VoiceSes
 
 
 export const VoiceSessionStatus = {
-  provisioned: 'provisioned',
+  unavailable: 'unavailable',
 } as const;

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Globe, Mail, Phone, ShieldAlert, RotateCw } from 'lucide-react';
-import { useListContactOptions } from '@workspace/api-client-react';
+import { useListContactOptions } from '@/lib/runtime-hooks';
 import { Constellation } from '@/components/constellation';
 
 const ICON = { link: Globe, email: Mail, phone: Phone } as const;
@@ -22,7 +22,7 @@ export default function Book() {
 
       {isLoading && <div className="space-y-3">{[0, 1, 2].map((i) => <div key={i} className="h-20 rounded-2xl bg-secondary/40 animate-pulse" />)}</div>}
       {isError && <button onClick={() => refetch()} className="flex items-center gap-2 text-destructive" data-testid="button-retry-contacts"><RotateCw className="h-4 w-4" /> Contact options failed to load. Retry</button>}
-      {data && data.length === 0 && <p className="text-muted-foreground">No published contact options right now.</p>}
+      {data && data.length === 0 && <p className="text-muted-foreground" data-testid="status-no-contacts">Verified contact channels have not been connected yet. Your brief remains saved in this session.</p>}
 
       <div className="space-y-3">
         {data?.map((c, i) => {

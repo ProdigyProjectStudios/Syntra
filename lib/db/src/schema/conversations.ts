@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 
 export const conversationsTable = pgTable("conversations", {
   id: serial("id").primaryKey(),
+  ownerHash: text("owner_hash"),
   title: text("title").notNull().default("New conversation"),
   depth: text("depth").notNull().default("detailed"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

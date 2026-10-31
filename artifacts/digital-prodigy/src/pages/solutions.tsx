@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Cpu, LayoutDashboard, Workflow, Gem, RotateCw } from 'lucide-react';
-import { useListServices } from '@workspace/api-client-react';
+import { useListServices } from '@/lib/runtime-hooks';
 import { useAdvisor } from '@/lib/advisor';
 import { Constellation } from '@/components/constellation';
 

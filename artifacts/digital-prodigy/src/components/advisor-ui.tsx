@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUp, ArrowUpRight, RotateCw } from 'lucide-react';
-import { useListConversations } from '@workspace/api-client-react';
+import { useListConversations } from '@/lib/runtime-hooks';
 import type { Message } from '@workspace/api-client-react';
 import { formatDistanceToNow } from 'date-fns';
 import { DEPTHS, useAdvisor } from '@/lib/advisor';
@@ -87,7 +87,7 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
 
   return (
     <div className="flex items-end gap-2 sm:gap-3">
-      <div className={cn('relative flex-1 rounded-[26px] glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
+      <div className={cn('relative min-w-0 flex-1 rounded-[26px] glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
         {sending && (
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px overflow-hidden">
             <div className="h-px w-1/3 anim-scan bg-gradient-to-r from-transparent via-primary to-transparent" />
@@ -97,6 +97,7 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
           <textarea
             ref={ref}
             rows={1}
+            maxLength={12000}
             value={value}
             data-testid="input-message"
             onFocus={() => setFocused(true)}
@@ -110,7 +111,7 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
             }}
             placeholder="What are you thinking of building?"
             aria-label="Message the advisor"
-            className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed outline-none placeholder:text-muted-foreground/70 scroll-thin"
+            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed outline-none placeholder:text-muted-foreground/70 scroll-thin"
           />
           <div className="hidden sm:flex items-center self-center pr-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">
             {DEPTHS.find((d) => d.id === depth)?.label}
@@ -153,7 +154,7 @@ function Bubble({ m, delay }: { m: Message; delay: number }) {
       initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: 0.5, delay, ease: [0.2, 0.8, 0.2, 1] }}
-      className={cn('flex gap-3', !advisor && 'justify-end')}
+      className={cn('flex min-w-0 gap-3', !advisor && 'justify-end')}
       data-testid={`message-${m.id}`}
     >
       {advisor && <div className="mt-1"><AdvisorOrb size={22} /></div>}
@@ -165,7 +166,7 @@ function Bubble({ m, delay }: { m: Message; delay: number }) {
             <span>{DEPTHS.find((d) => d.id === m.depth)?.label}</span>
           </div>
         )}
-        <div className={cn('whitespace-pre-wrap text-[15px] leading-relaxed', advisor ? 'text-foreground/90' : 'text-foreground')}>{m.content}</div>
+        <div className={cn('whitespace-pre-wrap [overflow-wrap:anywhere] text-[15px] leading-relaxed', advisor ? 'text-foreground/90' : 'text-foreground')}>{m.content}</div>
       </div>
     </motion.div>
   );
@@ -264,7 +265,7 @@ export function Stream({ dense = false }: { dense?: boolean }) {
 /* ---------- Conversation history ---------- */
 export function HistoryList({ onPick }: { onPick?: () => void }) {
   const { data, isLoading, isError, refetch } = useListConversations();
-  const { conversationId, setConversationId } = useAdvisor();
+  const { conversationId, setConversationId, sending } = useAdvisor();
   if (isLoading)
     return <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className="h-14 rounded-xl bg-secondary/50 animate-pulse" />)}</div>;
   if (isError)
@@ -286,6 +287,7 @@ export function HistoryList({ onPick }: { onPick?: () => void }) {
         return (
           <button
             key={c.id}
+            disabled={sending}
             data-testid={`button-conversation-${c.id}`}
             onClick={() => {
               setConversationId(c.id);

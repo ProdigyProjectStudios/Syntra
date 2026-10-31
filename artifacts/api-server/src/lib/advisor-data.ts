@@ -53,20 +53,6 @@ export const SERVICE_AREAS = [
   },
 ];
 
-export const CONTACT_OPTIONS = [
-  {
-    id: "contact-page",
-    label: "Open the Contact page",
-    detail:
-      "View Digital Prodigy's verified Contact page for its published contact options.",
-    href: "https://digitalprodigy.dev/contact",
-    kind: "link" as const,
-  },
-  {
-    id: "email",
-    label: "Email the studio",
-    detail: "Share your brief and context directly with the team.",
-    href: "mailto:hello@digitalprodigy.dev",
-    kind: "email" as const,
-  },
-];
+// Do not present guessed addresses as verified business destinations.
+// AgentPlace's booking/contact adapter supplies approved channels when connected.
+export const CONTACT_OPTIONS: import("@workspace/consultation").ContactOption[] = [];

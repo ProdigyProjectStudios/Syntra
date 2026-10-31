@@ -68,7 +68,26 @@ export interface Message {
   createdAt: string;
 }
 
+export type FieldProvenanceStatus = typeof FieldProvenanceStatus[keyof typeof FieldProvenanceStatus];
+
+
+export const FieldProvenanceStatus = {
+  confirmed: 'confirmed',
+  suggested: 'suggested',
+  manual: 'manual',
+} as const;
+
+export interface FieldProvenance {
+  status: FieldProvenanceStatus;
+  evidence: string;
+}
+
+export type BriefProvenance = {[key: string]: FieldProvenance};
+
 export interface Brief {
+  /** @minimum 0 */
+  revision: number;
+  provenance: BriefProvenance;
   /** @nullable */
   objective: string | null;
   /** @nullable */
@@ -102,18 +121,25 @@ export interface ConversationInput {
 }
 
 export interface MessageInput {
-  /** @minLength 1 */
+  requestId: string;
+  /**
+     * @minLength 1
+     * @maxLength 12000
+     */
   content: string;
   depth: ResponseDepth;
 }
 
 export interface AdvisorReply {
+  visitorMessage: Message;
   message: Message;
   brief: Brief;
   suggestedNextSteps: string[];
 }
 
 export interface BriefUpdate {
+  /** @minimum 0 */
+  revision: number;
   /** @nullable */
   objective?: string | null;
   /** @nullable */
@@ -140,7 +166,7 @@ export type VoiceSessionStatus = typeof VoiceSessionStatus[keyof typeof VoiceSes
 
 
 export const VoiceSessionStatus = {
-  provisioned: 'provisioned',
+  unavailable: 'unavailable',
 } as const;
 
 export interface VoiceSession {

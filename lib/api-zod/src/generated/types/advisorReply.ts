@@ -9,6 +9,7 @@ import type { Brief } from './brief';
 import type { Message } from './message';
 
 export interface AdvisorReply {
+  visitorMessage: Message;
   message: Message;
   brief: Brief;
   suggestedNextSteps: string[];

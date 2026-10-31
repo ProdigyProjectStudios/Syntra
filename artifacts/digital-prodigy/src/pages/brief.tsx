@@ -3,14 +3,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { Check, Pencil, X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useGetBrief, useUpdateBrief, getGetBriefQueryKey } from '@workspace/api-client-react';
-import type { Brief } from '@workspace/api-client-react';
+import { getGetBriefQueryKey, getGetConversationQueryKey } from '@workspace/api-client-react';
+import { useGetBrief, useUpdateBrief } from '@/lib/runtime-hooks';
+import type { BriefKey, Brief, Conversation, FieldProvenance } from '@workspace/consultation';
+import { errorMessage } from '@/lib/runtime';
 import { useAdvisor } from '@/lib/advisor';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorOrb } from '@/components/advisor-ui';
 import { cn } from '@/lib/utils';
 
-const FIELDS: { key: keyof Brief; label: string; wide?: boolean }[] = [
+const FIELDS: { key: BriefKey; label: string; wide?: boolean }[] = [
   { key: 'objective', label: 'Objective', wide: true },
   { key: 'service', label: 'Service direction' },
   { key: 'proposedSolution', label: 'Proposed solution' },
@@ -24,7 +26,7 @@ const FIELDS: { key: keyof Brief; label: string; wide?: boolean }[] = [
 export default function BriefPage() {
   const { conversationId } = useAdvisor();
   const id = conversationId ?? 0;
-  const { data, isLoading, isError, refetch } = useGetBrief(id, { query: { enabled: !!conversationId, queryKey: getGetBriefQueryKey(id) } });
+  const { data, isLoading, isError, refetch } = useGetBrief(id);
   const filled = data ? FIELDS.filter((f) => data[f.key]).length : 0;
   const pct = filled / FIELDS.length;
 
@@ -53,7 +55,7 @@ export default function BriefPage() {
       )}
       {data && conversationId && (
         <div className="grid gap-3 md:grid-cols-2">
-          {FIELDS.map((f, i) => <Field key={f.key} id={conversationId} field={f} value={data[f.key]} index={i} />)}
+          {FIELDS.map((f, i) => <Field key={`${conversationId}-${f.key}`} id={conversationId} field={f} value={data[f.key]} index={i} revision={data.revision} provenance={data.provenance[f.key]} />)}
         </div>
       )}
     </div>
@@ -100,25 +102,30 @@ function CompletionDial({ pct, filled, lit }: { pct: number; filled: number; lit
   );
 }
 
-function Field({ id, field, value, index }: { id: number; field: (typeof FIELDS)[number]; value: string | null; index: number }) {
+function Field({ id, field, value, index, revision, provenance }: { id: number; field: (typeof FIELDS)[number]; value: string | null; index: number; revision: number; provenance?: FieldProvenance }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const update = useUpdateBrief();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
+  const [editRevision, setEditRevision] = useState(revision);
   const [fired, setFired] = useState(0);
 
   const save = () => {
     const v = draft.trim();
     update.mutate(
-      { id, data: { [field.key]: v || null } },
+      { id, data: { [field.key]: v || null, revision: editRevision } },
       {
         onSuccess: (b) => {
           qc.setQueryData(getGetBriefQueryKey(id), b);
+          qc.setQueryData<Conversation>(getGetConversationQueryKey(id), prev => prev ? { ...prev, brief: b } : prev);
           setEditing(false);
           setFired((n) => n + 1);
         },
-        onError: () => toast({ title: 'Could not save', description: `${field.label} was not updated.` }),
+        onError: (error) => {
+          void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(id) });
+          toast({ title: 'Could not save', description: errorMessage(error, `${field.label} was not updated. Your draft is preserved.`) });
+        },
       },
     );
   };
@@ -148,15 +155,17 @@ function Field({ id, field, value, index }: { id: number; field: (typeof FIELDS)
         <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           <span className={cn('h-1.5 w-1.5 rounded-full', value ? 'bg-primary shadow-[0_0_10px_hsl(187_92%_69%),0_0_18px_hsl(217_95%_63%/.6)]' : 'bg-muted-foreground/30')} />
           {field.label}
+          {provenance && <span className="tracking-normal text-primary/70" title={provenance.status === 'manual' ? 'Your correction takes priority over AI suggestions' : provenance.evidence} data-testid={`status-${field.key}`}>{provenance.status === 'manual' ? 'Edited' : provenance.status === 'suggested' ? 'Suggested' : 'Confirmed'}</span>}
         </div>
         {!editing && (
-          <button onClick={() => { setDraft(value ?? ''); setEditing(true); }} aria-label={`Edit ${field.label}`} data-testid={`button-edit-${field.key}`} className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground opacity-60 transition hover:bg-secondary hover:text-primary group-hover:opacity-100">
+          <button onClick={() => { setDraft(value ?? ''); setEditRevision(revision); setEditing(true); }} aria-label={`Edit ${field.label}`} data-testid={`button-edit-${field.key}`} className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground opacity-60 transition hover:bg-secondary hover:text-primary group-hover:opacity-100">
             <Pencil className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
       {editing ? (
         <div>
+          {revision !== editRevision && <div className="mb-3 text-xs text-primary" role="alert">This field's brief changed while you were editing. Latest value: {value || 'Not established'}. Your draft is still below. <button type="button" className="underline" onClick={() => setEditRevision(revision)}>Review complete; use this revision</button></div>}
           <textarea autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} data-testid={`input-${field.key}`} className="w-full resize-none rounded-xl border border-input bg-background/60 p-3 text-sm outline-none focus:border-primary/60" />
           <div className="mt-2 flex justify-end gap-2">
             <button onClick={() => setEditing(false)} className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground" data-testid={`button-cancel-${field.key}`}><X className="h-3.5 w-3.5" /> Cancel</button>
@@ -164,7 +173,7 @@ function Field({ id, field, value, index }: { id: number; field: (typeof FIELDS)
           </div>
         </div>
       ) : value ? (
-        <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{value}</p>
+        <p className="whitespace-pre-wrap [overflow-wrap:anywhere] text-[15px] leading-relaxed">{value}</p>
       ) : (
         <p className="text-sm italic text-muted-foreground/70">Not established yet</p>
       )}

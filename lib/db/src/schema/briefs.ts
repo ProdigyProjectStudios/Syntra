@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { conversationsTable } from "./conversations";
@@ -6,6 +6,8 @@ import { conversationsTable } from "./conversations";
 export const briefsTable = pgTable("briefs", {
   id: serial("id").primaryKey(),
   conversationId: integer("conversation_id").notNull().unique().references(() => conversationsTable.id, { onDelete: "cascade" }),
+  revision: integer("revision").notNull().default(0),
+  provenance: jsonb("provenance").$type<Record<string, { status: "confirmed" | "suggested" | "manual"; evidence: string }>>().notNull().default({}),
   objective: text("objective"),
   service: text("service"),
   proposedSolution: text("proposed_solution"),

@@ -4,3 +4,4 @@ export * from "./native-transcript.ts";
 export * from "./native-completion.ts";
 export * from "./types.ts";
 export * from "./engine.ts";
+export * from "./handoff.ts";

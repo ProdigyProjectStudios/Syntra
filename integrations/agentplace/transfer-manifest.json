@@ -111,12 +111,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/advisor-ui.tsx",
       "source": "artifacts/digital-prodigy/src/components/advisor-ui.tsx",
-      "sha256": "3e0e07f48b6f50401f85c64b23f1bff8cc6e15419c68340fd350e09696e06e41"
+      "sha256": "5b77716160be668abf9122a905a848544e52ecc2517403824797881bd015415c"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/click-burst.tsx",
       "source": "artifacts/digital-prodigy/src/components/click-burst.tsx",
-      "sha256": "184640e7a050193ba4ea208c49c8789e73a02c2498ebee936f99bc90b9171207"
+      "sha256": "35e26939542973f34b1aa05825f80cd81dea76286582609f232bae68177ddebe"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/constellation.tsx",
@@ -131,17 +131,17 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/neural-core.tsx",
       "source": "artifacts/digital-prodigy/src/components/neural-core.tsx",
-      "sha256": "b9746e8e31d6001e3a6a4307d327a7168f214fc8c13cbd4fdfa31cc21fd6aa6e"
+      "sha256": "f1f24d000621f7587cc620cea43fbed67331f64892520e1b4f8e8314235f4ef7"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/neural-field.tsx",
       "source": "artifacts/digital-prodigy/src/components/neural-field.tsx",
-      "sha256": "f1e1606f956191ea84df86e57d047ea10a37ceecee36c3ea0f225fb1c1c20d31"
+      "sha256": "941abd23eabcf8117b156208a5a0611a1a14612a50b21db88725f42509989409"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/shell.tsx",
       "source": "artifacts/digital-prodigy/src/components/shell.tsx",
-      "sha256": "3ee8282ee2852debfaea2255e583caf04cc21873bedd3bfea06b30fc5828a7c9"
+      "sha256": "16cc7ecc6b3ff02b8830c6733a0f93dbaef8e0bf496c34be3676d487b4b89cf9"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/accordion.tsx",
@@ -424,6 +424,11 @@
       "sha256": "5b639a1d5c803835bdbb7249ce22f239892940dbc04b72d79d70c895e11b75a0"
     },
     {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-media-query.ts",
+      "source": "artifacts/digital-prodigy/src/hooks/use-media-query.ts",
+      "sha256": "38c3485a814b2f1a82b06bba528628871165e137641711e4c01258b2da990a60"
+    },
+    {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-mobile.tsx",
       "source": "artifacts/digital-prodigy/src/hooks/use-mobile.tsx",
       "sha256": "82bff42ff087bd5dc90a5d17609cc428b8688de92d1333073a839af5ad3c9cbd"
@@ -436,7 +441,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/index.css",
       "source": "artifacts/digital-prodigy/src/index.css",
-      "sha256": "72ac7775b872e847ec2a9e83fd6c3355a9fb0524c7f2c352f326ca6c53908fc9"
+      "sha256": "4360f697e0a947d059194e791663c9c11004a89676e739eeed3261f95921ecaf"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/advisor.tsx",
@@ -469,6 +474,11 @@
       "sha256": "34a0450e7e2eae0596697857a757c51d6b3c8141273668e43ea914d410c17af5"
     },
     {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/use-handoff-enquiry.ts",
+      "source": "artifacts/digital-prodigy/src/lib/use-handoff-enquiry.ts",
+      "sha256": "de9b8e10cc877c1fbfa4f5fc21ba2454ce1cdda56d0504a07da2e7d8b42f3959"
+    },
+    {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/utils.ts",
       "source": "artifacts/digital-prodigy/src/lib/utils.ts",
       "sha256": "6041181d727d96b7a12accda37deee0c2789c7926e4ae0a26b94d4b3c1631f22"
@@ -476,17 +486,17 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/book.tsx",
       "source": "artifacts/digital-prodigy/src/pages/book.tsx",
-      "sha256": "3a7a297667b9e7bf8bdbab22346a50282ed284c7042b94a15734788d0d07191d"
+      "sha256": "cb30bbb55e9eb9e213e959754bcf195c4e69b2ca045e66cbcf2e2760f2f8fbf1"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/brief.tsx",
       "source": "artifacts/digital-prodigy/src/pages/brief.tsx",
-      "sha256": "c43b4b240af3f4fdc498c73bbc216bd21c5403cb232fbbd437736277c77bf08d"
+      "sha256": "264b99525dc1514190cf992e618b8c094b967f7cd32fa33c5df2a59034d6a061"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/discover.tsx",
       "source": "artifacts/digital-prodigy/src/pages/discover.tsx",
-      "sha256": "c8f6d734df2b6fbce392848a7904a328f61990cc241d929b574d8ade5692362b"
+      "sha256": "36a1c05e9615e492f31700212ceb9d0f22c4428c48ba62fbf6fb23f734cb25b5"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/not-found.tsx",
@@ -496,7 +506,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/solutions.tsx",
       "source": "artifacts/digital-prodigy/src/pages/solutions.tsx",
-      "sha256": "912e39480f9c1326b57b1a9f06bf768bc20b04aefdfa66430835e536c460fd1f"
+      "sha256": "c3d57fe95bfd0cffc15355dc955ac90c1c1cfef018f4930483c7902ce1bc180d"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/engine.ts",
@@ -509,14 +519,24 @@
       "sha256": "07331d517f6a923c69254bef094f4c8e2b2d6324d57f1d8c201a61427dc54848"
     },
     {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/handoff.ts",
+      "source": "lib/consultation/src/handoff.ts",
+      "sha256": "c6bc2b7f43a37b9439e64deeb3c8ab7e0f6e617dc46c0a34716d7adca6a6758c"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/handoff.ts",
+      "source": "lib/consultation/src/handoff.ts",
+      "sha256": "c6bc2b7f43a37b9439e64deeb3c8ab7e0f6e617dc46c0a34716d7adca6a6758c"
+    },
+    {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/index.ts",
       "source": "lib/consultation/src/index.ts",
-      "sha256": "6b1bce47a774048260655cd22199d1326fca8cd24bfb2e312b770940452e2430"
+      "sha256": "0ee76d102fa4b6d3695f2647718d49388abdef6a1f5cf16b0c9892c0c54e6e53"
     },
     {
       "path": "agent-dev-server/src/bl/syntra/shared/index.ts",
       "source": "lib/consultation/src/index.ts",
-      "sha256": "6b1bce47a774048260655cd22199d1326fca8cd24bfb2e312b770940452e2430"
+      "sha256": "0ee76d102fa4b6d3695f2647718d49388abdef6a1f5cf16b0c9892c0c54e6e53"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-completion.ts",
@@ -541,12 +561,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-runtime.ts",
       "source": "lib/consultation/src/native-runtime.ts",
-      "sha256": "1e5fdb87aa4b463920d78f38d19b4b35675b30c3f3165eb77927dbb11a8585c0"
+      "sha256": "fed03e2ad1e6254f9d45b2ee8b31dac3e67427101e56dd30378749967fa82995"
     },
     {
       "path": "agent-dev-server/src/bl/syntra/shared/native-runtime.ts",
       "source": "lib/consultation/src/native-runtime.ts",
-      "sha256": "1e5fdb87aa4b463920d78f38d19b4b35675b30c3f3165eb77927dbb11a8585c0"
+      "sha256": "fed03e2ad1e6254f9d45b2ee8b31dac3e67427101e56dd30378749967fa82995"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-transcript.ts",
@@ -561,12 +581,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/types.ts",
       "source": "lib/consultation/src/types.ts",
-      "sha256": "7a52b2678f51698fe8d63d094576873c5090ca08c008df014fa7b8941d1f8bda"
+      "sha256": "e1984c77c0348d6172c82f039c3e4453256606a8dd32a5b7bb1be483f9602de8"
     },
     {
       "path": "agent-dev-server/src/bl/syntra/shared/types.ts",
       "source": "lib/consultation/src/types.ts",
-      "sha256": "7a52b2678f51698fe8d63d094576873c5090ca08c008df014fa7b8941d1f8bda"
+      "sha256": "e1984c77c0348d6172c82f039c3e4453256606a8dd32a5b7bb1be483f9602de8"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/catalogue.ts",

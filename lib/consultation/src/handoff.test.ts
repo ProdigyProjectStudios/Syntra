@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefCompleteness, formatProjectBrief, safeContactHref, HandoffCoordinator, HandoffError, type EnquiryInput } from "./handoff.ts";
+import { briefCompleteness, formatProjectBrief, safeContactHref, HandoffCoordinator, readEnquiryAttempt, saveEnquiryAttempt, type EnquiryInput } from "./handoff.ts";
 import { EMPTY_FIELDS, type Brief } from "./types.ts";
 
 const brief: Brief = { ...EMPTY_FIELDS, revision: 3, objective: "Reduce manual follow-up", budget: "£7,000", service: "AI automation systems",
@@ -59,4 +59,33 @@ test("provider failures can be retried but do not create false confirmations", a
 });
 test("missing provider reference is rejected as unconfirmed", async () => {
   await assert.rejects(new HandoffCoordinator().submit(input, { submitEnquiry: async () => ({ status: "confirmed", reference: "  " }) }), { code: "unconfirmed" });
+});
+
+test("encoded email headers are not approved contact destinations", () => {
+  assert.equal(safeContactHref({ id: "1", label: "", detail: "", href: "mailto:hello%0d%0abcc:other@example.com", kind: "email" }), null);
+});
+test("a missing objective cannot be submitted", async () => {
+  await assert.rejects(new HandoffCoordinator().submit({ ...input, brief: { ...input.brief, objective: null } }), { code: "details" });
+});
+test("consented attempt snapshots survive refresh with the original ID and reviewed fields", () => {
+  const values = new Map<string, string>();
+  const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } };
+  saveEnquiryAttempt(storage, "scope-a", { input, state: "pending" });
+  const recovered = readEnquiryAttempt(storage, "scope-a", input.conversationId)!;
+  assert.equal(recovered.input.requestId, input.requestId);
+  assert.equal(recovered.input.brief.budget, "£7,000");
+  assert.equal(readEnquiryAttempt(storage, "scope-b", input.conversationId), null);
+  assert.throws(() => readEnquiryAttempt(storage, "scope-a", 99), { code: "unconfirmed" });
+  saveEnquiryAttempt(storage, "scope-a", { input, state: "confirmed", receipt: { status: "confirmed", reference: "VERIFIED-1" } });
+  assert.equal(readEnquiryAttempt(storage, "scope-a", input.conversationId)!.receipt!.reference, "VERIFIED-1");
+});
+test("unsafe saved attempts fail explicitly and unconsented details are never cached", () => {
+  let written = false;
+  const storage = { getItem: () => '{"state":"confirmed"}', setItem: () => { written = true; } };
+  assert.throws(() => readEnquiryAttempt(storage, "a", input.conversationId), { code: "unconfirmed" });
+  assert.throws(() => saveEnquiryAttempt(storage, "a", { input: { ...input, consent: false }, state: "pending" }), { code: "consent" });
+  assert.equal(written, false);
+});
+test("a truthy string is not explicit consent", async () => {
+  await assert.rejects(new HandoffCoordinator().submit({ ...input, consent: "yes" as unknown as boolean }), { code: "consent" });
 });

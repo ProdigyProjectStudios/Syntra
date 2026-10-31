@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
-import { Check, Copy, Download, Pencil, X, RotateCw } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, Download, Pencil, X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRuntimeKeys } from '@/lib/runtime-context';
 import { useGetBrief, useUpdateBrief } from '@/lib/runtime-hooks';
@@ -11,6 +11,7 @@ import { useAdvisor } from '@/lib/advisor';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorOrb } from '@/components/advisor-ui';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 const FIELDS: { key: BriefKey; label: string; wide?: boolean }[] = [
   { key: 'objective', label: 'Objective', wide: true },
@@ -30,6 +31,7 @@ export default function BriefPage() {
   const filled = data ? FIELDS.filter((f) => data[f.key]).length : 0;
   const pct = filled / FIELDS.length;
   const [exportStatus, setExportStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  useEffect(() => setExportStatus('idle'), [conversationId, data?.revision]);
   const markdown = data ? formatProjectBrief(data) : '';
   async function copy() {
     if (!markdown) return;
@@ -48,7 +50,7 @@ export default function BriefPage() {
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4 sm:mb-8 sm:gap-6">
         <div>
           <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / Working brief</div>
           <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">The brief, <span className="text-ember glow-text">as it forms.</span></h1>
@@ -65,6 +67,10 @@ export default function BriefPage() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 text-[11px] text-foreground/80 transition hover:border-primary/30 hover:text-primary disabled:opacity-35">
                 <Download className="h-3.5 w-3.5" /> Export
               </button>
+              <Link href="/book" data-testid="link-brief-handoff"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-2 text-[11px] font-medium text-primary transition hover:bg-primary/20">
+                Handoff <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
             {exportStatus === 'failed' && <span role="alert" className="text-[10px] text-amber-200">Clipboard unavailable. Use Export.</span>}
           </div>
@@ -95,17 +101,18 @@ export default function BriefPage() {
 
 /** Eight neurons on a ring, one per brief field. Established fields light up and wire into the core. */
 function CompletionDial({ pct, filled, lit }: { pct: number; filled: number; lit: boolean[] }) {
-  const S = 112, C = S / 2, r = 44;
+  const mobile = useMediaQuery('(max-width: 639px)');
+  const S = mobile ? 72 : 112, C = S / 2, r = S * 44 / 112;
   const pts = lit.map((_, i) => {
     const a = -Math.PI / 2 + (i / lit.length) * Math.PI * 2;
     return { x: C + Math.cos(a) * r, y: C + Math.sin(a) * r };
   });
   const circ = 2 * Math.PI * r;
   return (
-    <div className="flex items-center gap-4" data-testid="status-brief-completion">
+    <div className="flex items-center gap-2 sm:gap-4" data-testid="status-brief-completion">
       <div className="relative" style={{ width: S, height: S }}>
         <div className="absolute inset-0 grid place-items-center">
-          <AdvisorOrb size={44} live thinking={pct === 1} />
+          <AdvisorOrb size={44} mobileSize={30} live thinking={pct === 1} />
         </div>
         <svg width={S} height={S} viewBox={`0 0 ${S} ${S}`} className="absolute inset-0 overflow-visible">
           <defs>
@@ -127,7 +134,7 @@ function CompletionDial({ pct, filled, lit }: { pct: number; filled: number; lit
       </div>
       <div>
         <div className="font-display text-2xl font-light">{filled}<span className="text-muted-foreground">/{FIELDS.length}</span></div>
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Fields established</div>
+        <div className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground sm:text-[10px]">Fields captured</div>
       </div>
     </div>
   );
@@ -168,7 +175,7 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={cn('group relative overflow-hidden rounded-[22px] glass p-5 sweep', field.wide && 'md:col-span-2', value && 'edge-light')}
+      className={cn('group relative overflow-hidden rounded-[22px] glass p-4 sweep sm:p-5', field.wide && 'md:col-span-2', value && 'edge-light')}
       data-testid={`field-${field.key}`}
     >
       <AnimatePresence>
@@ -183,8 +190,8 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
           />
         )}
       </AnimatePresence>
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           <span className={cn('h-1.5 w-1.5 rounded-full', value ? 'bg-primary shadow-[0_0_10px_hsl(187_92%_69%),0_0_18px_hsl(217_95%_63%/.6)]' : 'bg-muted-foreground/30')} />
           {field.label}
           {provenance && <span className="tracking-normal text-primary/70" title={provenance.status === 'manual' ? 'Your correction takes priority over AI suggestions' : provenance.evidence} data-testid={`status-${field.key}`}>{provenance.status === 'manual' ? 'Edited' : provenance.status === 'suggested' ? 'Suggested' : 'Confirmed'}</span>}
@@ -198,7 +205,7 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
       {editing ? (
         <div>
           {revision !== editRevision && <div className="mb-3 text-xs text-primary" role="alert">This field's brief changed while you were editing. Latest value: {value || 'Not established'}. Your draft is still below. <button type="button" className="underline" onClick={() => setEditRevision(revision)}>Review complete; use this revision</button></div>}
-          <textarea autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} data-testid={`input-${field.key}`} className="w-full resize-none rounded-xl border border-input bg-background/60 p-3 text-sm outline-none focus:border-primary/60" />
+          <textarea autoFocus aria-label={`Edit ${field.label}`} value={draft} onChange={(e) => setDraft(e.target.value)} rows={3} data-testid={`input-${field.key}`} className="w-full resize-none rounded-xl border border-input bg-background/60 p-3 text-base outline-none focus:border-primary/60 sm:text-sm" />
           <div className="mt-2 flex justify-end gap-2">
             <button onClick={() => setEditing(false)} className="flex items-center gap-1 rounded-full px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground" data-testid={`button-cancel-${field.key}`}><X className="h-3.5 w-3.5" /> Cancel</button>
             <button onClick={save} disabled={update.isPending} className="flex items-center gap-1 rounded-full bg-[linear-gradient(135deg,hsl(187_92%_70%),hsl(212_95%_62%))] px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-shadow hover:shadow-[0_0_20px_-2px_hsl(199_95%_60%/.7)] disabled:opacity-50" data-testid={`button-save-${field.key}`}><Check className="h-3.5 w-3.5" /> {update.isPending ? 'Saving' : 'Save'}</button>

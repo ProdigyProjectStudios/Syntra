@@ -114,6 +114,7 @@ export function ClickBurst() {
       const el = e.composedPath().find((node): node is HTMLElement =>
         node instanceof HTMLElement && node.matches(INTERACTIVE));
       if (!el || el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true') return;
+      if (e.pointerType !== 'mouse' && el.hasAttribute('data-no-touch-burst')) return;
       window.dispatchEvent(new CustomEvent<BurstDetail>(BURST_EVENT, { detail: { x: e.clientX, y: e.clientY } }));
       if (e.pointerType === 'touch' && 'vibrate' in navigator) navigator.vibrate?.(6);
       if (reduce) return;

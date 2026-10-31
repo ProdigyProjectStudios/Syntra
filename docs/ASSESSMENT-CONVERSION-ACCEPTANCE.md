@@ -54,6 +54,12 @@ AgentPlace must implement `booking.submitEnquiry` through a verified destination
 
 For providers without an actual action, configure only approved `booking.contacts()` links. Clicking a link opens the external channel; it does not book or send anything on the user's behalf. Until an approved channel exists, the user can copy/export their brief locally.
 
+### Recovery and privacy
+
+Only a consented, validated request is saved in session storage, scoped to the runtime and consultation, so navigation or refresh can retry the same request ID and reviewed snapshot. Unsaved contact inputs are not cached, and no contact data is added to analytics or logs. Uncertain outcomes keep the fields locked: a transport failure is not proof of non-admission. Confirmed receipts survive refresh, and late results can update only their original scoped session.
+
+The host should look up an existing idempotent receipt before treating a retry as a new admission. New admission must verify the current server-owned brief revision; replay returns the original verified receipt. A future change/cancel/resubmit action requires authoritative server evidence and is not simulated by this frontend.
+
 ### Visual QA required
 
 Check at 1440×900 and 375×812, including long requirements, missing objective, editing the brief then returning, keyboard focus, opening approved contact links, reduced motion, clipboard-denied fallback and the disconnected-enquiry state. This branch's source and CI checks are not substitutes for rendered browser or real provider tests.

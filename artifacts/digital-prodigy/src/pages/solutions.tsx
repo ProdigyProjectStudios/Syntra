@@ -3,6 +3,7 @@ import { ArrowUpRight, Cpu, LayoutDashboard, Workflow, Gem, RotateCw } from 'luc
 import { useListServices } from '@/lib/runtime-hooks';
 import { useAdvisor } from '@/lib/advisor';
 import { Constellation } from '@/components/constellation';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 const ICONS = [Cpu, LayoutDashboard, Workflow, Gem];
 /* teal to electric blue: each direction sits at a different point on the same signal */
@@ -11,6 +12,7 @@ const HUES = ['187 92% 69%', '217 95% 66%', '174 78% 58%', '199 95% 64%'];
 export default function Solutions() {
   const { data, isLoading, isError, refetch } = useListServices();
   const { send, sending } = useAdvisor();
+  const hoverEnabled = useMediaQuery('(hover: hover) and (pointer: fine)');
 
   return (
     <div>
@@ -38,12 +40,13 @@ export default function Solutions() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              whileTap={{ scale: 0.985 }}
+              whileHover={hoverEnabled ? { y: -4 } : undefined}
+              whileTap={hoverEnabled ? { scale: 0.985 } : undefined}
               disabled={sending}
               data-testid={`card-service-${s.id}`}
+              data-no-touch-burst="true"
               onClick={() => send(`I'd like to explore ${s.name}. What would a first build look like for me?`)}
-              className={`group relative overflow-hidden sweep edge-light rounded-[28px] glass p-6 text-left transition-shadow duration-500 hover:shadow-[0_30px_80px_-30px_hsl(var(--h)/.55)] disabled:opacity-60 ${i === 0 ? 'md:row-span-1' : ''}`}
+              className={`service-card group relative overflow-hidden sweep edge-light rounded-[28px] glass p-6 text-left transition-shadow duration-500 hover:shadow-[0_30px_80px_-30px_hsl(var(--h)/.55)] disabled:opacity-60 ${i === 0 ? 'md:row-span-1' : ''}`}
               style={{ ['--h' as string]: hue }}
             >
               <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-30 blur-2xl transition-opacity duration-500 group-hover:opacity-70" style={{ background: `radial-gradient(circle, hsl(${hue} / .6), transparent 70%)` }} />

@@ -51,7 +51,7 @@ export function safeContactHref(contact: ContactOption): string | null {
     }
     if (contact.kind === "email") {
       const match = /^mailto:([^?&#]+)$/i.exec(raw);
-      return match && /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(match[1]) ? `mailto:${match[1]}` : null;
+      return match && /^[^\s@,;%]+@[^\s@,;%]+\.[^\s@,;%]+$/.test(match[1]) ? `mailto:${match[1]}` : null;
     }
     if (contact.kind === "phone") {
       return /^tel:\+?[0-9() .-]{7,22}$/i.test(raw) ? raw : null;
@@ -88,7 +88,7 @@ export class HandoffError extends Error {
 }
 
 export function validateEnquiry(input: EnquiryInput): void {
-  if (!input.consent) throw new HandoffError("consent", "Review the project brief and consent before submitting.");
+  if (input.consent !== true) throw new HandoffError("consent", "Review the project brief and consent before submitting.");
   if (!Number.isSafeInteger(input.conversationId) || input.conversationId <= 0 ||
       !Number.isSafeInteger(input.briefRevision) || input.briefRevision < 0 ||
       !/^[a-zA-Z0-9_-]{8,128}$/.test(input.requestId)) {
@@ -98,6 +98,9 @@ export function validateEnquiry(input: EnquiryInput): void {
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()) || input.email.length > 254 ||
       (input.note?.length ?? 0) > 2000) {
     throw new HandoffError("details", "Enter a valid name and email address.");
+  }
+  if (!input.brief.objective?.trim()) {
+    throw new HandoffError("details", "Review a clear project objective before submitting.");
   }
 }
 
@@ -124,7 +127,7 @@ export class HandoffCoordinator {
       return active.promise;
     }
     const promise = Promise.resolve().then(() => gateway.submitEnquiry(input)).then(receipt => {
-      if (receipt.status !== "confirmed" || typeof receipt.reference !== "string" || !receipt.reference.trim()) {
+      if (!receipt || receipt.status !== "confirmed" || typeof receipt.reference !== "string" || !receipt.reference.trim()) {
         throw new HandoffError("unconfirmed", "The provider did not confirm the enquiry. Please check before retrying.");
       }
       const normalized: EnquiryReceipt = { status: "confirmed", reference: receipt.reference.trim() };
@@ -134,4 +137,34 @@ export class HandoffCoordinator {
     this.inflight.set(input.requestId, { signature, promise });
     return promise;
   }
+}
+
+/** Only consented attempts are cached, in this browser tab, for safe replay after navigation/refresh. */
+export interface SavedEnquiryAttempt {
+  input: EnquiryInput;
+  state: "pending" | "failed" | "confirmed";
+  receipt?: EnquiryReceipt;
+}
+export interface EnquiryAttemptStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+}
+export function readEnquiryAttempt(storage: EnquiryAttemptStorage, key: string, conversationId: number): SavedEnquiryAttempt | null {
+  const raw = storage.getItem(key);
+  if (!raw) return null;
+  try {
+    const attempt = JSON.parse(raw) as SavedEnquiryAttempt;
+    validateEnquiry(attempt.input);
+    if (attempt.input.conversationId !== conversationId ||
+        !["pending", "failed", "confirmed"].includes(attempt.state) ||
+        (attempt.state === "confirmed" && (!attempt.receipt || attempt.receipt.status !== "confirmed" ||
+          typeof attempt.receipt.reference !== "string" || !attempt.receipt.reference.trim()))) throw Error("Invalid receipt");
+    return attempt;
+  } catch {
+    throw new HandoffError("unconfirmed", "The saved enquiry could not be restored safely. Check its status with the provider before starting another.");
+  }
+}
+export function saveEnquiryAttempt(storage: EnquiryAttemptStorage, key: string, attempt: SavedEnquiryAttempt): void {
+  validateEnquiry(attempt.input);
+  storage.setItem(key, JSON.stringify(attempt));
 }

@@ -1,0 +1,313 @@
+--- a/components/ui/hover-card.tsx
++++ b/components/ui/hover-card.tsx
+@@ -2,3 +2,3 @@
+ import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/input-group.tsx
++++ b/components/ui/input-group.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+-import { Button } from '@/components/ui/button';
+-import { Input } from '@/components/ui/input';
+-import { Textarea } from '@/components/ui/textarea';
+-import { cn } from '@/lib/utils';
++import { Button } from './button';
++import { Input } from './input';
++import { Textarea } from './textarea';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/input-otp.tsx
++++ b/components/ui/input-otp.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { OTPInput, OTPInputContext } from 'input-otp';
+--- a/components/ui/input.tsx
++++ b/components/ui/input.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/item.tsx
++++ b/components/ui/item.tsx
+@@ -2,4 +2,4 @@
+ import { Slot } from '@radix-ui/react-slot';
+-import { Separator } from '@/components/ui/separator';
+-import { cn } from '@/lib/utils';
++import { Separator } from './separator';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/kbd.tsx
++++ b/components/ui/kbd.tsx
+@@ -1,2 +1,2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/label.tsx
++++ b/components/ui/label.tsx
+@@ -4,3 +4,3 @@
+ import * as LabelPrimitive from '@radix-ui/react-label';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/menubar.tsx
++++ b/components/ui/menubar.tsx
+@@ -1,4 +1,5 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+ import * as MenubarPrimitive from '@radix-ui/react-menubar';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Check, ChevronRight, Circle } from 'lucide-react';
+@@ -20,3 +21,3 @@
+ }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
+-  return <MenubarPrimitive.Portal {...props} />;
++  return <SyntraPortal Primitive={MenubarPrimitive.Portal} {...props} />;
+ }
+@@ -109,3 +110,3 @@
+   ) => (
+-    <MenubarPrimitive.Portal>
++    <SyntraPortal Primitive={MenubarPrimitive.Portal}>
+       <MenubarPrimitive.Content
+@@ -121,3 +122,3 @@
+       />
+-    </MenubarPrimitive.Portal>
++    </SyntraPortal>
+   ),
+--- a/components/ui/navigation-menu.tsx
++++ b/components/ui/navigation-menu.tsx
+@@ -2,3 +2,3 @@
+ import * as NavigationMenuPrimitive from '@radix-ui/react-navigation-menu';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva } from 'class-variance-authority';
+--- a/components/ui/pagination.tsx
++++ b/components/ui/pagination.tsx
+@@ -1,4 +1,4 @@
+ import * as React from 'react';
+-import { ButtonProps, buttonVariants } from '@/components/ui/button';
+-import { cn } from '@/lib/utils';
++import { ButtonProps, buttonVariants } from './button';
++import { cn } from '../../lib/utils';
+ import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+--- a/components/ui/popover.tsx
++++ b/components/ui/popover.tsx
+@@ -1,4 +1,5 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+ import * as PopoverPrimitive from '@radix-ui/react-popover';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+@@ -14,3 +15,3 @@
+ >(({ className, align = 'center', sideOffset = 4, ...props }, ref) => (
+-  <PopoverPrimitive.Portal>
++  <SyntraPortal Primitive={PopoverPrimitive.Portal}>
+     <PopoverPrimitive.Content
+@@ -25,3 +26,3 @@
+     />
+-  </PopoverPrimitive.Portal>
++  </SyntraPortal>
+ ));
+--- a/components/ui/progress.tsx
++++ b/components/ui/progress.tsx
+@@ -4,3 +4,3 @@
+ import * as ProgressPrimitive from '@radix-ui/react-progress';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/radio-group.tsx
++++ b/components/ui/radio-group.tsx
+@@ -2,3 +2,3 @@
+ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Circle } from 'lucide-react';
+--- a/components/ui/resizable.tsx
++++ b/components/ui/resizable.tsx
+@@ -3,3 +3,3 @@
+ import * as ResizablePrimitive from 'react-resizable-panels';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { GripVertical } from 'lucide-react';
+--- a/components/ui/scroll-area.tsx
++++ b/components/ui/scroll-area.tsx
+@@ -2,3 +2,3 @@
+ import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/select.tsx
++++ b/components/ui/select.tsx
+@@ -1,2 +1,3 @@
+ 'use client';
++import { SyntraPortal } from '../../lib/portal-context';
+ 
+@@ -4,3 +5,3 @@
+ import * as SelectPrimitive from '@radix-ui/react-select';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+@@ -72,3 +73,3 @@
+ >(({ className, children, position = 'popper', ...props }, ref) => (
+-  <SelectPrimitive.Portal>
++  <SyntraPortal Primitive={SelectPrimitive.Portal}>
+     <SelectPrimitive.Content
+@@ -96,3 +97,3 @@
+     </SelectPrimitive.Content>
+-  </SelectPrimitive.Portal>
++  </SyntraPortal>
+ ));
+--- a/components/ui/separator.tsx
++++ b/components/ui/separator.tsx
+@@ -2,3 +2,3 @@
+ import * as SeparatorPrimitive from '@radix-ui/react-separator';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/sheet.tsx
++++ b/components/ui/sheet.tsx
+@@ -1,2 +1,3 @@
+ 'use client';
++import { SyntraPortal } from '../../lib/portal-context';
+ 
+@@ -4,3 +5,3 @@
+ import * as SheetPrimitive from '@radix-ui/react-dialog';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+@@ -14,3 +15,3 @@
+ 
+-const SheetPortal = SheetPrimitive.Portal;
++const SheetPortal = (props: React.ComponentProps<typeof SheetPrimitive.Portal>) => <SyntraPortal Primitive={SheetPrimitive.Portal} {...props} />;
+--- a/components/ui/sidebar.tsx
++++ b/components/ui/sidebar.tsx
+@@ -4,5 +4,5 @@
+ import { Slot } from '@radix-ui/react-slot';
+-import { Button } from '@/components/ui/button';
+-import { Input } from '@/components/ui/input';
+-import { Separator } from '@/components/ui/separator';
++import { Button } from './button';
++import { Input } from './input';
++import { Separator } from './separator';
+ import {
+@@ -13,4 +13,4 @@
+   SheetTitle,
+-} from '@/components/ui/sheet';
+-import { Skeleton } from '@/components/ui/skeleton';
++} from './sheet';
++import { Skeleton } from './skeleton';
+ import {
+@@ -20,5 +20,5 @@
+   TooltipTrigger,
+-} from '@/components/ui/tooltip';
+-import { useIsMobile } from '@/hooks/use-mobile';
+-import { cn } from '@/lib/utils';
++} from './tooltip';
++import { useIsMobile } from '../../hooks/use-mobile';
++import { cn } from '../../lib/utils';
+ import { cva, VariantProps } from 'class-variance-authority';
+--- a/components/ui/skeleton.tsx
++++ b/components/ui/skeleton.tsx
+@@ -1,2 +1,2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/slider.tsx
++++ b/components/ui/slider.tsx
+@@ -2,3 +2,3 @@
+ import * as SliderPrimitive from '@radix-ui/react-slider';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/spinner.tsx
++++ b/components/ui/spinner.tsx
+@@ -1,2 +1,2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Loader2Icon } from 'lucide-react';
+--- a/components/ui/switch.tsx
++++ b/components/ui/switch.tsx
+@@ -2,3 +2,3 @@
+ import * as SwitchPrimitives from '@radix-ui/react-switch';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/table.tsx
++++ b/components/ui/table.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/tabs.tsx
++++ b/components/ui/tabs.tsx
+@@ -2,3 +2,3 @@
+ import * as TabsPrimitive from '@radix-ui/react-tabs';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/textarea.tsx
++++ b/components/ui/textarea.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/toast.tsx
++++ b/components/ui/toast.tsx
+@@ -2,3 +2,3 @@
+ import * as ToastPrimitives from '@radix-ui/react-toast';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/toaster.tsx
++++ b/components/ui/toaster.tsx
+@@ -7,4 +7,4 @@
+   ToastViewport,
+-} from '@/components/ui/toast';
+-import { useToast } from '@/hooks/use-toast';
++} from './toast';
++import { useToast } from '../../hooks/use-toast';
+ 
+--- a/components/ui/toggle-group.tsx
++++ b/components/ui/toggle-group.tsx
+@@ -4,4 +4,4 @@
+ import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
+-import { toggleVariants } from '@/components/ui/toggle';
+-import { cn } from '@/lib/utils';
++import { toggleVariants } from './toggle';
++import { cn } from '../../lib/utils';
+ import { type VariantProps } from 'class-variance-authority';
+--- a/components/ui/toggle.tsx
++++ b/components/ui/toggle.tsx
+@@ -2,3 +2,3 @@
+ import * as TogglePrimitive from '@radix-ui/react-toggle';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/tooltip.tsx
++++ b/components/ui/tooltip.tsx
+@@ -1,2 +1,3 @@
+ 'use client';
++import { SyntraPortal } from '../../lib/portal-context';
+ 
+@@ -4,3 +5,3 @@
+ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+@@ -16,3 +17,3 @@
+ >(({ className, sideOffset = 4, ...props }, ref) => (
+-  <TooltipPrimitive.Portal>
++  <SyntraPortal Primitive={TooltipPrimitive.Portal}>
+     <TooltipPrimitive.Content
+@@ -26,3 +27,3 @@
+     />
+-  </TooltipPrimitive.Portal>
++  </SyntraPortal>
+ ));

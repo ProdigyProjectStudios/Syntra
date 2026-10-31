@@ -243,7 +243,16 @@ function BookWorkspace() {
                   <Download className="h-3.5 w-3.5" /> Export .md
                 </button>
               </div>
-              {feedback === 'copy-error' && <p role="alert" className="mt-3 text-xs text-amber-200">Clipboard access is unavailable. Export the Markdown file instead.</p>}
+              {feedback === 'copy-error' && (
+                <div className="mt-3 space-y-2">
+                  <p role="alert" className="text-xs leading-relaxed text-amber-200">Your browser blocked clipboard access. Select the brief below to copy it manually, or export the Markdown file.</p>
+                  <label className="block text-[11px] text-foreground/65" htmlFor="handoff-manual-copy">Your reviewed project brief</label>
+                  <textarea id="handoff-manual-copy" readOnly rows={5} value={markdown}
+                    onFocus={event => event.currentTarget.select()}
+                    className="block w-full resize-y rounded-xl border border-primary/25 bg-black/25 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-foreground/80 outline-none transition focus:border-primary/60"
+                    data-testid="textarea-manual-copy-handoff" />
+                </div>
+              )}
               {feedback === 'downloaded' && <p role="status" className="mt-3 text-xs text-cyan-200/80">Markdown export prepared locally on your device.</p>}
             </div>
             <p className="mt-3 flex items-start gap-2 text-[10px] leading-relaxed text-muted-foreground sm:mt-4 sm:text-[11px]">
@@ -258,8 +267,8 @@ function BookWorkspace() {
                 <Send className="h-4.5 w-4.5" strokeWidth={1.5} />
               </div>
               <div>
-                <h2 className="font-display text-[14px] tracking-tight">Connect with the team</h2>
-                <p className="mt-1 text-xs text-foreground/55">Only approved channels appear here.</p>
+                <h2 className="font-display text-[14px] tracking-tight">Connect with Aaron</h2>
+                <p className="mt-1 text-xs text-foreground/55">Speak directly with the engineer behind Digital Prodigy.</p>
               </div>
             </div>
 
@@ -281,6 +290,11 @@ function BookWorkspace() {
             {hasGateway && !canSubmit && <p className="mt-4 text-xs leading-relaxed text-foreground/65">Add a clear objective in <Link href="/brief" className="text-primary underline">Project Brief</Link> before submitting a reviewed enquiry.</p>}
             {safeContacts.length > 0 && (
               <div className="mt-5 grid gap-2">
+                <p className="mb-1 text-xs leading-relaxed text-foreground/65" data-testid="handoff-contact-guidance">
+                  {hasScopedBrief
+                    ? 'Review and copy your brief, then choose a contact channel and share the details you want Aaron to review.'
+                    : 'Choose a contact channel to describe your project directly, or return to Discover to shape your brief first.'}
+                </p>
                 {safeContacts.map(contact => {
                   const Icon = CONTACT_ICONS[contact.kind];
                   return (
@@ -298,7 +312,7 @@ function BookWorkspace() {
                     </a>
                   );
                 })}
-                <p className="text-[10px] leading-relaxed text-muted-foreground">Opening a contact channel is not a confirmed appointment or submitted enquiry.</p>
+                <p className="text-[10px] leading-relaxed text-muted-foreground">Your chosen channel opens separately. Your brief stays here until you choose to share it. An enquiry or appointment is confirmed only by the receiving service.</p>
               </div>
             )}
 
@@ -321,7 +335,7 @@ function BookWorkspace() {
                       data-testid="input-handoff-email" />
                   </label>
                 </div>
-                <label className="block text-xs text-foreground/75">Anything else the team should know? <span className="text-muted-foreground">(optional)</span>
+                <label className="block text-xs text-foreground/75">Anything else Aaron should know? <span className="text-muted-foreground">(optional)</span>
                   <textarea rows={2} value={note} maxLength={2000} disabled={enquiry.locked}
                     onChange={event => updateDetails(() => setNote(event.target.value))}
                     className="mt-1.5 block w-full resize-y rounded-xl border border-white/[.13] bg-black/20 px-3 py-2.5 text-sm outline-none transition focus:border-primary/60"

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SyntraConsultationRepository, blankBrief, type NativeStorage } from "./native-repository.ts";
 import { createNativeRuntime, type NativePorts } from "./native-runtime.ts";
-import { NativeTranscript, type NativeTranscriptPart } from "./native-transcript.ts";
+import { NativeTranscript, nativeTranscriptPair, type NativeTranscriptPart } from "./native-transcript.ts";
 import { verifyNativeCompletion } from "./native-completion.ts";
 import { manualBrief } from "./engine.ts";
 import type { Conversation, Message } from "./types.ts";
@@ -81,6 +81,24 @@ test("voice commit preserves concurrent manual clears", async () => {
   await repo.stageNativeVoiceChanges("voice1", "Budget £6000", { budget: change });
   const edited = await repo.updateBrief(1, { budget: null }, 0);
   assert.deepEqual(await repo.completeNativeVoiceTurn("voice1"), edited);
+});
+test("native turn limit counts voice history before admitting text and preserves completed replays", async () => {
+  const repo = new SyntraConsultationRepository(new Memory(), "combined-turn-cap");
+  await repo.beginTurn(1, "typed_before_voice", "Plan my project", "detailed");
+  await repo.attachResponseId("typed_before_voice", "typed-response");
+  await repo.completeTurn("typed_before_voice", "typed-response", "What should it do?", "Plan my project");
+  for (let index = 0; index < 119; index++) {
+    await repo.stageNativeVoiceChanges(`voice-${index}`, `Project detail ${index}`, {});
+    await repo.completeNativeVoiceTurn(`voice-${index}`, `Project detail ${index}`);
+  }
+  const before = await repo.get(1);
+  assert.equal(before.messageCount, 240);
+  await assert.rejects(repo.beginTurn(1, "text_after_full_voice", "A new request", "detailed"), { status: 422 });
+  assert.deepEqual(await repo.beginTurn(1, "typed_before_voice", "Plan my project", "detailed"), {
+    status: "completed", responseId: "typed-response",
+  });
+  assert.deepEqual(await repo.completeNativeVoiceTurn("voice-118", "Project detail 118"), before.brief);
+  assert.equal((await repo.get(1)).messageCount, before.messageCount);
 });
 test("empty/repeated manual saves do not invent revisions", () => {
   const initial = blankBrief();
@@ -165,6 +183,25 @@ test("late aborted native voice acquisition is closed", async () => {
   await assert.rejects(f.runtime.voice.connect(1, () => events++, controller.signal), /canceled/);
   assert.equal(closes, 1); assert.equal(events, 0); assert.equal(f.sends(), 0);
 });
+test("native conversion ports require literal consent before any external provider call", async () => {
+  const f = fixture();
+  let bookings = 0, enquiries = 0;
+  f.ports.booking.book = async () => { bookings++; return { status: "confirmed", reference: "BOOKING-1" }; };
+  f.ports.booking.submitEnquiry = async () => { enquiries++; return { status: "confirmed", reference: "ENQUIRY-1" }; };
+  const runtime = createNativeRuntime(f.ports);
+  const enquiry = { conversationId: 1, requestId: "consented_request", briefRevision: 0,
+    brief: { ...blankBrief(), objective: "Plan my project" }, name: "Jane Example", email: "jane@example.com", consent: true };
+  for (const consent of [false, "false", "true", 1, undefined, null]) {
+    await assert.rejects(runtime.booking.book!(1, consent as boolean), /confirmation/);
+    await assert.rejects(runtime.booking.submitEnquiry!({ ...enquiry, consent: consent as boolean }), /confirmation/);
+  }
+  assert.equal(bookings, 0);
+  assert.equal(enquiries, 0);
+  await runtime.booking.book!(1, true);
+  await runtime.booking.submitEnquiry!(enquiry);
+  assert.equal(bookings, 1);
+  assert.equal(enquiries, 1);
+});
 test("trusted completion denies forged identity, failed response or missing proof", () => {
   const proof = { sessionKey: "scope", requestId: "request", responseId: "response", visitorText: "Goal", reply: "Answer", status: "succeeded" as const };
   assert.equal(verifyNativeCompletion(proof, "scope", "request", "response"), proof);
@@ -197,4 +234,28 @@ test("streamed updates replace a native part without duplicates or dropping repe
   assert.equal(after[0].message.content, "Hello world");
   assert.equal(transcript.read([part(), part({ hidden: true })], "detailed").length, 0);
   assert.equal(transcript.read([part(), part({ key: "another-real-part" })], "detailed")[0].message.content, "Budget £6000\n\nBudget £6000");
+});
+test("native completion selects its own visitor from interleaved responses", () => {
+  const transcript = new NativeTranscript();
+  const entries = transcript.read([
+    part({ key: "visitor-a", responseId: "response-a", text: "Build a portal" }),
+    part({ key: "visitor-b", responseId: "response-b", text: "Automate my CRM" }),
+    part({ key: "advisor-a", responseId: "response-a", role: "advisor", text: "A client portal fits." }),
+  ], "detailed");
+  const pair = nativeTranscriptPair(entries, "response-a")!;
+  assert.equal(pair.visitorMessage.content, "Build a portal");
+  assert.equal(pair.message.content, "A client portal fits.");
+  assert.equal(nativeTranscriptPair(entries, "response-b"), null);
+  assert.deepEqual(nativeTranscriptPair(entries.toReversed(), "response-a"), pair);
+  assert.deepEqual(nativeTranscriptPair(entries, "response-a"), pair);
+});
+test("native completion waits for its canonical pair instead of fabricating a visitor", () => {
+  const transcript = new NativeTranscript();
+  const entries = transcript.read([
+    part({ key: "earlier-visitor", responseId: "earlier", text: "Unrelated prior question" }),
+    part({ key: "current-advisor", responseId: "current", role: "advisor", text: "Current answer" }),
+  ], "concise");
+  assert.equal(nativeTranscriptPair(entries, "current"), null);
+  assert.equal(nativeTranscriptPair(entries, "missing"), null);
+  assert.equal(nativeTranscriptPair([], "current"), null);
 });

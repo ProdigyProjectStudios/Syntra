@@ -50,6 +50,8 @@ Use `generated-artifacts/agentplace/syntra-transfer-manifest.json` for the exact
 - `voiceTurn(toolContext)` returns the current native turn ID and final visitor transcript from trusted runner state, not the individual tool-call ID.
 - `TranscriptIdentity.identify(content, index)` supplies native stable part ID, response association and ISO timestamp. The `index` is only contextual information, not a substitute for identity. Register a memoized provider value so normal store changes do not replace the runtime.
 
+Associate the visitor and advisor entries of a turn with the same canonical response ID. Recovery now refuses an incomplete or mismatched pair instead of selecting the nearest preceding visitor. Verify this mapping against actual native history, including interleaved voice events.
+
 `typedSucceeded` / `voiceSucceeded` finalize staged changes after native successful completion, then notify existing clients using their normal refresh/event mechanism. `terminalFailure` discards staged work only with trusted evidence. These server hooks must work even if Syntra's browser surface disconnects.
 
 The current native transcript mapper only projects final/native text or visitor audio into the UI; hidden/reasoning/assistant audio playback is excluded. Confirm the host's actual role enum and AgentContent schema at native compile time. If its assistant role has another name, map that in `compat/native-bindings.tsx`, not in the shared UI. Native captions are display-only; never send them to `messages.send`.

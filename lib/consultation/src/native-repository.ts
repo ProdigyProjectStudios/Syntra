@@ -235,7 +235,7 @@ export class SyntraConsultationRepository {
 
       const historyCharacters = record.turns.reduce((sum, turn) => sum + turn.content.length + (turn.reply?.length ?? 0), 0)
         + record.voiceMessages.reduce((sum, text) => sum + text.length, 0);
-      if (record.turns.length >= MAX_TURNS) {
+      if (record.turns.length + record.voiceTurnIds.length >= MAX_TURNS) {
         throw new ConsultationError(422, 'This session is full. Please start a new session.');
       }
       if (historyCharacters + text.length > MAX_CONTEXT_CHARACTERS) {

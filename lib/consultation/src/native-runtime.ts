@@ -61,11 +61,11 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
     services: () => scoped(() => ports.services()),
     booking: { contacts: () => scoped(() => ports.booking.contacts()),
       ...(ports.booking.book ? { book: (id: number, consent: boolean) => scoped(async () => {
-        if (!consent) throw new Error("Visitor confirmation is required.");
+        if (consent !== true) throw new Error("Visitor confirmation is required.");
         return ports.booking.book!(id, consent);
       }) } : {}),
       ...(ports.booking.submitEnquiry ? { submitEnquiry: (input: import("./handoff.ts").EnquiryInput) => scoped(async () => {
-        if (!input.consent) throw new Error("Visitor confirmation is required.");
+        if (input.consent !== true) throw new Error("Visitor confirmation is required.");
         return ports.booking.submitEnquiry!(input);
       }) } : {}),
     },

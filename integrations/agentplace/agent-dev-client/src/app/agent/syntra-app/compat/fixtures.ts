@@ -1,2 +1,2 @@
-// Generated catalogue source is the same presentation content as Replit, never availability.
-export { SERVICE_AREAS } from '../shared/catalogue';
+// Shared current business catalogue; project directions are not guaranteed availability.
+export { SERVICE_AREAS } from '../shared/business';

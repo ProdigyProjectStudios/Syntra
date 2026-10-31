@@ -2,9 +2,8 @@ import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getGetConversationQueryKey, getGetBriefQueryKey } from '@workspace/api-client-react';
 import type { VoiceConnection, VoiceEvent } from '@workspace/consultation';
-import { runtime } from '@/lib/runtime';
+import { useRuntime, useRuntimeKeys } from '@/lib/runtime-context';
 import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
 
@@ -70,7 +69,9 @@ function SpokenLine({ text }: { text: string }) {
 }
 
 export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { ensureConversation, conversationId } = useAdvisor();
+  const { runtime } = useRuntime();
+  const { getGetConversationQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
+  const { ensureConversation, conversationId, depth } = useAdvisor();
   const qc = useQueryClient();
   const [boot, setBoot] = useState<string | null>(null);
   const [nativeState, setNativeState] = useState<CoreState>('connecting');
@@ -109,6 +110,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
     void (async () => {
       try {
         const id = await ensureConversation();
+        await runtime.sessions.setDepth?.(id, depth);
         voiceConversationId = id;
         if (controller.signal.aborted) return;
         const connected = await runtime.voice.connect(id, handleEvent, controller.signal);

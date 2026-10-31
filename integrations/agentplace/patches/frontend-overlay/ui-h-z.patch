@@ -1,0 +1,225 @@
+--- a/components/ui/hover-card.tsx
++++ b/components/ui/hover-card.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/input-group.tsx
++++ b/components/ui/input-group.tsx
+@@ -2,4 +2,4 @@
+-import { Button } from '@/components/ui/button';
+-import { Input } from '@/components/ui/input';
+-import { Textarea } from '@/components/ui/textarea';
+-import { cn } from '@/lib/utils';
++import { Button } from './button';
++import { Input } from './input';
++import { Textarea } from './textarea';
++import { cn } from '../../lib/utils';
+--- a/components/ui/input-otp.tsx
++++ b/components/ui/input-otp.tsx
+@@ -2 +2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/input.tsx
++++ b/components/ui/input.tsx
+@@ -2 +2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/item.tsx
++++ b/components/ui/item.tsx
+@@ -3,2 +3,2 @@
+-import { Separator } from '@/components/ui/separator';
+-import { cn } from '@/lib/utils';
++import { Separator } from './separator';
++import { cn } from '../../lib/utils';
+--- a/components/ui/kbd.tsx
++++ b/components/ui/kbd.tsx
+@@ -1 +1 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/label.tsx
++++ b/components/ui/label.tsx
+@@ -5 +5 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/menubar.tsx
++++ b/components/ui/menubar.tsx
+@@ -0,0 +1 @@
++import { SyntraPortal } from '../../lib/portal-context';
+@@ -3 +4 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+@@ -21 +22 @@
+-  return <MenubarPrimitive.Portal {...props} />;
++  return <SyntraPortal Primitive={MenubarPrimitive.Portal} {...props} />;
+@@ -110 +111 @@
+-    <MenubarPrimitive.Portal>
++    <SyntraPortal Primitive={MenubarPrimitive.Portal}>
+@@ -122 +123 @@
+-    </MenubarPrimitive.Portal>
++    </SyntraPortal>
+--- a/components/ui/navigation-menu.tsx
++++ b/components/ui/navigation-menu.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/pagination.tsx
++++ b/components/ui/pagination.tsx
+@@ -2,2 +2,2 @@
+-import { ButtonProps, buttonVariants } from '@/components/ui/button';
+-import { cn } from '@/lib/utils';
++import { ButtonProps, buttonVariants } from './button';
++import { cn } from '../../lib/utils';
+--- a/components/ui/popover.tsx
++++ b/components/ui/popover.tsx
+@@ -0,0 +1 @@
++import { SyntraPortal } from '../../lib/portal-context';
+@@ -3 +4 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+@@ -15 +16 @@
+-  <PopoverPrimitive.Portal>
++  <SyntraPortal Primitive={PopoverPrimitive.Portal}>
+@@ -26 +27 @@
+-  </PopoverPrimitive.Portal>
++  </SyntraPortal>
+--- a/components/ui/progress.tsx
++++ b/components/ui/progress.tsx
+@@ -5 +5 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/radio-group.tsx
++++ b/components/ui/radio-group.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/resizable.tsx
++++ b/components/ui/resizable.tsx
+@@ -4 +4 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/scroll-area.tsx
++++ b/components/ui/scroll-area.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/select.tsx
++++ b/components/ui/select.tsx
+@@ -1,0 +2 @@
++import { SyntraPortal } from '../../lib/portal-context';
+@@ -5 +6 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+@@ -73 +74 @@
+-  <SelectPrimitive.Portal>
++  <SyntraPortal Primitive={SelectPrimitive.Portal}>
+@@ -97 +98 @@
+-  </SelectPrimitive.Portal>
++  </SyntraPortal>
+--- a/components/ui/separator.tsx
++++ b/components/ui/separator.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/sheet.tsx
++++ b/components/ui/sheet.tsx
+@@ -1,0 +2 @@
++import { SyntraPortal } from '../../lib/portal-context';
+@@ -5 +6 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+@@ -15 +16 @@
+-const SheetPortal = SheetPrimitive.Portal;
++const SheetPortal = (props: React.ComponentProps<typeof SheetPrimitive.Portal>) => <SyntraPortal Primitive={SheetPrimitive.Portal} {...props} />;
+--- a/components/ui/sidebar.tsx
++++ b/components/ui/sidebar.tsx
+@@ -5,3 +5,3 @@
+-import { Button } from '@/components/ui/button';
+-import { Input } from '@/components/ui/input';
+-import { Separator } from '@/components/ui/separator';
++import { Button } from './button';
++import { Input } from './input';
++import { Separator } from './separator';
+@@ -14,2 +14,2 @@
+-} from '@/components/ui/sheet';
+-import { Skeleton } from '@/components/ui/skeleton';
++} from './sheet';
++import { Skeleton } from './skeleton';
+@@ -21,3 +21,3 @@
+-} from '@/components/ui/tooltip';
+-import { useIsMobile } from '@/hooks/use-mobile';
+-import { cn } from '@/lib/utils';
++} from './tooltip';
++import { useIsMobile } from '../../hooks/use-mobile';
++import { cn } from '../../lib/utils';
+--- a/components/ui/skeleton.tsx
++++ b/components/ui/skeleton.tsx
+@@ -1 +1 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/slider.tsx
++++ b/components/ui/slider.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/spinner.tsx
++++ b/components/ui/spinner.tsx
+@@ -1 +1 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/switch.tsx
++++ b/components/ui/switch.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/table.tsx
++++ b/components/ui/table.tsx
+@@ -2 +2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/tabs.tsx
++++ b/components/ui/tabs.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/textarea.tsx
++++ b/components/ui/textarea.tsx
+@@ -2 +2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/toast.tsx
++++ b/components/ui/toast.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/toaster.tsx
++++ b/components/ui/toaster.tsx
+@@ -8,2 +8,2 @@
+-} from '@/components/ui/toast';
+-import { useToast } from '@/hooks/use-toast';
++} from './toast';
++import { useToast } from '../../hooks/use-toast';
+--- a/components/ui/toggle-group.tsx
++++ b/components/ui/toggle-group.tsx
+@@ -5,2 +5,2 @@
+-import { toggleVariants } from '@/components/ui/toggle';
+-import { cn } from '@/lib/utils';
++import { toggleVariants } from './toggle';
++import { cn } from '../../lib/utils';
+--- a/components/ui/toggle.tsx
++++ b/components/ui/toggle.tsx
+@@ -3 +3 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+--- a/components/ui/tooltip.tsx
++++ b/components/ui/tooltip.tsx
+@@ -1,0 +2 @@
++import { SyntraPortal } from '../../lib/portal-context';
+@@ -5 +6 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+@@ -17 +18 @@
+-  <TooltipPrimitive.Portal>
++  <SyntraPortal Primitive={TooltipPrimitive.Portal}>
+@@ -27 +28 @@
+-  </TooltipPrimitive.Portal>
++  </SyntraPortal>

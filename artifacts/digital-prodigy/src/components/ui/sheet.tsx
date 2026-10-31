@@ -12,7 +12,8 @@ const SheetTrigger = SheetPrimitive.Trigger;
 
 const SheetClose = SheetPrimitive.Close;
 
-const SheetPortal = SheetPrimitive.Portal;
+import { SyntraPortal } from '../../lib/portal-context';
+const SheetPortal = (props: React.ComponentProps<typeof SheetPrimitive.Portal>) => <SyntraPortal Primitive={SheetPrimitive.Portal} {...props} />;
 
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,

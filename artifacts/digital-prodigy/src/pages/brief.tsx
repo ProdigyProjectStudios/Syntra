@@ -3,10 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { Check, Pencil, X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getGetBriefQueryKey, getGetConversationQueryKey } from '@workspace/api-client-react';
+import { useRuntimeKeys } from '@/lib/runtime-context';
 import { useGetBrief, useUpdateBrief } from '@/lib/runtime-hooks';
 import type { BriefKey, Brief, Conversation, FieldProvenance } from '@workspace/consultation';
-import { errorMessage } from '@/lib/runtime';
+import { errorMessage } from '@/lib/errors';
 import { useAdvisor } from '@/lib/advisor';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorOrb } from '@/components/advisor-ui';
@@ -103,6 +103,7 @@ function CompletionDial({ pct, filled, lit }: { pct: number; filled: number; lit
 }
 
 function Field({ id, field, value, index, revision, provenance }: { id: number; field: (typeof FIELDS)[number]; value: string | null; index: number; revision: number; provenance?: FieldProvenance }) {
+  const { getGetBriefQueryKey, getGetConversationQueryKey } = useRuntimeKeys();
   const qc = useQueryClient();
   const { toast } = useToast();
   const update = useUpdateBrief();

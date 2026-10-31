@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { SyntraPortal } from '../../lib/portal-context';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +15,7 @@ const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal>
+  <SyntraPortal Primitive={TooltipPrimitive.Portal}>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
@@ -24,7 +25,7 @@ const TooltipContent = React.forwardRef<
       )}
       {...props}
     />
-  </TooltipPrimitive.Portal>
+  </SyntraPortal>
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUp, ArrowUpRight, RotateCw } from 'lucide-react';
 import { useListConversations } from '@/lib/runtime-hooks';
-import type { Message } from '@workspace/api-client-react';
+import type { Message } from '@workspace/consultation';
 import { formatDistanceToNow } from 'date-fns';
 import { DEPTHS, useAdvisor } from '@/lib/advisor';
 import { NeuralCore } from '@/components/neural-core';

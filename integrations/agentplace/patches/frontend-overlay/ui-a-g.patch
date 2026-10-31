@@ -1,0 +1,220 @@
+--- a/components/ui/accordion.tsx
++++ b/components/ui/accordion.tsx
+@@ -2,3 +2,3 @@
+ import * as AccordionPrimitive from '@radix-ui/react-accordion';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { ChevronDown } from 'lucide-react';
+--- a/components/ui/alert-dialog.tsx
++++ b/components/ui/alert-dialog.tsx
+@@ -1,5 +1,6 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
+-import { buttonVariants } from '@/components/ui/button';
+-import { cn } from '@/lib/utils';
++import { buttonVariants } from './button';
++import { cn } from '../../lib/utils';
+ 
+@@ -9,3 +10,3 @@
+ 
+-const AlertDialogPortal = AlertDialogPrimitive.Portal;
++const AlertDialogPortal = (props: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) => <SyntraPortal Primitive={AlertDialogPrimitive.Portal} {...props} />;
+ 
+--- a/components/ui/alert.tsx
++++ b/components/ui/alert.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/avatar.tsx
++++ b/components/ui/avatar.tsx
+@@ -4,3 +4,3 @@
+ import * as AvatarPrimitive from '@radix-ui/react-avatar';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/badge.tsx
++++ b/components/ui/badge.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/breadcrumb.tsx
++++ b/components/ui/breadcrumb.tsx
+@@ -2,3 +2,3 @@
+ import { Slot } from '@radix-ui/react-slot';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { ChevronRight, MoreHorizontal } from 'lucide-react';
+--- a/components/ui/button-group.tsx
++++ b/components/ui/button-group.tsx
+@@ -1,4 +1,4 @@
+ import { Slot } from '@radix-ui/react-slot';
+-import { Separator } from '@/components/ui/separator';
+-import { cn } from '@/lib/utils';
++import { Separator } from './separator';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/button.tsx
++++ b/components/ui/button.tsx
+@@ -2,3 +2,3 @@
+ import { Slot } from '@radix-ui/react-slot';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/calendar.tsx
++++ b/components/ui/calendar.tsx
+@@ -3,5 +3,5 @@
+ import * as React from 'react';
+-import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker';
+-import { Button, buttonVariants } from '@/components/ui/button';
+-import { cn } from '@/lib/utils';
++import { DayButton, DayPicker, getDefaultClassNames } from '@syntra/react-day-picker';
++import { Button, buttonVariants } from './button';
++import { cn } from '../../lib/utils';
+ import {
+--- a/components/ui/card.tsx
++++ b/components/ui/card.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ 
+--- a/components/ui/carousel.tsx
++++ b/components/ui/carousel.tsx
+@@ -1,4 +1,4 @@
+ import * as React from 'react';
+-import { Button } from '@/components/ui/button';
+-import { cn } from '@/lib/utils';
++import { Button } from './button';
++import { cn } from '../../lib/utils';
+ import useEmblaCarousel, {
+--- a/components/ui/chart.tsx
++++ b/components/ui/chart.tsx
+@@ -1,3 +1,3 @@
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import * as RechartsPrimitive from 'recharts';
+--- a/components/ui/checkbox.tsx
++++ b/components/ui/checkbox.tsx
+@@ -2,3 +2,3 @@
+ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Check } from 'lucide-react';
+--- a/components/ui/command.tsx
++++ b/components/ui/command.tsx
+@@ -4,4 +4,4 @@
+ import { type DialogProps } from '@radix-ui/react-dialog';
+-import { Dialog, DialogContent } from '@/components/ui/dialog';
+-import { cn } from '@/lib/utils';
++import { Dialog, DialogContent } from './dialog';
++import { cn } from '../../lib/utils';
+ import { Command as CommandPrimitive } from 'cmdk';
+--- a/components/ui/context-menu.tsx
++++ b/components/ui/context-menu.tsx
+@@ -1,4 +1,5 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+ import * as ContextMenuPrimitive from '@radix-ui/react-context-menu';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Check, ChevronRight, Circle } from 'lucide-react';
+@@ -11,3 +12,3 @@
+ 
+-const ContextMenuPortal = ContextMenuPrimitive.Portal;
++const ContextMenuPortal = (props: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) => <SyntraPortal Primitive={ContextMenuPrimitive.Portal} {...props} />;
+ 
+@@ -57,3 +58,3 @@
+ >(({ className, ...props }, ref) => (
+-  <ContextMenuPrimitive.Portal>
++  <SyntraPortal Primitive={ContextMenuPrimitive.Portal}>
+     <ContextMenuPrimitive.Content
+@@ -66,3 +67,3 @@
+     />
+-  </ContextMenuPrimitive.Portal>
++  </SyntraPortal>
+ ));
+--- a/components/ui/dialog.tsx
++++ b/components/ui/dialog.tsx
+@@ -1,4 +1,5 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+ import * as DialogPrimitive from '@radix-ui/react-dialog';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { X } from 'lucide-react';
+@@ -9,3 +10,3 @@
+ 
+-const DialogPortal = DialogPrimitive.Portal;
++const DialogPortal = (props: React.ComponentProps<typeof DialogPrimitive.Portal>) => <SyntraPortal Primitive={DialogPrimitive.Portal} {...props} />;
+ 
+--- a/components/ui/drawer.tsx
++++ b/components/ui/drawer.tsx
+@@ -1,3 +1,4 @@
++import { SyntraPortal } from '../../lib/portal-context';
+ import * as React from 'react';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Drawer as DrawerPrimitive } from 'vaul';
+@@ -17,3 +18,3 @@
+ 
+-const DrawerPortal = DrawerPrimitive.Portal;
++const DrawerPortal = (props: React.ComponentProps<typeof DrawerPrimitive.Portal>) => <SyntraPortal Primitive={DrawerPrimitive.Portal} {...props} />;
+ 
+--- a/components/ui/dropdown-menu.tsx
++++ b/components/ui/dropdown-menu.tsx
+@@ -1,2 +1,3 @@
+ 'use client';
++import { SyntraPortal } from '../../lib/portal-context';
+ 
+@@ -4,3 +5,3 @@
+ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { Check, ChevronRight, Circle } from 'lucide-react';
+@@ -13,3 +14,3 @@
+ 
+-const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
++const DropdownMenuPortal = (props: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) => <SyntraPortal Primitive={DropdownMenuPrimitive.Portal} {...props} />;
+ 
+@@ -61,3 +62,3 @@
+ >(({ className, sideOffset = 4, ...props }, ref) => (
+-  <DropdownMenuPrimitive.Portal>
++  <SyntraPortal Primitive={DropdownMenuPrimitive.Portal}>
+     <DropdownMenuPrimitive.Content
+@@ -72,3 +73,3 @@
+     />
+-  </DropdownMenuPrimitive.Portal>
++  </SyntraPortal>
+ ));
+--- a/components/ui/empty.tsx
++++ b/components/ui/empty.tsx
+@@ -1,2 +1,2 @@
+-import { cn } from '@/lib/utils';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/field.tsx
++++ b/components/ui/field.tsx
+@@ -3,5 +3,5 @@
+ import { useMemo } from 'react';
+-import { Label } from '@/components/ui/label';
+-import { Separator } from '@/components/ui/separator';
+-import { cn } from '@/lib/utils';
++import { Label } from './label';
++import { Separator } from './separator';
++import { cn } from '../../lib/utils';
+ import { cva, type VariantProps } from 'class-variance-authority';
+--- a/components/ui/form.tsx
++++ b/components/ui/form.tsx
+@@ -11,4 +11,4 @@
+ } from 'react-hook-form';
+-import { Label } from '@/components/ui/label';
+-import { cn } from '@/lib/utils';
++import { Label } from './label';
++import { cn } from '../../lib/utils';
+ 

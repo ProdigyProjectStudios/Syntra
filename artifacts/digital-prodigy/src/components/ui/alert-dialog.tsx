@@ -7,7 +7,8 @@ const AlertDialog = AlertDialogPrimitive.Root;
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
-const AlertDialogPortal = AlertDialogPrimitive.Portal;
+import { SyntraPortal } from '../../lib/portal-context';
+const AlertDialogPortal = (props: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) => <SyntraPortal Primitive={AlertDialogPrimitive.Portal} {...props} />;
 
 const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,

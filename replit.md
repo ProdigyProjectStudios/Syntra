@@ -1,3 +1,6 @@
+## Syntra native reconciliation
+
+Keep `artifacts/digital-prodigy/src` and `lib/consultation/src` authoritative. Native-only bindings are under `integrations/agentplace`; historical frontend overlays there must not be applied to newer source. `pnpm test:agentplace` generates/checks a dedicated ignored transfer bundle. See its README and registration checklist before updating the native host.
 # Digital Prodigy — AI Build Advisor
 
 _A conversational AI advisor for Digital Prodigy (AI-first product studio): turns a visitor's vague idea into a scoped project brief across four experiences — Discover, Solutions, Project Brief, Book._

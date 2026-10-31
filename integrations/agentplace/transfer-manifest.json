@@ -1,0 +1,582 @@
+{
+  "schemaVersion": 1,
+  "sourceOfTruth": "artifacts/digital-prodigy/src + lib/consultation/src",
+  "upstreamAgentPlaceCommit": "ddec385eef2b76b31974a0c16de57a498d5a22f3",
+  "files": [
+    {
+      "path": "agent-dev-client/src/app/agent/surfaces/SyntraIntegrationProof.tsx",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/surfaces/SyntraIntegrationProof.tsx",
+      "sha256": "bf834cc9adcc40acf017640060b15010684c7e619f3f135c525e4963c906782c"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/surfaces/index.ts",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/surfaces/index.ts",
+      "sha256": "d372fdd8d517205abbf85a4a725776798e04a8330fa17d3bf31f634bb8e362a3"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compat/api-client.tsx",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compat/api-client.tsx",
+      "sha256": "870cc8be231cecd4a78d90a148050da5d32b7b4dd6713ae8f67311348da397fb"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compat/fixtures.ts",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compat/fixtures.ts",
+      "sha256": "6983bff215ffbd0b36428dd082663cb16578db4915c41384ffcbc040f111cb13"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compat/index.ts",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compat/index.ts",
+      "sha256": "45aad3392c4bd36d5bf8fa27ddbfcfdb40092c4c604c59653a1f0d8d938f035f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compat/native-bindings.tsx",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compat/native-bindings.tsx",
+      "sha256": "b91c2fc29d612402d83a15530e719c4a80b677101a7586b1304dfb85d22509ab"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compat/types.ts",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compat/types.ts",
+      "sha256": "921cae363ac0939022903ccf72caf5b2a2a514b222ca484dda6bfc912f723cba"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/compile-styles.mjs",
+      "source": "integrations/agentplace/agent-dev-client/src/app/agent/syntra-app/compile-styles.mjs",
+      "sha256": "922da9d44d430d1e3eb73268b7726aa9c5c070ed3119bfdbe342cae5578f649f"
+    },
+    {
+      "path": "agent-dev-client/src/app/lib/stage/SyntraViewportContext.tsx",
+      "source": "integrations/agentplace/agent-dev-client/src/app/lib/stage/SyntraViewportContext.tsx",
+      "sha256": "ac5a965fafb8358fbe9eb42810f287c207bd411251534b04f81d6e6d3c6211bf"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/consultation-engine.test.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/consultation-engine.test.ts",
+      "sha256": "d3a4a2d092b07c5451ffeb096d2bc1819f726e5537f03a1da15cf2f331d172bf"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/consultation-engine.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/consultation-engine.ts",
+      "sha256": "2241e9c1cd89a8488f4901d86c2231081602967078c882cd3eeb0c3052f4715f"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/consultation-repository.test.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/consultation-repository.test.ts",
+      "sha256": "5bb126c715aefd19c6f27c24019ee377c82f03d93923634c4d2f219574ba7cc2"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/consultation-repository.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/consultation-repository.ts",
+      "sha256": "30b9d523f6c88da3aec696e5ec50e71c5a53bdfc9a5b0b64e31f63f2441c114d"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/consultation-types.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/consultation-types.ts",
+      "sha256": "137dbb1de97c6cbaec46b84b8fb49b7d0c9594e1f9d1806b994ef1d486b4545a"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/native-lifecycle.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/syntra/native-lifecycle.ts",
+      "sha256": "d8d6db5b606b4df8e23f814999d57ebd24f6b8ed8b669e06cd3e8f5270441fe4"
+    },
+    {
+      "path": "agent-dev-server/src/bl/tools/update-syntra-brief.tool.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/bl/tools/update-syntra-brief.tool.ts",
+      "sha256": "69237b873feabb59415e3799ab3ec2ccb029b5caf35d81e82b265cbec7145ddc"
+    },
+    {
+      "path": "agent-dev-server/src/instruction.md",
+      "source": "integrations/agentplace/agent-dev-server/src/instruction.md",
+      "sha256": "c7c51ba74a51d8e51b6a0409f0e0453a8e9300a09e4689608238f4dbb7f20d6e"
+    },
+    {
+      "path": "agent-dev-server/src/surfaces/index.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/surfaces/index.ts",
+      "sha256": "41284b1eb426f2bacee4ee33cb70fe69a48caa874b79fa4ec6f9108051591048"
+    },
+    {
+      "path": "agent-dev-server/src/surfaces/syntra-integration-proof.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/surfaces/syntra-integration-proof.ts",
+      "sha256": "316de00c291609782ffe56a025b9f2b89d3c99622c2b1d16fd967f1c5df61b46"
+    },
+    {
+      "path": "agent-dev-server/src/trpc/routers/syntra.router.ts",
+      "source": "integrations/agentplace/agent-dev-server/src/trpc/routers/syntra.router.ts",
+      "sha256": "bce12f288df83fd0d4e067cc60c85b52b87cfc5e3fd6ceb104af4399adacf4e9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/App.tsx",
+      "source": "artifacts/digital-prodigy/src/App.tsx",
+      "sha256": "1c262996b7a2d8d995f9daa0f6bd6d6b6f623852a5e04a64ba04909011ab51b1"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/advisor-ui.tsx",
+      "source": "artifacts/digital-prodigy/src/components/advisor-ui.tsx",
+      "sha256": "3e0e07f48b6f50401f85c64b23f1bff8cc6e15419c68340fd350e09696e06e41"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/click-burst.tsx",
+      "source": "artifacts/digital-prodigy/src/components/click-burst.tsx",
+      "sha256": "184640e7a050193ba4ea208c49c8789e73a02c2498ebee936f99bc90b9171207"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/constellation.tsx",
+      "source": "artifacts/digital-prodigy/src/components/constellation.tsx",
+      "sha256": "3b0c96eda0205929ab228b2ffe9929e52502d0275e57e21235925ffb778b0c87"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/error-boundary.tsx",
+      "source": "artifacts/digital-prodigy/src/components/error-boundary.tsx",
+      "sha256": "0a644e5cc4fb1453ba72c59007dc9fdb834cf688a17cec4cf5566afef8a8ff4b"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/neural-core.tsx",
+      "source": "artifacts/digital-prodigy/src/components/neural-core.tsx",
+      "sha256": "b9746e8e31d6001e3a6a4307d327a7168f214fc8c13cbd4fdfa31cc21fd6aa6e"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/neural-field.tsx",
+      "source": "artifacts/digital-prodigy/src/components/neural-field.tsx",
+      "sha256": "f1e1606f956191ea84df86e57d047ea10a37ceecee36c3ea0f225fb1c1c20d31"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/shell.tsx",
+      "source": "artifacts/digital-prodigy/src/components/shell.tsx",
+      "sha256": "3ee8282ee2852debfaea2255e583caf04cc21873bedd3bfea06b30fc5828a7c9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/accordion.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/accordion.tsx",
+      "sha256": "1fc82ac2aa527e2074c426481b5a3e7ad5bfe00602f851f5a408a13d2a00c925"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/alert-dialog.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/alert-dialog.tsx",
+      "sha256": "5b45eaeedc31fdd2ddbfe6219cafb62e9bb99525932da8437b79bf2274f27b6f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/alert.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/alert.tsx",
+      "sha256": "9cc57638bb13adc8a9f5f0fc3e34526bdf25bb9a0e7de1ed594ba5bd1b7d3b69"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/aspect-ratio.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/aspect-ratio.tsx",
+      "sha256": "2f5b0ed3cbcf84e526caad0c6b88d4457f8745a365c86cc74d924a1b6e013a36"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/avatar.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/avatar.tsx",
+      "sha256": "1197ed4ae10cfa65ad0debeb7a0d9b3c3b8bb237efaab9eb59ae8c8665c3ac35"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/badge.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/badge.tsx",
+      "sha256": "4c0a8c4f699a6844b8f3aa7d80114f8c327c3c1c6cb16d31bdbb0a4d7b59ef08"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/breadcrumb.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/breadcrumb.tsx",
+      "sha256": "220c5cdd9fe767b177f4738d2000e6691055cc2c0f7c0e02595d250e4ec44368"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/button-group.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/button-group.tsx",
+      "sha256": "678b15434fcc1b6fed7c844c166f6e6772d7d37273272022dbc968d309ed7c61"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/button.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/button.tsx",
+      "sha256": "15edad3074338f4801e3cb163c2d35c0b61f454231d4d1750dce0c818acdc8f4"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/calendar.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/calendar.tsx",
+      "sha256": "b940b6e027e51ee278d6d5138409f2f63c945d6e639a4520a705e7b1e218e7dd"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/card.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/card.tsx",
+      "sha256": "30df3945837ff03de5c7c874b19fbee23055c5433f4394db6ac203c8f996fc75"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/carousel.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/carousel.tsx",
+      "sha256": "1d8b7602796c687e896eb3cdb325e5dc56773e3a476939a8821bab76d3ec0a21"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/chart.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/chart.tsx",
+      "sha256": "c4ff6bf0675f24df7bcf405c70d8ec51f6901d209446de365e1fc4294a755fbf"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/checkbox.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/checkbox.tsx",
+      "sha256": "0a8d60425b8d7a3743379ece555e92134a4727cc1027471e881d7d2f4615b272"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/collapsible.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/collapsible.tsx",
+      "sha256": "aedcd10b62404b39d8d5544c01fee90aa7b66e7280bb80a215601ad198a1b8fd"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/command.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/command.tsx",
+      "sha256": "d80df0a1f437064dc5d32647044e5d133dae7be9bd4f01800dc16c97200d0216"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/context-menu.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/context-menu.tsx",
+      "sha256": "06ee51aaf0c250e11e3ab009560f9c276bac2580b7c2014d939897d2b1070971"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/dialog.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/dialog.tsx",
+      "sha256": "ff3b1eae8b3ebd332e1e05c58ffc13a2d69449734a2ea2f6a9666223f602324c"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/drawer.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/drawer.tsx",
+      "sha256": "93123fd6647b549ae9457c720b455cbfce39bf711c99bb9ba0e651f38619268f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/dropdown-menu.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/dropdown-menu.tsx",
+      "sha256": "2b1245e25bc3176a86e8971187935acb33ebd3766afaa34b261a1a3c89e4dfaf"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/empty.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/empty.tsx",
+      "sha256": "5b071ebe2904a39c559323df1ec29520c24246067f86a7b0bd788e225eadfba0"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/field.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/field.tsx",
+      "sha256": "4ba206f6cabdc6687d72efe5a9fd0fdb1e6c46f0c7297de9c835d8dd0cf4b9b6"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/form.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/form.tsx",
+      "sha256": "f412bda123fa095f45a613865d2a24aca972a72f63bd2f93d7cde39932788fb9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/hover-card.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/hover-card.tsx",
+      "sha256": "76777e26b5e61af61b71b2776d9fb7505b6d411c3a751c3f3a84c4f64325eed7"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/input-group.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/input-group.tsx",
+      "sha256": "fccc7e52784fee8867335963b849af50e2da357e0114d6d541902019971591b1"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/input-otp.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/input-otp.tsx",
+      "sha256": "09493dbf8a728d98bce088a983f8a809bea66da50f40a03898757f60ac5aa3db"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/input.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/input.tsx",
+      "sha256": "05f1a790cfdeff5fdb5be4be01f0859214ecbe3b2927eaa2abc2e1e77c491452"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/item.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/item.tsx",
+      "sha256": "84733c2ddfb5ac5091d85f907a9ec299d9efd521e77f59d398923a7dfab03b91"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/kbd.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/kbd.tsx",
+      "sha256": "11b29bead5389d6e1ed60d89fe1bf62c2ab7805a34e026308888b199e3e26ada"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/label.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/label.tsx",
+      "sha256": "990758cb48f09ac781a6911cf4cbfc404157233ba59ede098e49d83ee54fba4a"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/menubar.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/menubar.tsx",
+      "sha256": "0c01b1bfd565f8093dcc9e9ae676eb4efc3eecbb47a15ccf64d7272e1bc4306f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/navigation-menu.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/navigation-menu.tsx",
+      "sha256": "033c3c998b5dd08ff8ce63cfa217b4983d3138c57d3c025c6eb152c6466159d8"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/pagination.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/pagination.tsx",
+      "sha256": "452293a997e0ba1d0a81cff0912f817eb49b9882ca98feebacb78c9f6bc58bf6"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/popover.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/popover.tsx",
+      "sha256": "6d071203cb9ac6699c528c84008ae094609813cdfc3158a078e5c4af3afab17e"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/progress.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/progress.tsx",
+      "sha256": "8f6f3f5ecc2eda6e49d7c226669bbfe66acdb994c4465b0f1cdf090ef491fe59"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/radio-group.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/radio-group.tsx",
+      "sha256": "9a42bbcf633dc2a70bee5d45ab98ead64732aaaaaf31506eee0065f5fb1145ba"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/resizable.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/resizable.tsx",
+      "sha256": "749c1cdb10f98d059f60a7fb31b532228a0c86328b5a1c5ad1a571eaae9b5ca8"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/scroll-area.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/scroll-area.tsx",
+      "sha256": "be330ce0727b8c261050f7d02758bdfdbcc5ee6aec36ae734987a57d8b5c9e50"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/select.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/select.tsx",
+      "sha256": "77c5decf0a39788e4bea97ab40a5fbf461cbf34f848e7e2d67221035bc6d5bec"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/separator.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/separator.tsx",
+      "sha256": "46da9b241f64f74c3a3b84f8b17ddac00b5e6f81dbcfb3d2ec0382b0c34f007c"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/sheet.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/sheet.tsx",
+      "sha256": "364e40473cc88d528d6a9e75477fb20ef58e608fd01d3871283cd0e944650444"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/sidebar.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/sidebar.tsx",
+      "sha256": "e70274bfb4e30a011b279297a9ea869eaceb95d915249a98f9b9b91cce7984e5"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/skeleton.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/skeleton.tsx",
+      "sha256": "166aedb72920089138ca94e10f05c18be0fb4cee9ba133b79a2bf9d35829140f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/slider.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/slider.tsx",
+      "sha256": "cd11c8a911ba0307a5eccf1fc85f26ff12ee709c885658980108a154b6c07469"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/sonner.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/sonner.tsx",
+      "sha256": "de5a5d9ae404545fcb0f21123530ffcf89d24a47812c70b3ca1376591e28dbdd"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/spinner.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/spinner.tsx",
+      "sha256": "482954602ea775261de89ededb7f812b4edb8821a98d83f7aedfe702ca9a70ae"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/switch.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/switch.tsx",
+      "sha256": "d3b4bd7a2bd1feb0518f45eb23e42c240f88e3bf9b40ff1447bfdc035c70b457"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/table.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/table.tsx",
+      "sha256": "2c1920fd9c697e2fcc055217341490fb46d8842978ac0b0554c8917af4644982"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/tabs.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/tabs.tsx",
+      "sha256": "04c2ac2484f4eb324f0d13e15c84dd3eeba2873bd725eb0be8282fdeab034fd9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/textarea.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/textarea.tsx",
+      "sha256": "4b30b14b58a664295c2c4047ed5c54012f40728c6ff24a699b87118ca79e89f9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/toast.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/toast.tsx",
+      "sha256": "7bbf070ced00defba68d7167cd590b7f91f7f31045cf044e2b3692e1349c2fdf"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/toaster.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/toaster.tsx",
+      "sha256": "4ff0e184257f56d639849a9bf343eaae3416d136cd71c39c3958d0da83c29431"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/toggle-group.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/toggle-group.tsx",
+      "sha256": "f15be8f359688d565b0c77787fbd6f3c050fb1c998ceed3be84db575f21c8fcc"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/toggle.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/toggle.tsx",
+      "sha256": "35ca7122caf2394d842590f925bf6db29be30d3ffe293cb7d9c5dc453812d497"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/tooltip.tsx",
+      "source": "artifacts/digital-prodigy/src/components/ui/tooltip.tsx",
+      "sha256": "ba3c5e4b8bc87ad96ce636b50a75a800685decc7a5fa824e3d5281d991c47339"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/voice.tsx",
+      "source": "artifacts/digital-prodigy/src/components/voice.tsx",
+      "sha256": "5b639a1d5c803835bdbb7249ce22f239892940dbc04b72d79d70c895e11b75a0"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-mobile.tsx",
+      "source": "artifacts/digital-prodigy/src/hooks/use-mobile.tsx",
+      "sha256": "82bff42ff087bd5dc90a5d17609cc428b8688de92d1333073a839af5ad3c9cbd"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-toast.ts",
+      "source": "artifacts/digital-prodigy/src/hooks/use-toast.ts",
+      "sha256": "2d679ead6e077b5d88466aa9ae8f8eda013eedc3ce0329edfda98f12b499ba73"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/index.css",
+      "source": "artifacts/digital-prodigy/src/index.css",
+      "sha256": "72ac7775b872e847ec2a9e83fd6c3355a9fb0524c7f2c352f326ca6c53908fc9"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/advisor.tsx",
+      "source": "artifacts/digital-prodigy/src/lib/advisor.tsx",
+      "sha256": "a6204494a144ef7ef126b1802d761fb1b35fd8dbe91842c668cc8e6c0858144f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/errors.ts",
+      "source": "artifacts/digital-prodigy/src/lib/errors.ts",
+      "sha256": "c9564d0d791a4f5776224201d76be3e21561697327f608587f6bf519195880d2"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/portal-context.tsx",
+      "source": "artifacts/digital-prodigy/src/lib/portal-context.tsx",
+      "sha256": "9474cf221b657f6f9fd67e610a9acdab64210e4b62cd5b309624c4f6cedc09e5"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/query-client.ts",
+      "source": "artifacts/digital-prodigy/src/lib/query-client.ts",
+      "sha256": "f9c3f0d47f455160b082fb9ab8fb37541e1eab6c6b2b1f8dadd52ea28ff0d1a4"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/runtime-context.tsx",
+      "source": "artifacts/digital-prodigy/src/lib/runtime-context.tsx",
+      "sha256": "6563d3d409ba1caa39316e895d30c2dee81987ce19ac86e15d8b40adb140dfaa"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/runtime-hooks.ts",
+      "source": "artifacts/digital-prodigy/src/lib/runtime-hooks.ts",
+      "sha256": "34a0450e7e2eae0596697857a757c51d6b3c8141273668e43ea914d410c17af5"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/utils.ts",
+      "source": "artifacts/digital-prodigy/src/lib/utils.ts",
+      "sha256": "6041181d727d96b7a12accda37deee0c2789c7926e4ae0a26b94d4b3c1631f22"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/book.tsx",
+      "source": "artifacts/digital-prodigy/src/pages/book.tsx",
+      "sha256": "3a7a297667b9e7bf8bdbab22346a50282ed284c7042b94a15734788d0d07191d"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/brief.tsx",
+      "source": "artifacts/digital-prodigy/src/pages/brief.tsx",
+      "sha256": "c43b4b240af3f4fdc498c73bbc216bd21c5403cb232fbbd437736277c77bf08d"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/discover.tsx",
+      "source": "artifacts/digital-prodigy/src/pages/discover.tsx",
+      "sha256": "c8f6d734df2b6fbce392848a7904a328f61990cc241d929b574d8ade5692362b"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/not-found.tsx",
+      "source": "artifacts/digital-prodigy/src/pages/not-found.tsx",
+      "sha256": "e087bbec35e634bfc4bc3f21abc2e22df28f07963a8fcfdde552ea72afe55fe2"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/solutions.tsx",
+      "source": "artifacts/digital-prodigy/src/pages/solutions.tsx",
+      "sha256": "912e39480f9c1326b57b1a9f06bf768bc20b04aefdfa66430835e536c460fd1f"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/engine.ts",
+      "source": "lib/consultation/src/engine.ts",
+      "sha256": "07331d517f6a923c69254bef094f4c8e2b2d6324d57f1d8c201a61427dc54848"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/engine.ts",
+      "source": "lib/consultation/src/engine.ts",
+      "sha256": "07331d517f6a923c69254bef094f4c8e2b2d6324d57f1d8c201a61427dc54848"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/index.ts",
+      "source": "lib/consultation/src/index.ts",
+      "sha256": "6b1bce47a774048260655cd22199d1326fca8cd24bfb2e312b770940452e2430"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/index.ts",
+      "source": "lib/consultation/src/index.ts",
+      "sha256": "6b1bce47a774048260655cd22199d1326fca8cd24bfb2e312b770940452e2430"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-completion.ts",
+      "source": "lib/consultation/src/native-completion.ts",
+      "sha256": "f3ae86b6af36142759795a3439d2a8b3d8bf457695b5e198e9a6e5a600ec403b"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/native-completion.ts",
+      "source": "lib/consultation/src/native-completion.ts",
+      "sha256": "f3ae86b6af36142759795a3439d2a8b3d8bf457695b5e198e9a6e5a600ec403b"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-repository.ts",
+      "source": "lib/consultation/src/native-repository.ts",
+      "sha256": "b0a01089aeb98b1f1a47df5d0e51f413e1939c8787531df3e13d0b9fdfbc2c93"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/native-repository.ts",
+      "source": "lib/consultation/src/native-repository.ts",
+      "sha256": "b0a01089aeb98b1f1a47df5d0e51f413e1939c8787531df3e13d0b9fdfbc2c93"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-runtime.ts",
+      "source": "lib/consultation/src/native-runtime.ts",
+      "sha256": "1e5fdb87aa4b463920d78f38d19b4b35675b30c3f3165eb77927dbb11a8585c0"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/native-runtime.ts",
+      "source": "lib/consultation/src/native-runtime.ts",
+      "sha256": "1e5fdb87aa4b463920d78f38d19b4b35675b30c3f3165eb77927dbb11a8585c0"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/native-transcript.ts",
+      "source": "lib/consultation/src/native-transcript.ts",
+      "sha256": "869c79a49bade2ff053afe317bf33a4444dc78315817e79414c339fab3ea5f31"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/native-transcript.ts",
+      "source": "lib/consultation/src/native-transcript.ts",
+      "sha256": "869c79a49bade2ff053afe317bf33a4444dc78315817e79414c339fab3ea5f31"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/types.ts",
+      "source": "lib/consultation/src/types.ts",
+      "sha256": "7a52b2678f51698fe8d63d094576873c5090ca08c008df014fa7b8941d1f8bda"
+    },
+    {
+      "path": "agent-dev-server/src/bl/syntra/shared/types.ts",
+      "source": "lib/consultation/src/types.ts",
+      "sha256": "7a52b2678f51698fe8d63d094576873c5090ca08c008df014fa7b8941d1f8bda"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/shared/catalogue.ts",
+      "source": "artifacts/api-server/src/lib/advisor-data.ts",
+      "sha256": "899aa0d64c995db5f8a74ae5ccb1db69237d696bc2e338d008d1e966f58c9063"
+    },
+    {
+      "path": "agent-dev-client/static/syntra/assets/dp-logo.png",
+      "source": "artifacts/digital-prodigy/src/assets/dp-logo.png",
+      "sha256": "2a4130811ba7d8bba07fb823eb392437d26acd5e4b4ee63216c606cd2ff7bc12"
+    }
+  ]
+}

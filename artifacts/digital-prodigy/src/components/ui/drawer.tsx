@@ -15,7 +15,8 @@ Drawer.displayName = 'Drawer';
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
-const DrawerPortal = DrawerPrimitive.Portal;
+import { SyntraPortal } from '../../lib/portal-context';
+const DrawerPortal = (props: React.ComponentProps<typeof DrawerPrimitive.Portal>) => <SyntraPortal Primitive={DrawerPrimitive.Portal} {...props} />;
 
 const DrawerClose = DrawerPrimitive.Close;
 

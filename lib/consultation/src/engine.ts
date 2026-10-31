@@ -54,12 +54,17 @@ export function mergeBrief(current: Brief, result: AdvisorResult, visitorHistory
 
 export function manualBrief(current: Brief, changes: Partial<BriefFields>, revision: number): Brief {
   if (current.revision !== revision) throw new ConsultationError(409, "The brief changed. Review the latest version before saving.");
-  const next = { ...current, provenance: { ...current.provenance }, revision: current.revision + 1 };
+  const next = { ...current, provenance: { ...current.provenance } };
+  let changed = false;
   for (const key of BRIEF_KEYS) {
     if (changes[key] === undefined) continue;
-    next[key] = changes[key]?.trim() || null;
+    const value = changes[key]?.trim() || null;
+    if (next[key] === value && next.provenance[key]?.status === "manual") continue;
+    next[key] = value;
     next.provenance[key] = { status: "manual", evidence: "Edited in the project brief" };
+    changed = true;
   }
+  if (changed) next.revision++;
   return next;
 }
 

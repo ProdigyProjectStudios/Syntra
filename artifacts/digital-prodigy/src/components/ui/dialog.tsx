@@ -7,7 +7,8 @@ const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = DialogPrimitive.Portal;
+import { SyntraPortal } from '../../lib/portal-context';
+const DialogPortal = (props: React.ComponentProps<typeof DialogPrimitive.Portal>) => <SyntraPortal Primitive={DialogPrimitive.Portal} {...props} />;
 
 const DialogClose = DialogPrimitive.Close;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { SyntraPortal } from '../../lib/portal-context';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '@/lib/utils';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
@@ -70,7 +71,7 @@ const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = 'popper', ...props }, ref) => (
-  <SelectPrimitive.Portal>
+  <SyntraPortal Primitive={SelectPrimitive.Portal}>
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
@@ -94,7 +95,7 @@ const SelectContent = React.forwardRef<
       </SelectPrimitive.Viewport>
       <SelectScrollDownButton />
     </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
+  </SyntraPortal>
 ));
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 

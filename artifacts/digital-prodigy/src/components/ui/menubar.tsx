@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { SyntraPortal } from '../../lib/portal-context';
 import * as MenubarPrimitive from '@radix-ui/react-menubar';
 import { cn } from '@/lib/utils';
 import { Check, ChevronRight, Circle } from 'lucide-react';
@@ -18,7 +19,7 @@ function MenubarGroup({
 function MenubarPortal({
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
-  return <MenubarPrimitive.Portal {...props} />;
+  return <SyntraPortal Primitive={MenubarPrimitive.Portal} {...props} />;
 }
 
 function MenubarRadioGroup({
@@ -107,7 +108,7 @@ const MenubarContent = React.forwardRef<
     { className, align = 'start', alignOffset = -4, sideOffset = 8, ...props },
     ref,
   ) => (
-    <MenubarPrimitive.Portal>
+    <MenubarPortal>
       <MenubarPrimitive.Content
         ref={ref}
         align={align}
@@ -119,7 +120,7 @@ const MenubarContent = React.forwardRef<
         )}
         {...props}
       />
-    </MenubarPrimitive.Portal>
+    </MenubarPortal>
   ),
 );
 MenubarContent.displayName = MenubarPrimitive.Content.displayName;

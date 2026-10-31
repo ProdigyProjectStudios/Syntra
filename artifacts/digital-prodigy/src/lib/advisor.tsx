@@ -1,14 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getGetConversationQueryKey, getListConversationsQueryKey, getGetBriefQueryKey } from '@workspace/api-client-react';
 import type { Conversation, Depth, TurnInput } from '@workspace/consultation';
-import { runtime, errorMessage } from './runtime';
+import { errorMessage } from './errors';
+import { useRuntime, useRuntimeKeys } from './runtime-context';
 
 const KEY = 'dp.activeConversation';
 const DEPTH_KEY = 'dp.depth';
 const read = (key: string) => { try { return localStorage.getItem(key); } catch { return null; } };
-const remember = (id: number | null) => { try { if (id) localStorage.setItem(KEY, String(id)); else localStorage.removeItem(KEY); } catch { /* browser storage may be disabled; session still works in memory */ } };
-type Attempt = TurnInput & { id: number | null };
+type Attempt = TurnInput & { id: number | null; previousMessageIds?: number[] };
 type Ctx = {
   conversationId: number | null;
   setConversationId: (id: number | null) => void;
@@ -20,9 +19,16 @@ type Ctx = {
 };
 const AdvisorCtx = createContext<Ctx | null>(null);
 export function AdvisorProvider({ children }: { children: ReactNode }) {
+  const { runtime, scope, initialConversationId, native } = useRuntime();
+  const { getGetConversationQueryKey, getListConversationsQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
+  const sessionKey = scope === 'replit' ? KEY : `${KEY}:${scope}`;
+  const depthKey = scope === 'replit' ? DEPTH_KEY : `${DEPTH_KEY}:${scope}`;
+  const saveSession = useCallback((id: number | null) => {
+    try { if (id) localStorage.setItem(sessionKey, String(id)); else localStorage.removeItem(sessionKey); } catch { /* in-memory session */ }
+  }, [sessionKey]);
   const qc = useQueryClient();
-  const [conversationId, setId] = useState<number | null>(() => Number(read(KEY)) > 0 ? Number(read(KEY)) : null);
-  const [depth, updateDepth] = useState<Depth>(() => { const d = read(DEPTH_KEY); return d === 'concise' || d === 'deep_dive' ? d : 'detailed'; });
+  const [conversationId, setId] = useState<number | null>(() => initialConversationId ?? (Number(read(sessionKey)) > 0 ? Number(read(sessionKey)) : null));
+  const [depth, updateDepth] = useState<Depth>(() => { const d = read(depthKey); return d === 'concise' || d === 'deep_dive' ? d : 'detailed'; });
   const [pending, setPending] = useState<Attempt | null>(null);
   const [failure, setFailure] = useState<{ id: number | null; message: string } | null>(null);
   const [steps, setSteps] = useState<{ id: number; values: string[] } | null>(null);
@@ -30,6 +36,8 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
   const active = useRef(conversationId); active.current = conversationId;
   const depthRef = useRef(depth); depthRef.current = depth;
   const busy = useRef(false);
+  const depthTouched = useRef(false);
+  const depthRestored = useRef(false);
   const creating = useRef<Promise<number> | null>(null);
 
   const convQ = useQuery({
@@ -39,14 +47,30 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     refetchInterval: busy.current ? false : 15000,
   });
   const setDepth = useCallback((d: Depth) => {
+    depthTouched.current = true;
     updateDepth(d); depthRef.current = d;
-    try { localStorage.setItem(DEPTH_KEY, d); } catch { /* in-memory preference */ }
-  }, []);
+    try { localStorage.setItem(depthKey, d); } catch { /* in-memory preference */ }
+    if (active.current && runtime.sessions.setDepth) void runtime.sessions.setDepth(active.current, d).catch(() => {
+      setFailure({ id: active.current, message: 'The native depth preference could not be saved. Retry before starting voice.' });
+    });
+  }, [depthKey, runtime]);
+  useEffect(() => {
+    if (!native || depthRestored.current || !convQ.data) return;
+    depthRestored.current = true;
+    if (!depthTouched.current) {
+      updateDepth(convQ.data.depth); depthRef.current = convQ.data.depth;
+      try { localStorage.setItem(depthKey, convQ.data.depth); } catch { /* in-memory preference */ }
+    }
+  }, [native, convQ.data, depthKey]);
   const setConversationId = useCallback((id: number | null) => {
     // One active send at a time; do not create cross-session pending state.
     if (busy.current) return;
-    active.current = id; setId(id); setFailure(null); setSteps(null); lastAttempt.current = null; remember(id);
-  }, []);
+    if (native && id === null) {
+      setFailure({ id: active.current, message: 'Use Agent controls to start a new native session. Your current transcript is preserved.' });
+      return;
+    }
+    active.current = id; setId(id); setFailure(null); setSteps(null); lastAttempt.current = null; saveSession(id);
+  }, [native, saveSession]);
   // Old numeric localStorage IDs are not authority. Never claim unowned legacy records.
   useEffect(() => {
     if (convQ.error && 'status' in convQ.error && convQ.error.status === 404 && !busy.current) {
@@ -61,20 +85,23 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       const conv = await runtime.sessions.create(depthRef.current);
       qc.setQueryData(getGetConversationQueryKey(conv.id), conv);
       qc.setQueryData(getGetBriefQueryKey(conv.id), conv.brief);
-      active.current = conv.id; setId(conv.id); remember(conv.id);
+      active.current = conv.id; setId(conv.id); saveSession(conv.id);
       void qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
       return conv.id;
     })();
     try { return await creating.current; } finally { creating.current = null; }
-  }, [qc]);
+  }, [qc, runtime, saveSession, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
   const perform = useCallback(async (attempt: Attempt) => {
     if (busy.current) return;
     busy.current = true; setPending(attempt); setFailure(null); setSteps(null);
     try {
       const id = attempt.id ?? await ensureConversation();
-      attempt = { ...attempt, id }; lastAttempt.current = attempt; setPending(attempt);
+      attempt = { ...attempt, id, previousMessageIds: attempt.previousMessageIds ??
+        qc.getQueryData<Conversation>(getGetConversationQueryKey(id))?.messages.map(message => message.id) ?? [] };
+      lastAttempt.current = attempt; setPending(attempt);
       await qc.cancelQueries({ queryKey: getGetConversationQueryKey(id) });
-      const reply = await runtime.messages.send(id, attempt);
+      const { content, depth, requestId } = attempt;
+      const reply = await runtime.messages.send(id, { content, depth, requestId });
       qc.setQueryData<Conversation>(getGetConversationQueryKey(id), prev => {
         if (!prev) return prev;
         const ids = new Set(prev.messages.map(m => m.id));
@@ -88,7 +115,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       lastAttempt.current = attempt;
       setFailure({ id: attempt.id, message: errorMessage(error, 'The advisor could not reply. Your message is kept here; retry when ready.') });
     } finally { busy.current = false; setPending(null); }
-  }, [ensureConversation, qc]);
+  }, [ensureConversation, qc, runtime, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
   const send = useCallback((content: string) => {
     if (!content.trim() || busy.current) return;
     void perform({ id: active.current, content: content.trim(), depth: depthRef.current, requestId: crypto.randomUUID() });
@@ -98,7 +125,11 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     else void convQ.refetch();
   }, [perform, convQ.refetch]);
   const visibleAttempt = pending ?? (failure && lastAttempt.current);
-  const pendingText = visibleAttempt && (visibleAttempt.id === null || visibleAttempt.id === conversationId) ? visibleAttempt.content : null;
+  const alreadyInTranscript = visibleAttempt && convQ.data?.messages.some(message =>
+    message.role === 'visitor' && message.content === visibleAttempt.content &&
+    !visibleAttempt.previousMessageIds?.includes(message.id));
+  const pendingText = visibleAttempt && !alreadyInTranscript &&
+    (visibleAttempt.id === null || visibleAttempt.id === conversationId) ? visibleAttempt.content : null;
   return (
     <AdvisorCtx.Provider value={{
       conversationId, setConversationId, depth, setDepth, send, retry,

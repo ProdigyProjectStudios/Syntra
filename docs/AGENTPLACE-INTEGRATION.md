@@ -1,5 +1,11 @@
 # Syntra integration contract
 
+## Reconciled native export
+
+The current implementation and transfer workflow are in [integrations/agentplace/README.md](../integrations/agentplace/README.md), with exact host registration steps in its `patches/registration-patch.md`. Use that workflow for native embedded hosting instead of implementing another frontend or applying the historical baseline overlays.
+
+The canonical frontend now accepts a scoped native runtime through `App` and `SyntraRuntimeProvider`; the normal Replit entry wraps it with the development runtime. Native calls use `NativePorts` / `createNativeRuntime`, response proof verification, native completion hooks and a required host atomic gate. The surface owns memory navigation and scoped caches, not native infrastructure. Numeric ID `1` is local to the current native scope, never a global identity or a lossy hash.
+
 ## What remains unchanged
 
 The existing React/TypeScript frontend, route transitions, typography, palette, neural animations and responsive navigation remain the UI. No AgentPlace runtime has been installed or deployed. Replit's OpenAI implementation is **development-only**, not a replacement for AgentPlace GPT-6 Luna or its bidirectional realtime voice/session services.

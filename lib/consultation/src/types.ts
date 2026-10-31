@@ -102,6 +102,8 @@ export interface ConsultationRuntime {
     list(): Promise<SessionSummary[]>;
     create(depth: Depth): Promise<Conversation>;
     get(id: number, signal?: AbortSignal): Promise<Conversation>;
+    /** Optional native preference persistence, also used before opening realtime voice. */
+    setDepth?: (id: number, depth: Depth) => Promise<void>;
   };
   messages: { send(id: number, input: TurnInput): Promise<TurnReply> };
   briefs: {

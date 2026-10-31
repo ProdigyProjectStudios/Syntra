@@ -111,7 +111,8 @@ export function ClickBurst() {
 
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
-      const el = (e.target as Element | null)?.closest?.(INTERACTIVE) as HTMLElement | null;
+      const el = e.composedPath().find((node): node is HTMLElement =>
+        node instanceof HTMLElement && node.matches(INTERACTIVE));
       if (!el || el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true') return;
       window.dispatchEvent(new CustomEvent<BurstDetail>(BURST_EVENT, { detail: { x: e.clientX, y: e.clientY } }));
       if (e.pointerType === 'touch' && 'vibrate' in navigator) navigator.vibrate?.(6);

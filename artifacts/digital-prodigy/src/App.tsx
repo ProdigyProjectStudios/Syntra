@@ -1,4 +1,8 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { memoryLocation } from 'wouter/memory-location';
+import type { ConsultationRuntime } from '@workspace/consultation';
+import { SyntraRuntimeProvider } from '@/lib/runtime-context';
 import { queryClient } from '@/lib/query-client';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -33,18 +37,22 @@ function Router() {
   );
 }
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+function App({ nativeRuntime, scope = 'replit' }: { nativeRuntime?: ConsultationRuntime; scope?: string } = {}) {
+  const [client] = useState(() => nativeRuntime ? new QueryClient() : queryClient);
+  const [location] = useState(() => memoryLocation().hook);
+  const content = (
+    <QueryClientProvider client={client}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <AdvisorProvider>
-            <Router />
-          </AdvisorProvider>
+        <WouterRouter base={nativeRuntime ? '' : import.meta.env.BASE_URL.replace(/\/$/, '')} {...(nativeRuntime ? { hook: location } : {})}>
+          <AdvisorProvider><Router /></AdvisorProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
+  );
+  if (nativeRuntime) return <SyntraRuntimeProvider runtime={nativeRuntime} scope={scope} initialConversationId={1} native>{content}</SyntraRuntimeProvider>;
+  return (
+    content
   );
 }
 

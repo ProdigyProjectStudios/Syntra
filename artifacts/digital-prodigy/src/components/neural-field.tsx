@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 /** Fired by ClickBurst so the ambient network can react to every press. */
 export const BURST_EVENT = 'dp:neural-burst';
@@ -10,8 +11,11 @@ export type BurstDetail = { x: number; y: number };
  * toward the cursor, implodes then expands around every click, and quickens while the advisor
  * is thinking. Drawn very faintly so it reads as atmosphere, never content.
  */
-export function NeuralField({ energy = 0 }: { energy?: number }) {
+export function NeuralField({ energy = 0, paused = false }: { energy?: number; paused?: boolean }) {
+  const mobile = useMediaQuery('(max-width: 639px), (pointer: coarse)');
   const ref = useRef<HTMLCanvasElement>(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
   const energyRef = useRef(energy);
   energyRef.current = energy;
 
@@ -21,7 +25,7 @@ export function NeuralField({ energy = 0 }: { energy?: number }) {
     const ctx = c.getContext('2d');
     if (!ctx) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.5);
     let W = 0, H = 0;
     type Node = { x: number; y: number; vx: number; vy: number; ox: number; oy: number; hub: boolean; ph: number; rate: number };
     let nodes: Node[] = [];
@@ -46,7 +50,9 @@ export function NeuralField({ energy = 0 }: { energy?: number }) {
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
       c.style.width = W + 'px'; c.style.height = H + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const n = Math.max(50, Math.min(170, Math.round((W * H) / 11500)));
+      const n = mobile
+        ? Math.max(28, Math.min(42, Math.round((W * H) / 8500)))
+        : Math.max(50, Math.min(170, Math.round((W * H) / 11500)));
       nodes = Array.from({ length: n }, () => ({
         x: Math.random() * W, y: Math.random() * H,
         vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7,
@@ -56,7 +62,12 @@ export function NeuralField({ energy = 0 }: { energy?: number }) {
     seed();
 
     const mouse = { x: -9999, y: -9999 };
-    const onMove = (e: PointerEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
+    // Touch movement is scrolling/tapping, not desktop cursor hover. Only
+    // ClickBurst's validated interactive presses may disturb the field on touch.
+    const onMove = (e: PointerEvent) => {
+      mouse.x = e.pointerType === 'mouse' ? e.clientX : -9999;
+      mouse.y = e.pointerType === 'mouse' ? e.clientY : -9999;
+    };
     const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
     type Wave = { x: number; y: number; t: number };
     const waves: Wave[] = [];
@@ -76,9 +87,10 @@ export function NeuralField({ energy = 0 }: { energy?: number }) {
     let t = 0, en = 0;
 
     const frame = (now: number) => {
+      if (document.hidden || pausedRef.current) { last = now; raf = requestAnimationFrame(frame); return; }
+      if (mobile && now - last < 1000 / 24) { raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      if (document.hidden) { raf = requestAnimationFrame(frame); return; }
       t += dt;
       en += (energyRef.current - en) * Math.min(1, dt * 2);
       const sp = reduce ? 0.1 : 1 + en * 0.8;
@@ -218,7 +230,7 @@ export function NeuralField({ energy = 0 }: { energy?: number }) {
       document.removeEventListener('pointerleave', onLeave);
       window.removeEventListener(BURST_EVENT, onBurst);
     };
-  }, []);
+  }, [mobile]);
 
   return (
     <canvas

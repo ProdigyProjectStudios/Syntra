@@ -10,8 +10,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import Discover from '@/pages/discover';
 import Solutions from '@/pages/solutions';
-import BriefPage from '@/pages/brief';
-import Book from '@/pages/book';
+import { DeferredPage } from '@/lib/route-pages';
 import { Shell } from '@/components/shell';
 import { AdvisorProvider } from '@/lib/advisor';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
@@ -27,8 +26,8 @@ function Router() {
         <Switch location={location}>
           <Route path="/" component={Discover} />
           <Route path="/solutions" component={Solutions} />
-          <Route path="/brief" component={BriefPage} />
-          <Route path="/book" component={Book} />
+          <Route path="/brief">{() => <DeferredPage path="/brief" />}</Route>
+          <Route path="/book">{() => <DeferredPage path="/book" />}</Route>
           <Route component={NotFound} />
         </Switch>
       </ErrorBoundary>

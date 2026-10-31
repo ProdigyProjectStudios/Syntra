@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 export type CoreState = 'connecting' | 'idle' | 'speaking' | 'error';
 
@@ -47,7 +48,9 @@ type CoreProps = {
   className?: string;
 };
 
-export function NeuralCore({ size, state = 'idle', amplitude, nodes = 640, bloom: withBloom = true, still = false, className }: CoreProps) {
+export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNodes = 640, bloom: withBloom = true, still = false, className }: CoreProps) {
+  const mobile = useMediaQuery('(max-width: 639px), (pointer: coarse)');
+  const nodes = mobile ? Math.min(requestedNodes, 220) : requestedNodes;
   const internalAmp = useRef(0);
   const ampRef = amplitude ?? internalAmp;
   const external = !!amplitude;
@@ -194,7 +197,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes = 640, bloom
     const ctx = c.getContext('2d');
     const bctx = bc?.getContext('2d') ?? null;
     if (!ctx) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.75);
     c.width = Math.round(size * dpr);
     c.height = Math.round(size * dpr);
     if (bc) { bc.width = Math.round(size / 2); bc.height = Math.round(size / 2); }
@@ -222,7 +225,8 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes = 640, bloom
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
     const frame = (now: number) => {
-      if (!onScreen.current && !still) { last = now; raf = requestAnimationFrame(frame); return; }
+      if ((document.hidden || !onScreen.current) && !still) { last = now; raf = requestAnimationFrame(frame); return; }
+      if (mobile && !still && now - last < 1000 / 30) { raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const speed = reduce ? 0.15 : 1;
@@ -444,11 +448,11 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes = 640, bloom
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [size, topo, still]);
+  }, [size, topo, still, mobile]);
 
   return (
     <div ref={wrap} className={className} style={{ position: 'relative', width: size, height: size, flexShrink: 0, WebkitMaskImage: 'radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%)', maskImage: 'radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%)' }} aria-hidden>
-      {withBloom && <canvas ref={bloom} className="pointer-events-none absolute inset-0 h-full w-full opacity-90 mix-blend-screen" style={{ filter: `blur(${Math.max(2, Math.round(size * 0.025))}px) saturate(1.5) brightness(1.25)` }} />}
+      {withBloom && !mobile && <canvas ref={bloom} className="pointer-events-none absolute inset-0 h-full w-full opacity-90 mix-blend-screen" style={{ filter: `blur(${Math.max(2, Math.round(size * 0.025))}px) saturate(1.5) brightness(1.25)` }} />}
       <canvas ref={main} className="absolute inset-0 h-full w-full" />
     </div>
   );

@@ -48,6 +48,7 @@ const LINES = [
   'No microphone or audio channel is connected here.',
   'Continue in chat while native voice is connected in AgentPlace.',
 ];
+const THINKING_LABELS = ['Evaluating', 'Calculating', 'Preparing a response'];
 
 function SpokenLine({ text }: { text: string }) {
   const words = text.split(' ');
@@ -69,12 +70,14 @@ function SpokenLine({ text }: { text: string }) {
 }
 
 export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { runtime } = useRuntime();
+  const { runtime, native } = useRuntime();
   const { getGetConversationQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
   const { ensureConversation, conversationId, depth } = useAdvisor();
   const qc = useQueryClient();
   const [boot, setBoot] = useState<string | null>(null);
   const [nativeState, setNativeState] = useState<CoreState>('connecting');
+  const [thinking, setThinking] = useState(false);
+  const [thinkingLabel, setThinkingLabel] = useState(0);
   const [transcript, setTranscript] = useState('');
   const [attempt, setAttempt] = useState(0);
   const amplitude = useRef(0);
@@ -85,7 +88,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
 
   useEffect(() => {
     if (!open) return;
-    setLine(-1); setBoot(null); setTranscript(''); setNativeState('connecting');
+    setLine(-1); setBoot(null); setTranscript(''); setNativeState('connecting'); setThinking(false);
     if (!runtime.voice.available) return;
     const controller = new AbortController();
     let connection: VoiceConnection | undefined;
@@ -96,7 +99,8 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
         case 'amplitude': amplitude.current = Math.max(0, Math.min(1, event.value)); break;
         case 'state':
           amplitude.current = 0;
-          setNativeState(event.state === 'speaking' ? 'speaking' : event.state === 'connecting' ? 'connecting' : event.state === 'closed' ? 'error' : 'idle');
+          setThinking(event.state === 'thinking');
+          setNativeState(event.state === 'speaking' ? 'speaking' : event.state === 'connecting' || event.state === 'thinking' ? 'connecting' : event.state === 'closed' ? 'error' : 'idle');
           if (event.state === 'closed') setBoot('Voice connection closed. Reconnect when ready.');
           break;
         case 'transcript': setTranscript(event.text); break;
@@ -104,7 +108,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId ?? 0) });
           void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId ?? 0) });
           break;
-        case 'error': setBoot(event.message); setNativeState('error'); amplitude.current = 0; break;
+        case 'error': setBoot(event.message); setNativeState('error'); setThinking(false); amplitude.current = 0; break;
       }
     };
     void (async () => {
@@ -117,7 +121,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
         if (controller.signal.aborted) await connected.close();
         else connection = connected;
       } catch (error) {
-        if (!controller.signal.aborted) { setBoot(error instanceof Error ? error.message : 'Voice connection failed.'); setNativeState('error'); }
+        if (!controller.signal.aborted) { setBoot(error instanceof Error ? error.message : 'Voice connection failed.'); setNativeState('error'); setThinking(false); }
       }
     })();
     return () => {
@@ -125,6 +129,14 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
       if (connection) void Promise.resolve(connection.close()).catch(() => {});
     };
   }, [open, attempt, ensureConversation, qc]);
+
+  useEffect(() => {
+    setThinkingLabel(0);
+    if (!open || !thinking || boot) return;
+    // Presentation only: actual transport events start/stop the pending state.
+    const timer = window.setInterval(() => setThinkingLabel(index => (index + 1) % THINKING_LABELS.length), 2400);
+    return () => window.clearInterval(timer);
+  }, [open, thinking, boot]);
 
   useEffect(() => {
     const f = () => setSize(Math.round(Math.min(window.innerWidth * 0.92, window.innerHeight * 0.56, 560)));
@@ -149,7 +161,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   }, [speaking]);
 
   const state: CoreState = failed ? 'error' : runtime.voice.available ? nativeState : speaking ? 'speaking' : 'idle';
-  const label = !runtime.voice.available ? 'Preview · voice not connected' : { connecting: 'Waking', idle: 'Listening', speaking: 'Speaking', error: 'Offline' }[state];
+  const label = !runtime.voice.available ? 'Preview · voice not connected' : thinking && !failed ? THINKING_LABELS[thinkingLabel] : { connecting: 'Waking', idle: 'Listening', speaking: 'Speaking', error: 'Offline' }[state];
 
   return (
     <AnimatePresence>
@@ -206,7 +218,9 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, filter: 'blur(6px)', transition: { duration: 0.5 } }}
               >
-                {runtime.voice.available && transcript ? <SpokenLine text={transcript} /> : !runtime.voice.available && state === 'speaking' && line >= 0 ? (
+                {runtime.voice.available && thinking && !failed ? (
+                  <p role="status" aria-live="polite" className="font-mono text-[11px] uppercase tracking-[0.35em] text-primary/80" data-testid="status-voice-thinking">{THINKING_LABELS[thinkingLabel]}…</p>
+                ) : runtime.voice.available && transcript ? <SpokenLine text={transcript} /> : !runtime.voice.available && state === 'speaking' && line >= 0 ? (
                   <SpokenLine text={LINES[line]} />
                 ) : (
                   <p className={cn('font-mono text-[11px] uppercase tracking-[0.45em]', state === 'error' ? 'text-rose-300/70' : 'text-white/35')}>
@@ -230,7 +244,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           </div>
           {open && (
             <div className="absolute bottom-3 left-0 right-0 z-10 text-center font-mono text-[9px] uppercase tracking-[0.3em] text-white/20" data-testid="status-voice-session">
-              {runtime.voice.available ? 'Native host voice' : 'Demo only / no audio transport'}
+              {runtime.voice.available ? native ? 'AgentPlace native voice' : 'Realtime development voice' : 'Demo only / no audio transport'}
             </div>
           )}
         </motion.div>

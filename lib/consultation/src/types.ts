@@ -72,7 +72,7 @@ export interface ConversationRepository {
   editBrief(owner: string, id: number, changes: Partial<BriefFields>, revision: number): Promise<Brief>;
 }
 export type VoiceEvent =
-  | { type: "state"; state: "connecting" | "listening" | "speaking" | "closed" }
+  | { type: "state"; state: "connecting" | "listening" | "thinking" | "speaking" | "closed" }
   | { type: "amplitude"; value: number }
   | { type: "transcript"; text: string; final: boolean; role: "visitor" | "advisor" }
   | { type: "conversation-updated" }
@@ -95,6 +95,8 @@ export interface BookingAdapter {
   contacts(): Promise<ContactOption[]>;
   /** No implicit booking. Only expose when the host has a real connected action. */
   book?: (conversationId: number, confirmedByVisitor: boolean) => Promise<{ status: "confirmed"; reference: string }>;
+  /** Only present after a verified, server-side provider is connected. */
+  submitEnquiry?: (input: import("./handoff.ts").EnquiryInput) => Promise<import("./handoff.ts").EnquiryReceipt>;
 }
 /** Browser-facing boundary. Implement from AgentPlace's documented SDK, not guessed URLs. */
 export interface ConsultationRuntime {

@@ -7,13 +7,18 @@ import { formatDistanceToNow } from 'date-fns';
 import { DEPTHS, useAdvisor } from '@/lib/advisor';
 import { NeuralCore } from '@/components/neural-core';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 /* ---------- Living advisor presence ---------- */
 /** The advisor's mind at any size — the same neural core as voice mode, scaled down. */
-export function AdvisorOrb({ size = 56, thinking = false, live }: { size?: number; thinking?: boolean; live?: boolean }) {
+export function AdvisorOrb({ size: requestedSize = 56, mobileSize, thinking = false, live }: { size?: number; mobileSize?: number; thinking?: boolean; live?: boolean }) {
+  const mobile = useMediaQuery('(max-width: 639px)');
+  const size = mobile ? mobileSize ?? requestedSize : requestedSize;
   const isLive = live ?? (thinking || size >= 40);
   const canvas = Math.round(size * 1.45);
-  const nodes = size <= 32 ? 70 : size <= 90 ? 200 : 420;
+  const nodes = mobile
+    ? size <= 32 ? 36 : size <= 90 ? 90 : 180
+    : size <= 32 ? 70 : size <= 90 ? 200 : 420;
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} aria-hidden>
       <div className="absolute inset-[-25%] rounded-full anim-breathe" style={{ background: 'radial-gradient(circle, hsl(187 92% 69% / .16), hsl(217 95% 60% / .06) 45%, transparent 70%)' }} />
@@ -70,14 +75,35 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
   const [wake, setWake] = useState(false);
+  const [mobile, setMobile] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 639px)');
+    const update = () => setMobile(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
-  }, [value]);
+    const resize = () => {
+      el.style.height = '0px';
+      el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+    };
+    resize();
+    let width = el.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (el.clientWidth !== width) {
+        width = el.clientWidth;
+        resize();
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value, mobile]);
 
   const submit = () => {
     if (!value.trim() || sending) return;
@@ -87,13 +113,13 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
 
   return (
     <div className="flex items-end gap-2 sm:gap-3">
-      <div className={cn('relative min-w-0 flex-1 rounded-[26px] glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
+      <div className={cn('relative min-w-0 flex-1 rounded-[24px] sm:rounded-[26px] glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
         {sending && (
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px overflow-hidden">
             <div className="h-px w-1/3 anim-scan bg-gradient-to-r from-transparent via-primary to-transparent" />
           </div>
         )}
-        <div className="flex items-end gap-2 p-2 pl-5">
+        <div className="flex items-end gap-1 p-1 pl-3.5 sm:gap-2 sm:p-2 sm:pl-5">
           <textarea
             ref={ref}
             rows={1}
@@ -104,18 +130,27 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
             onBlur={() => setFocused(false)}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.nativeEvent.keyCode !== 229) {
                 e.preventDefault();
                 submit();
               }
             }}
-            placeholder="What are you thinking of building?"
+            placeholder={mobile ? 'Message Syntra…' : 'What are you thinking of building?'}
             aria-label="Message the advisor"
-            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed outline-none placeholder:text-muted-foreground/70 scroll-thin"
+            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin sm:py-3 sm:text-[15px] sm:leading-relaxed"
           />
           <div className="hidden sm:flex items-center self-center pr-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">
             {DEPTHS.find((d) => d.id === depth)?.label}
           </div>
+          <button
+            type="button"
+            onClick={onSpeak}
+            data-testid="button-speak-mobile"
+            aria-label="Open voice mode"
+            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary outline-none transition-transform active:scale-90 focus-visible:ring-1 focus-visible:ring-primary/60 sm:hidden"
+          >
+            <AdvisorOrb size={28} live />
+          </button>
           <button
             onClick={submit}
             disabled={!value.trim() || sending}
@@ -133,7 +168,7 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
         onPointerLeave={() => setWake(false)}
         data-testid="button-speak"
         aria-label="Open voice mode"
-        className="group relative flex h-[60px] shrink-0 items-center gap-2 overflow-hidden rounded-[26px] border border-primary/25 bg-[linear-gradient(160deg,hsl(217_80%_30%/.28),hsl(236_50%_6%/.6))] pl-2 pr-3 font-semibold text-primary backdrop-blur-xl transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_44px_-8px_hsl(199_95%_60%/.7)] sm:pr-5"
+        className="group relative hidden h-[60px] shrink-0 items-center gap-2 overflow-hidden rounded-[26px] border border-primary/25 bg-[linear-gradient(160deg,hsl(217_80%_30%/.28),hsl(236_50%_6%/.6))] pl-2 pr-3 font-semibold text-primary backdrop-blur-xl transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_44px_-8px_hsl(199_95%_60%/.7)] sm:flex sm:pr-5"
       >
         <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: 'radial-gradient(80% 120% at 25% 50%, hsl(187 92% 69% / .16), transparent 70%)' }} />
         <AdvisorOrb size={44} live thinking={wake} />

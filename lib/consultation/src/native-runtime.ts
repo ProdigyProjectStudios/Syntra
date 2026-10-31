@@ -64,6 +64,10 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
         if (!consent) throw new Error("Visitor confirmation is required.");
         return ports.booking.book!(id, consent);
       }) } : {}),
+      ...(ports.booking.submitEnquiry ? { submitEnquiry: (input: import("./handoff.ts").EnquiryInput) => scoped(async () => {
+        if (!input.consent) throw new Error("Visitor confirmation is required.");
+        return ports.booking.submitEnquiry!(input);
+      }) } : {}),
     },
     voice: {
       available: ports.voice.available,

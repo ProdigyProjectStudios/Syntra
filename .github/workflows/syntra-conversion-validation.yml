@@ -29,6 +29,8 @@ jobs:
         run: pnpm test
       - name: TypeScript
         run: pnpm run typecheck
+      - name: AgentPlace transfer validation
+        run: pnpm test:agentplace
       - name: Production build
         env:
           PORT: '5173'

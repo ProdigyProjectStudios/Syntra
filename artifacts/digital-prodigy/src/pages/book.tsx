@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Globe, Mail, Phone, ShieldAlert, RotateCw } from 'lucide-react';
-import { useListContactOptions } from '@/lib/runtime-hooks';
+import { useGetBrief, useListContactOptions } from '@/lib/runtime-hooks';
+import { useAdvisor } from '@/lib/advisor';
+import { BriefHandoff } from '@/components/brief-handoff';
 import { Constellation } from '@/components/constellation';
 
 const ICON = { link: Globe, email: Mail, phone: Phone } as const;
 
 export default function Book() {
   const { data, isLoading, isError, refetch } = useListContactOptions();
+  const { conversationId } = useAdvisor();
+  const { data: brief } = useGetBrief(conversationId ?? 0);
   return (
     <div>
       <div className="mb-8">
@@ -19,6 +23,8 @@ export default function Book() {
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-ion" />
         This advisor has no connected calendar. It cannot book or confirm a time, submit an enquiry, or send a message on your behalf.
       </div>
+
+      {brief && <div className="mb-5"><BriefHandoff brief={brief} compact /></div>}
 
       {isLoading && <div className="space-y-3">{[0, 1, 2].map((i) => <div key={i} className="h-20 rounded-2xl bg-secondary/40 animate-pulse" />)}</div>}
       {isError && <button onClick={() => refetch()} className="flex items-center gap-2 text-destructive" data-testid="button-retry-contacts"><RotateCw className="h-4 w-4" /> Contact options failed to load. Retry</button>}

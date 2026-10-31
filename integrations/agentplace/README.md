@@ -16,11 +16,13 @@ Client additions include `agent-dev-client/src/app/agent/syntra-app/` (native co
 
 ## Assemble the adapted frontend
 
-Run at repository root in a clean staging directory; do not patch the baseline in place. Git is required. `ui-h-z.patch` uses zero-context hunks, so use `--unidiff-zero` for all four patches.
+Run at repository root in a clean staging directory; do not patch the baseline in place. Git, `tar`, and `mktemp` are required. Fetch the pinned baseline because the branch's current artifact copy may have drifted:
 
 ```sh
 stage="$(mktemp -d)"
-cp -R artifacts/digital-prodigy/src/. "$stage/"
+baseline=c6b74fcc195135ee2b9227d65fec459638afc586
+git fetch origin "$baseline"
+git archive "$baseline" artifacts/digital-prodigy/src | tar -x -C "$stage" --strip-components=3
 for p in \
   integrations/agentplace/patches/frontend-overlay/ui-a-g.patch \
   integrations/agentplace/patches/frontend-overlay/ui-h-z.patch \
@@ -47,7 +49,7 @@ Copy the baseline `artifacts/digital-prodigy/src/assets/dp-logo.png` byte-for-by
 
 ## Dependencies and limits
 
-Use the existing Agentplace React/bundler versions and check current client/server manifests for missing UI dependencies; do not replace workspace manifests with the upstream package manifest. The transferred frontend uses TanStack Query, Framer Motion, Lucide, Wouter, date-fns, MobX, Radix primitives, vaul, cmdk, class-variance-authority, clsx, Embla, resizable panels, Recharts, input-otp, react-hook-form and Tailwind/PostCSS, plus the source aliases `@syntra/react-day-picker` and `@syntra/tailwind-merge`. CSS compilation needs `postcss`, `@tailwindcss/postcss`, and `tailwindcss`. The bridge relies on existing Agentplace `AgentAuth`, `useMessagingStore`, `trpc`, `AgentStorage`, `useVoiceToggle`, and realtime voice-level services.
+Use the existing Agentplace React/bundler versions and check current client/server manifests for missing UI dependencies; do not replace workspace manifests with the upstream package manifest. The transferred frontend uses TanStack Query, Framer Motion, Lucide, Wouter, date-fns, MobX, Radix primitives, vaul, cmdk, class-variance-authority, clsx, Embla, resizable panels, Recharts, input-otp, react-hook-form and Tailwind/PostCSS, plus source aliases `@syntra/react-day-picker` and `@syntra/tailwind-merge`. CSS compilation needs `postcss`, `@tailwindcss/postcss`, and `tailwindcss`. The bridge relies on existing Agentplace `AgentAuth`, `useMessagingStore`, `trpc`, `AgentStorage`, `useVoiceToggle`, and realtime voice-level services.
 
 The eight-field brief and response depth are session-scoped using trusted host storage; typed-turn changes stage until response completion, with quoted-evidence validation, manual-edit revision protection and request/voice deduplication. Syntra's internal id `1` is an adapter key only. The direction catalogue is presentation content, not availability. No verified contact action, enquiry submission, calendar, booking, quote or outbound handoff exists; Book is informational. Voice binds to host state/captions/transcript/audio levels and does not synthesize speech or resend transcript as typed chat.
 

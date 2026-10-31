@@ -221,5 +221,5 @@
 -  <TooltipPrimitive.Portal>
 +  <SyntraPortal Primitive={TooltipPrimitive.Portal}>
 @@ -27 +28 @@
--    </TooltipPrimitive.Portal>
+-  </TooltipPrimitive.Portal>
 +  </SyntraPortal>

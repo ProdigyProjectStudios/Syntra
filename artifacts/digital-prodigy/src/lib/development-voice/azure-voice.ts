@@ -5,6 +5,8 @@ import {
 import { PcmPlayer } from './pcm-player.ts';
 import { BargeInGate } from './barge-in-gate.ts';
 import { VoiceDiagnostics, type VoiceMetric } from './voice-diagnostics.ts';
+import { RecognitionIdentityTracker } from './recognition-identity.ts';
+import { observeSpeechConnection } from './speech-connection-diagnostics.ts';
 
 type SpeechSdk = typeof import('microsoft-cognitiveservices-speech-sdk');
 interface SpeechToken { token: string; region: string; expiresAt: number }
@@ -105,6 +107,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       if (pendingCapture) throw new Error('Finish or dismiss the existing microphone permission request, then reconnect.');
       const lifetime = new AbortController();
       const diagnostics = new VoiceDiagnostics();
+      diagnostics.event('connection.open');
       const onset = new BargeInGate();
       const connectionStartedAt = performance.now();
       let closed = false, muted = false, asrActive = false;
@@ -115,6 +118,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       let inputNode: MediaStreamAudioSourceNode | undefined, inputMeter: AnalyserNode | undefined;
       let controller: ConversationVoiceController | undefined;
       let recognizer: import('microsoft-cognitiveservices-speech-sdk').SpeechRecognizer | undefined;
+      let connectionProbe: ReturnType<typeof observeSpeechConnection> | undefined;
       let inputConfig: import('microsoft-cognitiveservices-speech-sdk').AudioConfig | undefined;
       let cancelSynthesis: ((error?: Error) => void) | undefined;
       let localCandidate: { epoch: number; timer?: number } | undefined;
@@ -125,7 +129,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       const notify = (event: VoiceEvent) => { if (!outerSignal.aborted) release(() => onEvent(event)); };
       const emit = (event: VoiceEvent) => {
         if (closed || outerSignal.aborted) return;
-        if (event.type === 'state') state = event.state;
+        if (event.type === 'state') { state = event.state; diagnostics.event('connection.state', { state }); }
         notify(event);
       };
       const stopPlayback = () => {
@@ -135,8 +139,11 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         if (hadOutput) diagnostics.record('interruption-stop', performance.now() - started);
       };
       const stopRecognition = () => {
+        const retiredEpoch = recognitionEpoch;
         recognitionEpoch++;
         const oldRecognizer = recognizer, oldConfig = inputConfig, oldStream = recognitionInput;
+        if (oldRecognizer) diagnostics.event('recognition.retiring', { epoch: retiredEpoch });
+        release(() => connectionProbe?.close()); connectionProbe = undefined;
         recognizer = undefined; inputConfig = undefined; recognitionInput = undefined;
         stopStream(oldStream);
         if (!oldRecognizer) { release(() => oldConfig?.close()); return; }
@@ -145,6 +152,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
           const finish = (error?: unknown) => {
             if (settled) return;
             settled = true; release(() => oldConfig?.close());
+            diagnostics.event('recognition.retired', { epoch: retiredEpoch, outcome: error ? 'failed' : 'completed' });
             error ? reject(new Error('The previous speech session could not finish closing. Reload the page before reconnecting.')) : resolve();
           };
           try { oldRecognizer.close(() => finish(), error => finish(error || new Error('Speech cleanup failed.'))); }
@@ -159,15 +167,17 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         if (localCandidate?.timer !== undefined) window.clearTimeout(localCandidate.timer);
         localCandidate = undefined;
       };
-      const microphoneEnded = () => fail('The microphone disconnected or its permission was removed. Your project is saved; reconnect to continue.');
+      const microphoneEnded = () => { diagnostics.event('capture.ended'); fail('The microphone disconnected or its permission was removed. Your project is saved; reconnect to continue.'); };
       const audioStateChanged = () => {
         if (closed) return;
+        diagnostics.event('audio.state', { state: audio?.state });
         if (audio?.state === 'closed') fail('The audio connection closed. Your project is saved; reconnect to continue.');
         else if (audio?.state !== 'running' && cancelSynthesis) cancelSynthesis(new Error('Audio playback paused. Replay the saved response when you are ready.'));
       };
       const close = () => {
         if (closed) return;
         closed = true;
+        diagnostics.event('connection.close');
         if (activeClose === close) activeClose = undefined;
         lifetime.abort(aborted());
         outerSignal.removeEventListener('abort', close);
@@ -186,6 +196,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       };
       const fail = (message: string) => {
         if (closed || outerSignal.aborted) return;
+        diagnostics.event('connection.failed');
         close(); notify({ type: 'error', message });
       };
       const checkOpen = () => { if (closed || lifetime.signal.aborted) throw aborted(); };
@@ -218,6 +229,8 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         const sdk = await abortable((adapterOptions.loadSdk ?? (() => import('microsoft-cognitiveservices-speech-sdk')))(), lifetime.signal);
         checkOpen(); sdk.SpeechRecognizer.enableTelemetry(false);
         token = await tokenFor(id, lifetime.signal); checkOpen();
+        diagnostics.event('authorization.ready');
+        diagnostics.event('capture.requested');
         const request = navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }, video: false });
         pendingCapture = request;
         void request.then(() => { if (pendingCapture === request) pendingCapture = undefined; }, () => { if (pendingCapture === request) pendingCapture = undefined; });
@@ -225,6 +238,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         if (closed || lifetime.signal.aborted) stopStream(microphone);
         checkOpen();
         if (!microphone.getAudioTracks().some(track => track.readyState === 'live')) throw new Error('No active microphone was available. Reconnect or continue in text.');
+        diagnostics.event('capture.ready', { liveTracks: microphone.getAudioTracks().filter(track => track.readyState === 'live').length });
         microphone.getTracks().forEach(track => track.addEventListener('ended', microphoneEnded));
         audio = new AudioContext();
         audio.addEventListener('statechange', audioStateChanged);
@@ -247,13 +261,15 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
           speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Raw24Khz16BitMonoPcm;
           const synthesis = new sdk.SpeechSynthesizer(speechConfig, null as unknown as import('microsoft-cognitiveservices-speech-sdk').AudioConfig);
           const speechStartedAt = performance.now();
+          diagnostics.event('synthesis.start');
           const playback = player!.begin(() => {
             activity();
+            diagnostics.event('playback.first-scheduled');
             diagnostics.record('synthesis-to-audio', performance.now() - speechStartedAt);
             onStart();
           });
           await new Promise<void>((resolve, reject) => {
-            let settled = false;
+            let settled = false, receivedAudio = false;
             const timeout = window.setTimeout(() => finish(new Error('Speech playback timed out.')), 180_000);
             const abort = (error = new DOMException('Playback interrupted.', 'AbortError')) => finish(error);
             const signalAbort = () => abort();
@@ -262,6 +278,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
               settled = true;
               window.clearTimeout(timeout); signal.removeEventListener('abort', signalAbort);
               if (cancelSynthesis === abort) cancelSynthesis = undefined;
+              if (error) diagnostics.event(error.name === 'AbortError' ? 'playback.stopped' : 'synthesis.failed');
               if (error) release(() => player!.stop());
               release(() => synthesis.close(() => {}, () => {}));
               error ? reject(error) : resolve();
@@ -270,6 +287,9 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             signal.addEventListener('abort', signalAbort, { once: true });
             synthesis.synthesizing = (_sender, event) => {
               if (settled || signal.aborted || closed) return;
+              if (!receivedAudio && event.result.audioData.byteLength) {
+                receivedAudio = true; diagnostics.event('synthesis.first-chunk');
+              }
               try { player!.append(event.result.audioData); }
               catch (error) { finish(error instanceof Error ? error : new Error('Audio could not play.')); }
             };
@@ -277,6 +297,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
               synthesis.speakTextAsync(spoken, result => {
                 if (settled || signal.aborted || closed) return;
                 if (result.reason !== sdk.ResultReason.SynthesizingAudioCompleted) { finish(new Error('Speech synthesis failed.')); return; }
+                diagnostics.event('synthesis.complete');
                 resultMetric(result.properties, sdk.PropertyId.SpeechServiceResponse_SynthesisFirstByteLatencyMs, 'synthesis-first-byte');
                 resultMetric(result.properties, sdk.PropertyId.SpeechServiceResponse_SynthesisFinishLatencyMs, 'synthesis-finish');
                 resultMetric(result.properties, sdk.PropertyId.SpeechServiceResponse_SynthesisConnectionLatencyMs, 'synthesis-connection');
@@ -284,7 +305,10 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
                 resultMetric(result.properties, sdk.PropertyId.SpeechServiceResponse_SynthesisServiceLatencyMs, 'synthesis-service');
                 try { player!.end(); }
                 catch (error) { finish(error instanceof Error ? error : new Error('Speech returned no playable audio.')); return; }
-                void playback.then(() => { if (!settled) activity(); finish(); });
+                void playback.then(() => {
+                  if (!settled && !signal.aborted && !closed) { diagnostics.event('playback.complete'); activity(); }
+                  finish();
+                });
               }, () => finish(new Error('Speech synthesis failed.')));
             } catch { finish(new Error('Speech synthesis could not start.')); }
             if (signal.aborted || closed) abort();
@@ -304,6 +328,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
           }, speak, stopPlayback, emit,
           getDepth: () => options?.depth ?? 'detailed', getSpecialist: () => specialist, pendingTurn: restored,
           onTurnPhase: event => diagnostics.phase(event),
+          onDiagnostic: event => diagnostics.controller(event),
           onPendingChange: input => {
             if (input) { sessionStorage.setItem(pendingKey(id), JSON.stringify(input)); pendingId = input.requestId; }
             else {
@@ -321,8 +346,11 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
           // Mute/close/replacement may occur while the old SDK stream is retiring.
           if (muted || requestedEpoch !== recognitionEpoch) return false;
           const epoch = ++recognitionEpoch;
-          const terminalResults = new Set<string>();
+          const identities = new RecognitionIdentityTracker(epoch);
           const current = () => !closed && !muted && epoch === recognitionEpoch;
+          const timing = (result: { offset: number; duration: number }) => ({
+            offsetMs: result.offset / 10_000, durationMs: result.duration / 10_000,
+          });
           // The SDK owns only its clone; retiring it cannot stop the retained capture/meter.
           recognitionInput = microphone!.clone();
           const config = sdk.SpeechConfig.fromAuthorizationToken(token.token, token.region);
@@ -331,32 +359,68 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
           inputConfig = sdk.AudioConfig.fromStreamInput(recognitionInput);
           const instance = new sdk.SpeechRecognizer(config, inputConfig);
           recognizer = instance;
+          try {
+            if (sdk.Connection?.fromRecognizer) connectionProbe = observeSpeechConnection(sdk.Connection.fromRecognizer(instance), diagnostics, epoch);
+            else diagnostics.event('recognition.observer-unavailable', { epoch });
+          } catch { diagnostics.event('recognition.observer-unavailable', { epoch }); }
+          diagnostics.event('recognition.starting', { epoch });
           instance.speechStartDetected = () => {
             if (!current()) return;
+            diagnostics.event('recognition.speech-start', { epoch });
+            identities.speechStarted();
             cancelLocalCandidate(); asrActive = true;
             // Bare output-era VAD can be room/echo noise. Meaningful ASR and local onset
             // still interrupt immediately; never discard text using similarity guesses.
             if (state !== 'speaking') controller!.speechStarted();
           };
-          instance.speechEndDetected = () => { if (current()) { cancelLocalCandidate(); asrActive = false; controller!.speechEnded(); } };
-          instance.recognizing = (_sender, event) => {
-            if (current() && event.result.text && !terminalResults.has(event.result.resultId)) {
-              cancelLocalCandidate(); activity(); asrActive = true; controller!.interim(event.result.resultId, event.result.text);
+          instance.speechEndDetected = () => {
+            if (current()) {
+              diagnostics.event('recognition.speech-end', { epoch });
+              cancelLocalCandidate(); asrActive = false; controller!.speechEnded();
             }
+          };
+          instance.recognizing = (_sender, event) => {
+            if (!current()) { diagnostics.event('recognition.stale', { epoch }); return; }
+            if (!event.result.text.trim()) return;
+            const identity = identities.interim(event.result);
+            diagnostics.event(identity.duplicate ? 'recognition.duplicate' : 'recognition.interim', {
+              epoch, utterance: identity.sequence, timingAvailable: identity.timingAvailable,
+              reusedProviderId: identity.reusedProviderId, ...timing(event.result),
+            });
+            if (identity.duplicate) return;
+            cancelLocalCandidate(); activity(); asrActive = true; controller!.interim(identity.id, event.result.text);
           };
           instance.recognized = (_sender, event) => {
-            if (!current() || terminalResults.has(event.result.resultId)) return;
-            terminalResults.add(event.result.resultId);
-            if (terminalResults.size > 512) terminalResults.delete(terminalResults.values().next().value!);
-            cancelLocalCandidate(); asrActive = false;
-            resultMetric(event.result.properties, sdk.PropertyId.SpeechServiceResponse_RecognitionLatencyMs, 'recognition-sdk');
-            if (event.result.reason === sdk.ResultReason.RecognizedSpeech && event.result.text.trim()) {
-              if (controller!.final(event.result.resultId, event.result.text)) activity();
+            if (!current()) { diagnostics.event('recognition.stale', { epoch }); return; }
+            if (event.result.reason !== sdk.ResultReason.RecognizedSpeech && event.result.reason !== sdk.ResultReason.NoMatch) return;
+            const identity = identities.terminal(event.result);
+            const hasSpeech = event.result.reason === sdk.ResultReason.RecognizedSpeech && Boolean(event.result.text.trim());
+            if (identity.ambiguous) {
+              diagnostics.event('recognition.ambiguous', { epoch, utterance: identity.sequence });
+              restoreRecognition('That phrase could not be confirmed. Please repeat it.');
+              return;
             }
-            else if (event.result.reason === sdk.ResultReason.NoMatch || event.result.reason === sdk.ResultReason.RecognizedSpeech) controller!.noMatch(event.result.resultId);
+            diagnostics.event(identity.duplicate ? 'recognition.duplicate' : hasSpeech ? 'recognition.final' : 'recognition.no-match', {
+              epoch, utterance: identity.sequence, timingAvailable: identity.timingAvailable,
+              reusedProviderId: identity.reusedProviderId, ...timing(event.result),
+            });
+            if (identity.duplicate) return;
+            cancelLocalCandidate(); asrActive = identities.awaitingFinal;
+            resultMetric(event.result.properties, sdk.PropertyId.SpeechServiceResponse_RecognitionLatencyMs, 'recognition-sdk');
+            if (hasSpeech) {
+              if (controller!.final(identity.id, event.result.text)) activity();
+            }
+            else controller!.noMatch(identity.id);
           };
-          instance.canceled = () => { if (current()) fail('The speech connection stopped. Your project is saved; reconnect to continue.'); };
-          instance.sessionStopped = () => { if (current()) fail('The speech session ended. Reconnect to continue with the same project.'); };
+          instance.canceled = (_sender, event) => {
+            if (current()) {
+              diagnostics.event('recognition.canceled', { epoch, code: event?.errorCode });
+              fail('The speech connection stopped. Your project is saved; reconnect to continue.');
+            }
+          };
+          instance.sessionStopped = () => {
+            if (current()) { diagnostics.event('recognition.stopped', { epoch }); fail('The speech session ended. Reconnect to continue with the same project.'); }
+          };
           await new Promise<void>((resolve, reject) => {
             let settled = false;
             const abort = () => finish(aborted());
@@ -372,37 +436,56 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             if (lifetime.signal.aborted) abort();
           });
           checkOpen();
+          if (current()) diagnostics.event('recognition.ready', { epoch });
           return current();
+        };
+        const restoreRecognition = (message: string) => {
+          if (closed || muted) return;
+          diagnostics.event('recognition.recovery', { epoch: recognitionEpoch });
+          cancelLocalCandidate();
+          // Invalidate callbacks before releasing provisional input. A late final
+          // must never be admitted after recovery or under a switched specialist.
+          stopRecognition(); onset.reset(); asrActive = false; controller!.noMatch();
+          emit({ type: 'error', message: 'Restoring voice input…', recoverable: true, retryable: false });
+          void startRecognition().then(ready => {
+            if (ready && !closed && !muted) emit({ type: 'error', message, recoverable: true, retryable: false });
+          }).catch(() => { if (!closed) fail('The microphone could not resume. Reconnect to continue.'); });
         };
         await startRecognition(); checkOpen();
         diagnostics.record('connection-ready', performance.now() - connectionStartedAt);
+        diagnostics.event('connection.ready');
         const refreshToken = async () => {
           try {
             token = await tokenFor(id, lifetime.signal); checkOpen();
+            diagnostics.event('authorization.refresh');
             if (recognizer) recognizer.authorizationToken = token.token;
             tokenTimer = window.setTimeout(() => void refreshToken(), Math.max(10_000, token.expiresAt - Date.now() - 120_000));
-          } catch { if (!closed) fail('Voice authorization could not be renewed. Reconnect to continue.'); }
+          } catch { if (!closed) { diagnostics.event('authorization.failed'); fail('Voice authorization could not be renewed. Reconnect to continue.'); } }
         };
         tokenTimer = window.setTimeout(() => void refreshToken(), Math.max(10_000, token.expiresAt - Date.now() - 120_000));
         const input = new Float32Array(inputMeter.fftSize), output = new Float32Array(player.analyser.fftSize);
         const abandonLocalOnlyInput = () => {
           const candidate = localCandidate;
           if (!candidate || candidate.epoch !== recognitionEpoch || closed || muted || asrActive) return;
-          cancelLocalCandidate();
-          // No provider recognition arrived. Retire its epoch before unlocking: a delayed
-          // final can no longer be admitted under a newly selected specialist.
-          stopRecognition(); onset.reset(); controller!.noMatch();
-          emit({ type: 'error', message: 'Restoring voice input…', recoverable: true, retryable: false });
-          void startRecognition().then(ready => {
-            if (ready && !closed && !muted) emit({ type: 'error', message: 'That interruption was not captured. Please repeat it.', recoverable: true, retryable: false });
-          }).catch(() => { if (!closed) fail('The microphone could not resume. Reconnect to continue.'); });
+          restoreRecognition('That interruption was not captured. Please repeat it.');
         };
         const rms = (samples: Float32Array) => Math.sqrt(samples.reduce((sum, value) => sum + value * value, 0) / samples.length);
+        let lastCaptureSample = Number.NEGATIVE_INFINITY;
         const meter = (time: number) => {
           if (closed) return;
           try {
             inputMeter!.getFloatTimeDomainData(input); player!.analyser.getFloatTimeDomainData(output);
             const inputLevel = muted ? 0 : rms(input);
+            if (time - lastCaptureSample >= 5_000) {
+              lastCaptureSample = time;
+              diagnostics.event('capture.sample', {
+                epoch: recognitionEpoch, muted, inputActive: onset.isElevated(inputLevel), asrActive,
+                liveTracks: microphone!.getAudioTracks().filter(track => track.readyState === 'live').length,
+                enabledTracks: microphone!.getAudioTracks().filter(track => track.enabled).length,
+                recognitionTracks: recognitionInput?.getAudioTracks().filter(track => track.readyState === 'live').length ?? 0,
+                state, ...connectionProbe?.snapshot(),
+              });
+            }
             emit({ type: 'amplitude', value: Math.min(1, Math.max(inputLevel, rms(output)) * 6) });
             if (!muted) {
               const event = onset.sample(inputLevel, state === 'speaking', asrActive || Boolean(localCandidate), time);
@@ -438,6 +521,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             checkOpen();
             if (muted === value) return;
             muted = value;
+            diagnostics.event('capture.muted', { muted });
             microphone!.getAudioTracks().forEach(track => { track.enabled = !muted; });
             onset.reset(); asrActive = false;
             cancelLocalCandidate();

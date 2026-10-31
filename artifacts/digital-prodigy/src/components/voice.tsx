@@ -25,7 +25,7 @@ function captionMatches(previous: Caption | null, next: Caption) {
 
 export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { runtime, native, scope } = useRuntime();
-  const { getGetConversationQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
+  const { getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey } = useRuntimeKeys();
   const { ensureConversation, depth } = useAdvisor();
   const qc = useQueryClient();
   const reduceMotion = useReducedMotion();
@@ -118,6 +118,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           if (voiceConversationId) {
             void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId) });
             void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId) });
+            void qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
           }
           break;
         case 'error':
@@ -156,7 +157,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
       if (connectionRef.current === ownedConnection) connectionRef.current = null;
       lifecycle.dispose();
     };
-  }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey]);
+  }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
 
   useEffect(() => {
     if (!open || !stageRef.current) return;

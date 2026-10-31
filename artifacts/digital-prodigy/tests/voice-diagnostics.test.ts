@@ -4,20 +4,27 @@ import { VoiceDiagnostics } from "../src/lib/development-voice/voice-diagnostics
 
 function fixture() {
   const original = Object.getOwnPropertyDescriptor(globalThis, "performance");
-  const entries: Array<{ name: string; startTime: number; duration: number }> = [];
+  const entries: Array<{ name: string; startTime: number; duration: number; entryType?: string; detail?: Record<string, unknown> }> = [];
   let now = 0;
   Object.defineProperty(globalThis, "performance", { configurable: true, value: {
     now: () => now,
-    getEntriesByName: (name: string) => entries.filter(entry => entry.name === name),
+    getEntriesByName: (name: string, type?: string) => entries.filter(entry => entry.name === name && (!type || (entry.entryType ?? 'measure') === type)),
     clearMeasures: (name: string) => {
       for (let index = entries.length - 1; index >= 0; index--) if (entries[index].name === name) entries.splice(index, 1);
     },
     measure: (name: string, options: { start: number; duration: number }) => { entries.push({ name, startTime: options.start, duration: options.duration }); },
+    clearMarks: (name: string) => {
+      for (let index = entries.length - 1; index >= 0; index--) if (entries[index].name === name && entries[index].entryType === 'mark') entries.splice(index, 1);
+    },
+    mark: (name: string, options: { startTime?: number; detail?: Record<string, unknown> }) => {
+      entries.push({ name, startTime: options.startTime ?? now, duration: 0, entryType: 'mark', detail: structuredClone(options.detail) });
+    },
   } });
   return {
     diagnostics: new VoiceDiagnostics(), entries,
     at: (time: number) => { now = time; },
     durations: (metric: string) => entries.filter(entry => entry.name === `syntra.voice.${metric}`).map(entry => entry.duration),
+    marks: () => entries.filter(entry => entry.entryType === 'mark'),
     restore() { if (original) Object.defineProperty(globalThis, "performance", original); else Reflect.deleteProperty(globalThis, "performance"); },
   };
 }
@@ -30,6 +37,65 @@ test("voice diagnostics keeps only 64 finite recent samples per metric", t => {
   assert.deepEqual(f.durations("model-response"), Array.from({ length: 64 }, (_, index) => index + 7));
   assert.deepEqual(f.durations("synthesis-network"), [9]);
   assert.ok(f.entries.every(entry => Object.keys(entry).every(key => ["name", "startTime", "duration"].includes(key))));
+});
+
+test("structured voice diagnostics cannot copy transcripts, credentials, errors or provider identifiers", t => {
+  const f = fixture(); t.after(f.restore);
+  f.diagnostics.event('recognition.final', {
+    epoch: 2, utterance: 3, offsetMs: 1250, durationMs: 800, timingAvailable: true, reusedProviderId: true,
+    transcript: 'PRIVATE TRANSCRIPT', token: 'PRIVATE TOKEN', resultId: 'PRIVATE RESULT ID',
+    accountId: 'PRIVATE ACCOUNT', error: new Error('PRIVATE ERROR'),
+    state: 'PRIVATE STATE', outcome: 'PRIVATE OUTCOME', reason: 'PRIVATE REASON',
+    liveTracks: Number.NaN, recognitionTracks: Number.POSITIVE_INFINITY, enabledTracks: -1,
+  } as never);
+  f.diagnostics.event('PRIVATE STAGE' as never, {});
+  const marks = f.marks();
+  assert.equal(marks.length, 1);
+  const detail = marks[0].detail!;
+  assert.deepEqual(Object.keys(detail).sort(), ['connection', 'count', 'durationMs', 'epoch', 'offsetMs', 'reusedProviderId', 'sequence', 'stage', 'timingAvailable', 'utterance'].sort());
+  assert.equal(detail.utterance, 3);
+  assert.equal(JSON.stringify(marks).includes('PRIVATE'), false);
+});
+
+test("structured diagnostics retain a bounded timeline with session-local counters after close", t => {
+  const f = fixture(); t.after(f.restore);
+  for (let index = 0; index < 600; index++) {
+    f.at(index); f.diagnostics.event('capture.sample', { inputActive: index % 2 === 0 });
+  }
+  assert.ok(f.marks().length <= 512 && f.marks().length >= 256);
+  assert.equal(f.marks()[0].detail!.count, 257);
+  assert.equal(f.marks().at(-1)!.detail!.count, 600);
+  f.diagnostics.event('connection.close'); f.diagnostics.clear();
+  assert.equal(f.marks().at(-1)!.detail!.stage, 'connection.close');
+  const previousConnection = f.marks().at(-1)!.detail!.connection;
+  const next = new VoiceDiagnostics(); next.event('connection.open');
+  assert.notEqual(f.marks().at(-1)!.detail!.connection, previousConnection);
+  assert.equal(f.marks().at(-1)!.detail!.sequence, 1);
+  assert.ok(f.marks().length <= 512);
+});
+
+test("controller diagnostics explain admission blocks without exposing utterance or request content", t => {
+  const f = fixture(); t.after(f.restore);
+  f.diagnostics.controller({ event: 'admission', outcome: 'blocked', reason: 'input-pending', snapshot: {
+    userSpeaking: false, recognitionPending: true, queuedFinals: 1, active: false, failed: false,
+    playback: false, playbackStarted: false, playbackRetry: false, endpointPending: false, endpointReady: true,
+    transcript: 'PRIVATE CAPTION', requestId: 'PRIVATE REQUEST',
+  } } as never);
+  const detail = f.marks()[0].detail!;
+  assert.equal(detail.stage, 'controller.admission');
+  assert.equal(detail.reason, 'input-pending');
+  assert.equal(detail.recognitionPending, true);
+  assert.equal(detail.queuedFinals, 1);
+  assert.equal(JSON.stringify(detail).includes('PRIVATE'), false);
+});
+
+test("a missing or rejecting Performance mark API cannot stop consultation timing", t => {
+  const f = fixture(); t.after(f.restore);
+  Object.defineProperty(performance, 'mark', { value: () => { throw new Error('No marks available'); } });
+  assert.doesNotThrow(() => f.diagnostics.event('connection.open'));
+  f.diagnostics.phase({ turn: 1, phase: 'queued' });
+  f.at(50); f.diagnostics.phase({ turn: 1, phase: 'admitted' });
+  assert.deepEqual(f.durations('final-to-admission'), [50]);
 });
 
 test("voice diagnostics correlates overlapping queued turns instead of using the latest global timestamp", t => {

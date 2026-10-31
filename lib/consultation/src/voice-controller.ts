@@ -8,6 +8,25 @@ export interface VoiceTurnPhase {
   retry?: boolean;
 }
 
+export interface VoiceControllerDiagnostic {
+  event: "input" | "interim" | "final" | "no-match" | "endpoint" | "admission" | "model" | "playback" | "interrupt" | "close";
+  outcome: "started" | "ended" | "accepted" | "duplicate" | "stale" | "empty" | "rejected" | "scheduled" | "cancelled" | "blocked" | "admitted" | "completed" | "failed" | "retry";
+  reason?: "closed" | "active-turn" | "failed-turn" | "input-pending" | "endpoint-pending" | "empty-queue" | "queue-limit" | "terminal-result" | "different-result" | "different-epoch";
+  /** A value-only snapshot: never include text, result/request IDs or customer data. */
+  snapshot: {
+    userSpeaking: boolean;
+    recognitionPending: boolean;
+    queuedFinals: number;
+    active: boolean;
+    failed: boolean;
+    playback: boolean;
+    playbackStarted: boolean;
+    playbackRetry: boolean;
+    endpointPending: boolean;
+    endpointReady: boolean;
+  };
+}
+
 export interface VoiceTurnPorts {
   /** The existing consultation runtime owns persistence and idempotent request replay. */
   send(input: TurnInput): Promise<TurnReply>;
@@ -25,6 +44,8 @@ export interface VoiceTurnPorts {
   onPendingChange?: (input: TurnInput | null) => void;
   /** Optional local diagnostics; failures must never affect conversation decisions. */
   onTurnPhase?: (event: VoiceTurnPhase) => void;
+  /** Opt-in state tracing; the consumer owns retention and must not add private data. */
+  onDiagnostic?: (event: VoiceControllerDiagnostic) => void;
 }
 
 export interface VoiceTurnOptions {
@@ -99,6 +120,7 @@ export class ConversationVoiceController {
     this.userSpeaking = true;
     if (started) this.emit({ type: "input", speaking: true });
     this.state("listening");
+    if (started) this.diagnostic("input", "started");
   }
 
   speechEnded(): void {
@@ -108,25 +130,35 @@ export class ConversationVoiceController {
     if (wasSpeaking) this.emit({ type: "input", speaking: false });
     if (this.queued.length && !this.recognitionPending) this.scheduleEndpoint();
     this.refreshState();
+    this.diagnostic("input", "ended");
   }
 
   interim(id: string, text: string): void {
-    if (this.closed || !text.trim() || this.finals.has(id) || this.terminalNoMatches.has(id)) return;
+    if (this.closed) return;
+    if (!text.trim()) { this.diagnostic("interim", "empty"); return; }
+    if (this.finals.has(id) || this.terminalNoMatches.has(id)) {
+      this.diagnostic("interim", "stale", "terminal-result");
+      return;
+    }
     this.speechStarted();
     this.interimResult = { id, text: text.trim() };
     this.emitVisitorCaption();
+    this.diagnostic("interim", "accepted");
   }
 
   final(id: string, text: string): boolean {
-    if (this.closed || this.terminalNoMatches.has(id)) return false;
+    if (this.closed) return false;
+    if (this.terminalNoMatches.has(id)) { this.diagnostic("final", "stale", "terminal-result"); return false; }
     const content = text.trim();
     if (!id || !content) {
+      this.diagnostic("final", "empty");
       if (id) this.noMatch(id);
       return false;
     }
     if (this.finals.has(id)) {
       if (this.finals.get(id) !== content) this.error("A repeated transcript changed unexpectedly. Please repeat that phrase.");
       // An old final is not proof that a newer speech-start/partial has ended.
+      this.diagnostic("final", "duplicate", "terminal-result");
       return false;
     }
     const currentResult = !this.interimResult || this.interimResult.id === id;
@@ -139,6 +171,7 @@ export class ConversationVoiceController {
       if (this.queued.length && !this.recognitionPending) this.scheduleEndpoint();
       this.error("Please pause while the current request finishes. The latest phrase was not queued; repeat it afterwards.");
       this.refreshState();
+      this.diagnostic("final", "rejected", "queue-limit");
       return false;
     }
     if (currentResult) this.finishRecognition(false);
@@ -154,14 +187,22 @@ export class ConversationVoiceController {
     if (!this.recognitionPending) this.scheduleEndpoint();
     if (this.failed) this.error("Your latest words are held here. Retry the earlier request first so it cannot be sent twice.", "turn");
     this.refreshState();
+    this.diagnostic("final", "accepted");
     return true;
   }
 
   /** A terminal recognition result, not a VAD/silence guess. Omit id only when
    * the adapter explicitly abandons the current recognition (for example mute). */
   noMatch(id?: string): void {
-    if (this.closed || (id && (this.finals.has(id) || this.terminalNoMatches.has(id)))) return;
-    if (id && this.interimResult && this.interimResult.id !== id) return;
+    if (this.closed) return;
+    if (id && (this.finals.has(id) || this.terminalNoMatches.has(id))) {
+      this.diagnostic("no-match", "duplicate", "terminal-result");
+      return;
+    }
+    if (id && this.interimResult && this.interimResult.id !== id) {
+      this.diagnostic("no-match", "stale", "different-result");
+      return;
+    }
     if (id) this.terminalNoMatches.add(id);
     this.finishRecognition(true);
     this.emitVisitorCaption();
@@ -169,13 +210,19 @@ export class ConversationVoiceController {
     if (this.queued.length) this.scheduleEndpoint();
     this.offerInterruptedReply();
     this.refreshState();
+    this.diagnostic("no-match", "accepted");
   }
 
   /** Flush only finalized content. Providers may call this at a trusted end-of-turn boundary. */
   flush(): void {
-    if (this.closed || this.userSpeaking || this.recognitionPending) return;
+    if (this.closed) return;
+    if (this.userSpeaking || this.recognitionPending) {
+      this.diagnostic("endpoint", "blocked", "input-pending");
+      return;
+    }
     this.cancelEndpoint();
     this.ready = true;
+    this.diagnostic("endpoint", "completed");
     this.drain();
   }
 
@@ -183,6 +230,7 @@ export class ConversationVoiceController {
     if (this.closed) return;
     this.invalidatePlayback();
     this.state("listening");
+    this.diagnostic("interrupt", "completed");
   }
 
   canSwitchSpecialist(): boolean {
@@ -196,6 +244,7 @@ export class ConversationVoiceController {
     this.failed = null;
     this.active = attempt;
     this.refreshState();
+    this.diagnostic("admission", "retry");
     void this.run(attempt);
   }
 
@@ -204,6 +253,7 @@ export class ConversationVoiceController {
     const retry = this.playbackRetry;
     if (retry.epoch !== this.epoch) return;
     this.playbackRetry = null;
+    this.diagnostic("playback", "retry");
     this.startPlayback(retry.reply, retry.epoch, retry.turn, true);
   }
 
@@ -220,6 +270,7 @@ export class ConversationVoiceController {
     this.finals.clear();
     this.terminalNoMatches.clear();
     this.invalidatePlayback();
+    this.diagnostic("close", "completed");
     // Do not clear an admitted request from durable retry storage. Its eventual
     // completion is intentionally silent; the next adapter can replay its receipt.
   }
@@ -231,6 +282,24 @@ export class ConversationVoiceController {
   private phase(event: VoiceTurnPhase): void {
     if (this.closed) return;
     try { this.ports.onTurnPhase?.(event); } catch { /* Diagnostics cannot fail a turn. */ }
+  }
+
+  private diagnostic(event: VoiceControllerDiagnostic["event"], outcome: VoiceControllerDiagnostic["outcome"], reason?: VoiceControllerDiagnostic["reason"]): void {
+    if (!this.ports.onDiagnostic || (this.closed && event !== "close")) return;
+    const snapshot: VoiceControllerDiagnostic["snapshot"] = {
+      userSpeaking: this.userSpeaking,
+      recognitionPending: this.recognitionPending,
+      queuedFinals: this.queued.length,
+      active: this.active !== null,
+      failed: this.failed !== null,
+      playback: this.playback !== null,
+      playbackStarted: this.playback?.started ?? false,
+      playbackRetry: this.playbackRetry !== null,
+      endpointPending: this.cancelTimer !== null,
+      endpointReady: this.ready,
+    };
+    try { this.ports.onDiagnostic({ event, outcome, ...(reason ? { reason } : {}), snapshot }); }
+    catch { /* State tracing must not change admission, recovery or audio behavior. */ }
   }
 
   private finishRecognition(clearInterim: boolean): void {
@@ -278,8 +347,10 @@ export class ConversationVoiceController {
   }
 
   private cancelEndpoint(): void {
+    const pending = this.cancelTimer !== null;
     this.cancelTimer?.();
     this.cancelTimer = null;
+    if (pending) this.diagnostic("endpoint", "cancelled");
   }
 
   private scheduleEndpoint(): void {
@@ -289,6 +360,7 @@ export class ConversationVoiceController {
       this.cancelTimer = null;
       this.flush();
     }, this.options.endOfTurnDelayMs);
+    this.diagnostic("endpoint", "scheduled");
   }
 
   private invalidatePlayback(provisional = false): void {
@@ -308,6 +380,7 @@ export class ConversationVoiceController {
     previous?.abort.abort();
     // The output transport can stop even if its synthesis promise never settles.
     this.ports.stopPlayback();
+    if (previous) this.diagnostic("playback", "cancelled");
   }
 
   private offerInterruptedReply(): void {
@@ -322,6 +395,10 @@ export class ConversationVoiceController {
   private drain(): void {
     if (this.closed || this.active || this.failed || this.userSpeaking || this.recognitionPending || !this.ready || !this.queued.length) {
       this.refreshState();
+      this.diagnostic("admission", "blocked", this.closed ? "closed"
+        : this.active ? "active-turn" : this.failed ? "failed-turn"
+        : this.userSpeaking || this.recognitionPending ? "input-pending"
+        : !this.ready ? "endpoint-pending" : "empty-queue");
       return;
     }
     const input: TurnInput = {
@@ -343,15 +420,19 @@ export class ConversationVoiceController {
   }
 
   private async run(attempt: Attempt): Promise<void> {
+    let requested = false;
     try {
       if (!attempt.reply) {
         // A storage failure prevents a new external admission, preserving a safe retry.
         this.ports.onPendingChange?.({ ...attempt.input });
         if (this.closed) return;
         this.phase({ turn: attempt.turn, phase: "admitted", retry: attempt.retry });
+        this.diagnostic("admission", "admitted");
+        requested = true;
         attempt.reply = await this.ports.send(attempt.input);
         if (this.closed) return;
         this.phase({ turn: attempt.turn, phase: "reply", retry: attempt.retry });
+        this.diagnostic("model", "completed");
         this.emit({ type: "conversation-updated" });
       }
       if (this.closed) return;
@@ -362,6 +443,8 @@ export class ConversationVoiceController {
         this.offerInterruptedReply();
       } else if (attempt.epoch === this.epoch && !this.queued.length && !this.userSpeaking && !this.recognitionPending) {
         this.startPlayback(attempt.reply, attempt.epoch, attempt.turn, attempt.retry);
+      } else {
+        this.diagnostic("playback", "blocked", attempt.epoch !== this.epoch ? "different-epoch" : "input-pending");
       }
       this.drain();
     } catch {
@@ -372,6 +455,7 @@ export class ConversationVoiceController {
         ? "The earlier response could not be confirmed. Your newer words are held here; retry the original request first."
         : "The response could not be confirmed. Retry this request; your words and request ID are preserved.", "turn");
       this.refreshState();
+      this.diagnostic(requested && !attempt.reply ? "model" : "admission", "failed");
     }
   }
 
@@ -380,24 +464,33 @@ export class ConversationVoiceController {
     const playback: Playback = { reply, epoch, turn, retry, abort: new AbortController(), started: false };
     this.playback = playback;
     this.refreshState();
+    this.diagnostic("playback", "scheduled");
     void Promise.resolve().then(async () => {
       if (this.closed || this.playback !== playback || playback.abort.signal.aborted) return;
       await this.ports.speak(reply.message.content, playback.abort.signal, () => {
-        if (this.closed || this.playback !== playback || playback.abort.signal.aborted || epoch !== this.epoch || playback.started) return;
+        if (this.closed) return;
+        if (this.playback !== playback || playback.abort.signal.aborted || epoch !== this.epoch) {
+          this.diagnostic("playback", "stale", "different-epoch");
+          return;
+        }
+        if (playback.started) { this.diagnostic("playback", "duplicate"); return; }
         playback.started = true;
         this.phase({ turn, phase: "playback", retry });
         this.emit({ type: "transcript", id: `advisor:${reply.message.id}`, role: "advisor", text: reply.message.content, final: true });
         this.state("speaking");
+        this.diagnostic("playback", "started");
       });
       if (this.closed || this.playback !== playback || playback.abort.signal.aborted) return;
       this.playback = null;
       this.refreshState();
+      this.diagnostic("playback", "completed");
     }).catch(() => {
       if (this.closed || this.playback !== playback || playback.abort.signal.aborted || epoch !== this.epoch) return;
       this.playback = null;
       this.playbackRetry = { reply, epoch, turn };
       this.error("The reply is saved, but audio playback failed. Play the reply again or continue speaking.", "playback");
       this.refreshState();
+      this.diagnostic("playback", "failed");
     });
   }
 }

@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createAzureVoiceAdapter } from "../src/lib/development-voice/azure-voice.ts";
 import { blankBrief } from "../../../lib/consultation/src/native-repository.ts";
-import type { ConsultationRuntime, TurnInput, TurnReply, VoiceEvent } from "../../../lib/consultation/src/types.ts";
+import { manualBrief } from "../../../lib/consultation/src/engine.ts";
+import { getSpecialistProfile } from "../../../lib/consultation/src/specialists.ts";
+import type { ConsultationRuntime, Message, SpecialistId, TurnInput, TurnReply, VoiceConnection, VoiceEvent } from "../../../lib/consultation/src/types.ts";
+import { ResultReason } from "microsoft-cognitiveservices-speech-sdk";
+import { sdkRecognitionFixture } from "./azure-sdk-fixture.ts";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -84,10 +88,11 @@ function fixture() {
     buffer: { duration: number } | null = null;
     onended: (() => void) | null = null;
     stopped = false;
+    ended = false;
     startAt: number | undefined;
     start(time: number) { this.startAt = time; }
     stop() { this.stopped = true; }
-    finish() { this.onended?.(); }
+    finish() { this.ended = true; this.onended?.(); }
   }
   const contexts: AudioContextFake[] = [];
   class AudioContextFake {
@@ -138,7 +143,7 @@ function fixture() {
     static fromAuthorizationToken(_token: string, _region: string) { return new Config(); }
     setProperty() {}
   }
-  type RecognitionEvent = { result: { resultId: string; text: string; reason: string } };
+  type RecognitionEvent = { result: { resultId: string; text: string; reason: number; offset?: number; duration?: number } };
   class Recognizer {
     static enableTelemetry() {}
     speechStartDetected?: () => void;
@@ -166,19 +171,19 @@ function fixture() {
       if (shutdown === "success" && success) queueMicrotask(success);
       else if (shutdown === "failure" && failure) queueMicrotask(failure);
     }
-    partial(id: string, text: string) { this.recognizing?.(this, { result: { resultId: id, text, reason: "RecognizingSpeech" } }); }
-    final(id: string, text: string) { this.recognized?.(this, { result: { resultId: id, text, reason: "RecognizedSpeech" } }); }
-    noMatch(id: string) { this.recognized?.(this, { result: { resultId: id, text: "", reason: "NoMatch" } }); }
+    partial(id: string, text: string, offset?: number, duration?: number) { this.recognizing?.(this, { result: { resultId: id, text, offset, duration, reason: ResultReason.RecognizingSpeech } }); }
+    final(id: string, text: string, offset?: number, duration?: number) { this.recognized?.(this, { result: { resultId: id, text, offset, duration, reason: ResultReason.RecognizedSpeech } }); }
+    noMatch(id: string, offset?: number, duration?: number) { this.recognized?.(this, { result: { resultId: id, text: "", offset, duration, reason: ResultReason.NoMatch } }); }
   }
   class Synthesizer {
     synthesizing?: (sender: unknown, event: { result: { audioData: ArrayBuffer } }) => void;
-    succeeded?: (result: { reason: string }) => void;
+    succeeded?: (result: { reason: number }) => void;
     failed?: () => void;
     closes = 0;
     text = "";
     readonly config: Config;
     constructor(config: Config) { this.config = config; syntheses.push(this); }
-    speakTextAsync(text: string, success: (result: { reason: string }) => void, failure: () => void) {
+    speakTextAsync(text: string, success: (result: { reason: number }) => void, failure: () => void) {
       this.text = text; this.succeeded = success; this.failed = failure;
     }
     close(success?: () => void) { this.closes++; if (success) queueMicrotask(success); }
@@ -187,7 +192,7 @@ function fixture() {
       values.forEach((value, index) => view.setInt16(index * 2, value, true));
       this.synthesizing?.(this, { result: { audioData: data } });
     }
-    complete() { this.succeeded?.({ reason: "SynthesizingAudioCompleted" }); }
+    complete() { this.succeeded?.({ reason: ResultReason.SynthesizingAudioCompleted }); }
   }
   const sdk = {
     SpeechRecognizer: Recognizer, SpeechSynthesizer: Synthesizer, SpeechConfig: Config,
@@ -197,7 +202,7 @@ function fixture() {
     } },
     PropertyId: { Speech_SegmentationSilenceTimeoutMs: "segmentation" },
     SpeechSynthesisOutputFormat: { Raw24Khz16BitMonoPcm: "pcm" },
-    ResultReason: { RecognizedSpeech: "RecognizedSpeech", NoMatch: "NoMatch", SynthesizingAudioCompleted: "SynthesizingAudioCompleted" },
+    ResultReason,
   };
   replaceGlobal("window", { AudioContext: AudioContextFake, setTimeout: setTimer, clearTimeout: clearTimer });
   replaceGlobal("AudioContext", AudioContextFake);
@@ -214,9 +219,10 @@ function fixture() {
   };
   const loadSdk = async () => sdk as unknown as typeof import("microsoft-cognitiveservices-speech-sdk");
   return {
-    events, sends, stream, streams, contexts, recognizers, syntheses, inputConfigs, storage, advance, loadSdk,
+    events, sends, stream, streams, contexts, recognizers, syntheses, inputConfigs, storage, advance, loadSdk, runtime,
     newStream: () => new Stream(),
     mediaCalls: () => mediaCalls, tokenCalls: () => tokenCalls,
+    pendingTimers: () => timers.size, pendingFrames: () => frames.size,
     adapter: (load = loadSdk) => createAzureVoiceAdapter(runtime, { enabled: true, loadSdk: load }),
     setMedia: (implementation: typeof getMedia) => { getMedia = implementation; },
     setToken: (implementation: typeof fetchToken) => { fetchToken = implementation; },
@@ -238,6 +244,282 @@ function fixture() {
     },
   };
 }
+
+test("Azure accepts a second SDK phrase sharing the first phrase's service result ID", async t => {
+  const f = fixture();
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  const recognizer = f.recognizers[0];
+  const sdk = await sdkRecognitionFixture({
+    recognizing: event => recognizer.recognizing?.(recognizer, event),
+    recognized: event => recognizer.recognized?.(recognizer, event),
+  });
+  t.after(async () => { await connection.close(); await sdk.close(); f.restore(); });
+  for (const [index, text] of ["Plan our portal.", "Connect our CRM."].entries()) {
+    const offset = 10_000_000 + index * 50_000_000;
+    recognizer.speechStartDetected?.();
+    await sdk.hypothesis(text, offset, 10_000_000);
+    recognizer.speechEndDetected?.();
+    await sdk.phrase(text, offset, 20_000_000);
+    f.advance(1000); await settle();
+    assert.equal(f.sends.length, index + 1, "Each SDK audio segment must produce one consultation turn despite a shared service request ID");
+    f.syntheses[index].audio(); f.syntheses[index].complete();
+    f.contexts[0].sources.at(-1)!.finish(); await settle();
+    assert.equal(connection.canSwitchSpecialist!(), true);
+  }
+});
+
+test("Azure runs ten SDK-shaped turns with one shared persisted conversation, specialist voices, barge-in and reopen", async t => {
+  const f = fixture();
+  const memory = {
+    brief: manualBrief(blankBrief(), { budget: "£9000", integrations: "Existing CRM" }, 0),
+    messages: [] as Message[], receipts: new Map<string, TurnReply>(),
+  };
+  const modelContexts: Array<{ history: Message[]; brief: typeof memory.brief }> = [];
+  f.setSend(async input => {
+    const previous = memory.receipts.get(input.requestId);
+    if (previous) return structuredClone({ ...previous, brief: memory.brief });
+    modelContexts.push({ history: structuredClone(memory.messages), brief: structuredClone(memory.brief) });
+    const response = resultFor(input);
+    response.visitorMessage.id = memory.messages.length + 1;
+    response.message.id = memory.messages.length + 2;
+    response.brief = structuredClone(memory.brief);
+    memory.messages.push(response.visitorMessage, response.message);
+    memory.receipts.set(input.requestId, structuredClone(response));
+    return response;
+  });
+  const adapter = f.adapter();
+  let connection: VoiceConnection | undefined;
+  const parsers: Awaited<ReturnType<typeof sdkRecognitionFixture>>[] = [];
+  t.after(async () => {
+    await connection?.close();
+    for (const parser of parsers) await parser.close();
+    f.restore();
+  });
+  connection = await adapter.connect(1, f.capture, new AbortController().signal);
+  const recognizer = f.recognizers[0];
+  const sdk = await sdkRecognitionFixture({
+    recognizing: event => recognizer.recognizing?.(recognizer, event),
+    recognized: event => recognizer.recognized?.(recognizer, event),
+  });
+  parsers.push(sdk);
+  const profiles: SpecialistId[] = ["syntra", "technical", "automation"];
+  let active: SpecialistId = "syntra", typedTurns = 0;
+  for (let index = 0; index < 10; index++) {
+    // The sixth utterance interrupts the fifth answer through actual ASR callbacks.
+    if (index !== 5) {
+      active = profiles[index % profiles.length];
+      await connection.setSpecialist!(active);
+    }
+    const text = index === 2 || index === 3 ? "Yes." : `Project requirement ${index + 1}.`;
+    const offset = 10_000_000 + index * 100_000_000;
+    recognizer.speechStartDetected?.();
+    await sdk.hypothesis(text, offset, 5_000_000);
+    if (index === 5) assert.equal(f.contexts[0].sources[4].stopped, true, "New speech must stop the previous owned audio synchronously");
+    await sdk.hypothesis(text, offset, 12_000_000);
+    recognizer.speechEndDetected?.();
+    await sdk.phrase(text, offset + 1_000_000, 20_000_000);
+    await sdk.phrase(text, offset + 1_000_000, 20_000_000); // duplicate provider delivery
+    f.advance(1000); await settle();
+    assert.equal(f.sends.length, index + 1 + typedTurns);
+    assert.equal(memory.messages.length, 2 * (index + 1 + typedTurns));
+    assert.equal(f.sends.at(-1)!.specialist, active);
+    const synthesis = f.syntheses[index];
+    assert.equal(synthesis.config.speechSynthesisVoiceName, getSpecialistProfile(active).voiceId);
+    synthesis.audio();
+    if (index === 5) {
+      f.syntheses[4].audio(); f.syntheses[4].complete();
+      assert.equal(f.contexts[0].sources[5].stopped, false, "Canceled synthesis cannot stop the next answer");
+    }
+    if (index !== 4) {
+      synthesis.complete(); f.contexts[0].sources.at(-1)!.finish(); await settle();
+      assert.equal(f.events.filter(event => event.type === "state").at(-1)?.state, "listening");
+      assert.equal(connection.canSwitchSpecialist!(), true);
+    }
+    if (index === 3) {
+      memory.brief = manualBrief(memory.brief, { budget: "£10000" }, memory.brief.revision);
+      await f.runtime.messages.send(1, { content: "Keep our revised budget and existing CRM.", depth: "detailed", requestId: "typed_shared_context" });
+      typedTurns++;
+    }
+  }
+  assert.equal(f.recognizers.length, 1, "Normal continuous turns must reuse one recognizer");
+  assert.equal(f.sends.length, 11);
+  assert.equal(new Set(f.sends.map(input => input.requestId)).size, 11);
+  assert.equal(memory.messages.length, 22);
+  assert.equal(memory.brief.budget, "£10000");
+  assert.equal(memory.brief.integrations, "Existing CRM");
+  assert.equal(modelContexts.at(-1)!.history.length, 20);
+  assert.equal(modelContexts.at(-1)!.brief.budget, "£10000");
+  assert.equal(f.storage.has("syntra.development.voice.pending.v1:1"), false);
+  await connection.close();
+  assert.ok(f.streams.every(stream => stream.track.readyState === "ended"));
+  const replacement = f.newStream(); f.setMedia(async () => replacement);
+  connection = await adapter.connect(1, f.capture, new AbortController().signal, { specialist: "automation" });
+  const current = f.recognizers.at(-1)!;
+  const reopened = await sdkRecognitionFixture({
+    recognizing: event => current.recognizing?.(current, event),
+    recognized: event => current.recognized?.(current, event),
+  });
+  parsers.push(reopened);
+  await sdk.phrase("Old recognizer callback after reopen.", 2_000_000_000, 20_000_000);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 11);
+  current.speechStartDetected?.();
+  await reopened.hypothesis("Continue from our saved brief.", 10_000_000, 10_000_000);
+  current.speechEndDetected?.();
+  await reopened.phrase("Continue from our saved brief.", 11_000_000, 20_000_000);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 12);
+  assert.equal(memory.messages.length, 24);
+  assert.equal(modelContexts.at(-1)!.history.length, 22);
+  assert.equal(modelContexts.at(-1)!.brief.budget, "£10000");
+  assert.equal(f.syntheses.at(-1)!.config.speechSynthesisVoiceName, getSpecialistProfile("automation").voiceId);
+  f.syntheses.at(-1)!.audio(); f.syntheses.at(-1)!.complete();
+  f.contexts.at(-1)!.sources.at(-1)!.finish(); await settle();
+  assert.equal(connection.canSwitchSpecialist!(), true);
+});
+
+test("Azure final offset refinement keeps the original partial correlated", async t => {
+  const f = fixture();
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.();
+  recognizer.partial("shared-request", "Plan the integration", 10_000_000, 1_000_000);
+  const interim = f.events.filter(event => event.type === "transcript" && !event.final).at(-1)!;
+  recognizer.speechEndDetected?.();
+  recognizer.final("shared-request", "Plan the integration.", 12_000_000, 20_000_000);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1, "A refined start beyond a short partial span must not leave recognition pending");
+  const final = f.events.filter(event => event.type === "transcript" && event.role === "visitor" && event.final).at(-1)!;
+  assert.equal(final.id, interim.id);
+});
+
+test("Azure accepts audio beyond a refined final end and suppresses its late duplicate during new input", async t => {
+  const f = fixture();
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.();
+  recognizer.partial("shared-request", "First request", 100, 400);
+  recognizer.speechEndDetected?.(); recognizer.final("shared-request", "First request.", 110, 370);
+  f.advance(1000); await settle();
+  f.syntheses[0].audio(); f.syntheses[0].complete(); f.contexts[0].sources[0].finish(); await settle();
+  recognizer.speechStartDetected?.();
+  recognizer.partial("shared-request", "Next request", 490, 5);
+  const currentCaption = f.events.filter(event => event.type === "transcript").at(-1)!;
+  assert.equal(currentCaption.text, "Next request", "An old broad hypothesis must not swallow audio beyond its refined final end");
+  recognizer.final("shared-request", "First request.", 110, 370);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(connection.canSwitchSpecialist!(), false);
+  recognizer.speechEndDetected?.(); recognizer.final("shared-request", "Next request.", 490, 200);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 2);
+  assert.equal(f.sends[1].content, "Next request.");
+});
+
+test("Azure late older final cannot settle a newer overlapping partial", async t => {
+  const f = fixture();
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.(); recognizer.partial("shared-request", "First point", 100, 100);
+  recognizer.speechEndDetected?.();
+  recognizer.speechStartDetected?.(); recognizer.partial("shared-request", "Second point", 250, 100);
+  recognizer.final("shared-request", "First point.", 150, 150);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 0, "The older refined final must not settle the current partial");
+  assert.equal(f.events.filter(event => event.type === "input").at(-1)?.speaking, true);
+  recognizer.speechEndDetected?.(); recognizer.final("shared-request", "Second point.", 250, 100);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].content, "First point. Second point.");
+});
+
+test("Azure NoMatch does not consume every later phrase with the same service ID", async t => {
+  const f = fixture();
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.(); recognizer.noMatch("shared-request", 100, 100);
+  assert.equal(connection.canSwitchSpecialist!(), true);
+  recognizer.speechStartDetected?.(); recognizer.partial("shared-request", "A genuine request", 500, 100);
+  recognizer.speechEndDetected?.(); recognizer.final("shared-request", "A genuine request.", 510, 200);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].content, "A genuine request.");
+});
+
+test("Azure ambiguous untimed terminals retire before clearing either bare or identified new input", async () => {
+  for (const withHypothesis of [false, true]) {
+    const f = fixture();
+    let connection: VoiceConnection | undefined;
+    try {
+      connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+      const recognizer = f.recognizers[0];
+      recognizer.speechStartDetected?.(); recognizer.speechEndDetected?.(); recognizer.noMatch("shared-request", 0, 0);
+      assert.equal(connection.canSwitchSpecialist!(), true);
+      recognizer.speechStartDetected?.();
+      if (withHypothesis) recognizer.partial("shared-request", "Current identified words", 1000, 100);
+      assert.equal(connection.canSwitchSpecialist!(), false);
+      recognizer.noMatch("shared-request", 0, 0);
+      assert.equal(recognizer.closes, 1, "Ambiguous identity must retire the old recognizer synchronously, even before a new hypothesis");
+      await settle();
+      assert.equal(f.recognizers.length, 2);
+      assert.equal(f.sends.length, 0);
+      recognizer.final("shared-request", "A late old final", 1000, 200);
+      f.advance(1000); await settle();
+      assert.equal(f.sends.length, 0);
+      const replacement = f.recognizers[1];
+      replacement.speechStartDetected?.(); replacement.final("shared-request", "Please use this repeated request.", 1000, 200);
+      f.advance(1000); await settle();
+      assert.equal(f.sends.length, 1);
+      assert.equal(f.sends[0].content, "Please use this repeated request.");
+    } finally {
+      await connection?.close();
+      f.restore();
+    }
+  }
+});
+
+test("Azure repeated reopen drains owned resources and ignores retired callbacks across ten sessions", async t => {
+  const f = fixture();
+  const adapter = f.adapter();
+  let connection: VoiceConnection | undefined;
+  t.after(async () => { await connection?.close(); f.restore(); });
+  for (let session = 0; session < 10; session++) {
+    const stream = session === 0 ? f.stream : f.newStream();
+    f.setMedia(async () => stream);
+    connection = await adapter.connect(1, f.capture, new AbortController().signal);
+    const recognizer = f.recognizers.at(-1)!;
+    recognizer.speechStartDetected?.(); recognizer.partial("reused-provider-id", `Request ${session}`, 10_000_000, 10_000_000);
+    recognizer.speechEndDetected?.(); recognizer.final("reused-provider-id", `Request ${session}.`, 11_000_000, 20_000_000);
+    f.advance(1000); await settle();
+    assert.equal(f.sends.length, session + 1);
+    const synthesis = f.syntheses.at(-1)!;
+    synthesis.audio(); synthesis.complete();
+    const context = f.contexts.at(-1)!;
+    context.sources.at(-1)!.finish(); await settle();
+    await connection.close(); await settle();
+    assert.equal(f.pendingTimers(), 0, "Retired sessions must not retain authorization, endpoint or playback timers");
+    assert.equal(f.pendingFrames(), 0, "Retired sessions must not retain microphone animation callbacks");
+    assert.ok(f.streams.every(item => item.track.readyState === "ended"));
+    assert.ok(f.contexts.every(item => item.closes === 1));
+    assert.ok(f.recognizers.every(item => item.closes === 1));
+    assert.ok(f.inputConfigs.every(item => item.closes === 1));
+    assert.ok(f.syntheses.every(item => item.closes === 1));
+    assert.ok(context.sources.every(item => (item.stopped || item.ended) && item.disconnected));
+    const before = f.events.length;
+    recognizer.speechStartDetected?.(); recognizer.final("reused-provider-id", "Late retired intent", 100_000_000, 10_000_000);
+    synthesis.audio(); synthesis.complete();
+    f.advance(1000); await settle();
+    assert.equal(f.sends.length, session + 1);
+    assert.equal(f.events.length, before);
+  }
+  assert.equal(f.recognizers.length, 10);
+  assert.equal(f.mediaCalls(), 10);
+  assert.equal(new Set(f.sends.map(input => input.requestId)).size, 10);
+});
 
 test("Azure abort during SDK acquisition never asks for a token or microphone", async t => {
   const f = fixture(); t.after(f.restore);

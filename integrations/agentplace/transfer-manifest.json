@@ -441,7 +441,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/voice.tsx",
       "source": "artifacts/digital-prodigy/src/components/voice.tsx",
-      "sha256": "4db8899bf53f9dd5ea16c7a0e8f914b003f8a435d5f9f89145969c8f14e68421"
+      "sha256": "19e8b20a2ecd17c3b5624e5fa79864339a2bf0467b5c80540caa20d7e70a1e59"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-media-query.ts",
@@ -636,12 +636,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/voice-controller.ts",
       "source": "lib/consultation/src/voice-controller.ts",
-      "sha256": "a5e71df846d5b26efa4a12a175225d7771ebfa409a26cca43623157797490dac"
+      "sha256": "430d53558c27f360f213abe2f351d9b1f7cbf108313bf32fa7b40070da90e4ba"
     },
     {
       "path": "agent-dev-server/src/bl/syntra/shared/voice-controller.ts",
       "source": "lib/consultation/src/voice-controller.ts",
-      "sha256": "a5e71df846d5b26efa4a12a175225d7771ebfa409a26cca43623157797490dac"
+      "sha256": "430d53558c27f360f213abe2f351d9b1f7cbf108313bf32fa7b40070da90e4ba"
     },
     {
       "path": "agent-dev-client/static/syntra/assets/dp-logo.png",

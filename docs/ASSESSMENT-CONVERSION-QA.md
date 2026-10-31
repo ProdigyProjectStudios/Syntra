@@ -2,7 +2,7 @@
 
 ## Current milestone — 31 October 2026
 
-The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 146 passing consultation and voice reliability tests; full TypeScript/build; and 129 transfer checksums with 125 TS/TSX syntax files. The real external enquiry page was inspected during run 1 without submitting a message. The new speech transport and three-specialist interface have not yet passed rendered Replit or live microphone checks. See [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md) for fixes, evidence limits and the pending live matrix.
+The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 166 passing consultation and voice continuity tests; full TypeScript/build; and 129 transfer checksums with 125 TS/TSX syntax files. The real external enquiry page was inspected during run 1 without submitting a message. The separate [Azure live report](AZURE-LIVE-VERIFICATION.md) records limited mobile layout checks and one capture-bypassed cloud exchange, followed by a failed second input. It does not verify physical microphone capture or ten continuous turns. [Run 3](VOICE-CONTINUITY-RUN-3.md) fixes a reproduced SDK identity defect and passes ten-turn orchestration simulations, with no new rendered or live-audio pass.
 
 ## Earlier Replit checkpoint
 

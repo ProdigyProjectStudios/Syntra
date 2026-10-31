@@ -2,13 +2,13 @@
 
 Implementation and evidence as of 31 October 2026. This guide distinguishes portable implementation from live provider and native-host verification.
 
-Pro run 2 reliability changes and verification boundaries are recorded in [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md).
+Pro run 3 fixes the reproduced repeated-service-ID second-turn failure and adds structured diagnostics: [Continuous conversation — run 3](VOICE-CONTINUITY-RUN-3.md). Earlier reliability work is recorded in [run 2](VOICE-RELIABILITY-RUN-2.md); actual historical provider evidence and the failed second input are in [Azure live verification](AZURE-LIVE-VERIFICATION.md).
 
 ## Architecture
 
 `VoiceAdapter` remains the replaceable runtime boundary. AgentPlace keeps its own model, native realtime voice, session lifecycle and transcript owner. Replit can opt into an Azure development adapter without changing that host integration.
 
-The development path is microphone capture → continuous speech recognition → finalized-turn controller → existing consultation runtime → streamed speech synthesis → owned Web Audio playback. Interim recognition updates captions only. Final fragments are coalesced into one request, and duplicate recognition result IDs are suppressed. Only one admitted model request runs at a time. The resulting messages and project brief use the same persistence path as text consultation.
+The development path is microphone capture → continuous speech recognition → finalized-turn controller → existing consultation runtime → streamed speech synthesis → owned Web Audio playback. Interim recognition updates captions only. Final fragments are coalesced into one request. The Azure adapter maps service request IDs and audio spans to stable local utterance IDs: one provider result ID may cover many phrases. Exact terminal duplicates are suppressed while later phrases and final-offset refinements remain valid. Only one admitted model request runs at a time. The resulting messages and project brief use the same persistence path as text consultation.
 
 Speech synthesis emits raw 24 kHz, 16-bit mono PCM chunks. The player owns the scheduled audio nodes and stops them immediately on interruption. Epoch checks discard late synthesis/model playback callbacks. An already-admitted model request is allowed to settle and persist; interrupting speech does not erase it or send the same intent again.
 
@@ -30,7 +30,7 @@ The model currently returns a complete structured consultation reply before synt
 
 Microsoft's published Speech F0 allowance currently lists five hours of realtime speech transcription and 0.5 million neural synthesis characters per month. Standard/custom transcription share the allowance. Resource limits and available regions still apply; this is not unlimited free production traffic. No Azure resource, paid subscription or extra model connection was created by this change. Verify the selected account/resource tier before enabling it.
 
-No comparable live provider benchmark has been run in this workspace. There are no measured latency or voice-quality scores to report. The SDK's browser compatibility and account-specific voice availability must be verified on the intended Replit preview.
+The separate live verification report records one capture-bypassed cloud exchange and its timings, followed by a failed second input. This is insufficient for a multi-turn latency benchmark or voice-quality score. Run 3 adds a deterministic fix and trace, but has no new cloud or microphone measurements. The SDK's browser compatibility and account-specific voice availability must be verified on the intended Replit preview.
 
 Primary sources, checked for this implementation:
 
@@ -79,7 +79,7 @@ Native repository guards prevent new typed reservations while voice work is stag
 
 ## Recovery contract
 
-- Interim captions never become standalone model requests. Stable result IDs deduplicate recognition callbacks; saying the same words in a later genuine turn remains valid.
+- Interim captions never become standalone model requests. Stable local utterance IDs deduplicate recognition callbacks; Azure service IDs alone are not utterance identities. Saying the same words in a later genuine turn remains valid.
 - Before a new model send, the original input is saved in tab-scoped session storage. Storage failure prevents an unsafe send. An uncertain outcome exposes an explicit retry of the original request, not a new request ID.
 - Playback failure exposes **Replay response** and uses the already-saved reply; it never reruns the model. The replay interaction can also unlock browser audio when autoplay restrictions suspended it.
 - A barge-in stops audio immediately. A late model response can update the canonical conversation and brief while its obsolete speech remains suppressed.
@@ -125,6 +125,10 @@ performance.getEntriesByType('measure')
 Capture multiple real turns to report median and p95. Scheduling a Web Audio source is not measurement of sound at a speaker. The configured 500 ms provider segmentation silence and 350 ms final-fragment coalescing remain unchanged pending empirical tuning; they are configured waits, not observed end-to-end latency. This implementation still awaits the complete structured model reply before speech. See Microsoft's [latency guidance](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-lower-speech-synthesis-latency) and the installed 1.53.0 SDK's `PropertyId` definitions for provider metric meanings.
 
 The development API now acquires its process-local admission guard before the first asynchronous receipt lookup. This prevents two same-session requests from entering the model together in one server process. Database transactions protect committed message pairs/receipts; they do not serialize model calls across workers. Distributed admission remains a deployment concern, and AgentPlace retains its own trusted native admission/lifecycle requirements.
+
+## Structured troubleshooting
+
+Run 3 adds a bounded, local Performance API trace across microphone activity, SDK audio transmission, recognition, controller admission, model completion and PCM playback. It contains fixed event categories, finite numbers and booleans; no transcript, audio, credentials, provider/request IDs or customer identifiers. SDK wire observations are diagnostic-only and never drive conversation decisions. See [the collection snippet and failure-boundary table](VOICE-CONTINUITY-RUN-3.md#structured-local-diagnostics).
 
 ## Transfer and release
 

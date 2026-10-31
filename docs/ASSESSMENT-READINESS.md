@@ -12,7 +12,7 @@ Baseline: `feature/assessment-conversion` at `dd977aa9894da38234dca25b1cf74b5294
 
 ## Validation for this checkpoint
 
-- 146 regression tests passed after Pro run 2: 102 consultation/native/handoff/controller tests and 44 voice transport/lifecycle/diagnostics/admission/token tests. The exact suite breakdown is in [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md).
+- 166 regression tests passed after Pro run 3: 106 consultation/native/handoff/controller tests and 60 voice transport/SDK/lifecycle/diagnostics/admission/token tests. The suite breakdown, reproduced second-turn defect and ten-turn simulation are in [Continuous conversation — run 3](VOICE-CONTINUITY-RUN-3.md).
 - Full workspace TypeScript checks and production builds passed.
 - Deterministic transfer: 129 checksums, 125 TS/TSX syntax files and scoped CSS compilation passed. Exported tests were executed; native SDK typing and real audio are separate gates.
 - All three engineering roles reviewed the same changes. Existing working branches and the native runtime are preserved.
@@ -23,7 +23,7 @@ The replaceable development adapter implements continuous recognition, finalized
 
 The voice-only selector contains Syntra, Caelis (technical) and Veyra (automation), with distinct adult British female Azure profiles. Caelis and Veyra are provisional identities. They share one consultation model, canonical conversation and editable brief. Switching is blocked during an unfinished or uncertain turn; switching during playback first stops owned audio. Native specialist controls require real host support and are disabled otherwise.
 
-This is implemented source, not a live audio certification. Model output currently completes before speech synthesis begins. No Azure latency, subjective quality, speaker echo, mobile microphone or token-renewal measurement is claimed. Setup, provider evidence and the exact live checks are in [Voice intelligence](VOICE-INTELLIGENCE.md).
+This is implemented source, not a live audio certification. Model output currently completes before speech synthesis begins. The separate [Azure live report](AZURE-LIVE-VERIFICATION.md) contains one capture-bypassed cloud turn and timings, then a failed second input. Run 3 adds no new cloud latency, subjective quality, speaker echo, physical microphone or token-renewal measurements. Setup, provider evidence and the exact live checks are in [Voice intelligence](VOICE-INTELLIGENCE.md).
 
 ## Remaining release gates
 

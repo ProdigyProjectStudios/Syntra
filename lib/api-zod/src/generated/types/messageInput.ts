@@ -6,8 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ResponseDepth } from './responseDepth';
+import type { SpecialistId } from './specialistId';
 
 export interface MessageInput {
+  specialist?: SpecialistId;
   requestId: string;
   /**
      * @minLength 1

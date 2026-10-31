@@ -6,6 +6,7 @@ import { ConsultationError } from '../../bl/syntra/consultation-engine.ts';
 import { SyntraConsultationRepository } from '../../bl/syntra/consultation-repository.ts';
 import { verifyNativeCompletion, type NativeCompletion } from '../../bl/syntra/shared/native-completion.ts';
 import type { NativeSessionGate } from '../../bl/syntra/shared/native-repository.ts';
+import { CONTACT_OPTIONS } from '../../bl/syntra/shared/business.ts';
 
 const idSchema = z.number().int().positive();
 const depthSchema = z.enum(['concise', 'detailed', 'deep_dive']);
@@ -95,9 +96,10 @@ export function createSyntraRouter(storageFactory: AgentStorageFactoryService, n
       requestId: z.string().min(8).max(100),
       content: z.string().min(1).max(12000),
       depth: depthSchema,
+      specialist: z.enum(['syntra', 'technical', 'automation']).optional(),
     })).mutation(async ({ ctx, input }) => {
       try {
-        return await repository(ctx.sessionKey).beginTurn(input.id, input.requestId, input.content, input.depth);
+        return await repository(ctx.sessionKey).beginTurn(input.id, input.requestId, input.content, input.depth, input.specialist);
       } catch (error) {
         return handleError('begin-turn', error);
       }
@@ -151,6 +153,6 @@ export function createSyntraRouter(storageFactory: AgentStorageFactoryService, n
       }
     }),
 
-    contacts: publicProcedure.query(() => []),
+    contacts: publicProcedure.query(() => CONTACT_OPTIONS),
   });
 }

@@ -1,5 +1,11 @@
 # Assessment conversion QA
 
+## Current milestone — 31 October 2026
+
+The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 166 passing consultation and voice continuity tests; full TypeScript/build; and 129 transfer checksums with 125 TS/TSX syntax files. The real external enquiry page was inspected during run 1 without submitting a message. The separate [Azure live report](AZURE-LIVE-VERIFICATION.md) records limited mobile layout checks and one capture-bypassed cloud exchange, followed by a failed second input. It does not verify physical microphone capture or ten continuous turns. [Run 3](VOICE-CONTINUITY-RUN-3.md) fixes a reproduced SDK identity defect and passes ten-turn orchestration simulations, with no new rendered or live-audio pass.
+
+## Earlier Replit checkpoint
+
 Reviewed upstream feature/assessment-conversion at bf9a1f29122893cf21248585215d22943cb57472. The recent Replit mobile composer, welcome-screen and animation-budget refinements were retained rather than overwritten by the older GitHub baseline.
 
 ## Fixes

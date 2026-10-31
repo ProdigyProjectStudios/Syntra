@@ -7,7 +7,7 @@ import { useVoiceToggle } from '@/app/lib/hooks/useVoiceToggle';
 import { realtimeVoiceLevels } from '@/app/lib/services/voice-realtime.service';
 import { trpc } from '@/app/lib/trpc';
 import { createNativeRuntime } from '../shared/native-runtime';
-import { NativeTranscript, type NativeTranscriptPart } from '../shared/native-transcript';
+import { NativeTranscript, nativeTranscriptPair, type NativeTranscriptPart } from '../shared/native-transcript';
 import type { Depth, VoiceEvent } from '../shared/types';
 import { SERVICE_AREAS } from './fixtures';
 
@@ -69,13 +69,7 @@ export function useAgentPlaceRuntime() {
         send: async (content, metadata, admitted) => {
           await store.sendMessage({ instruction: content, metadata, onAdmitted: receipt => admitted(receipt.responseId) });
         },
-        pair: (responseId, depth) => {
-          const entries = read(depth);
-          const advisorIndex = entries.findIndex(p => p.responseId === responseId && p.message.role === 'advisor');
-          const visitor = entries.slice(0, advisorIndex).reverse().find(p => p.message.role === 'visitor');
-          return advisorIndex >= 0 && visitor
-            ? { visitorMessage: visitor.message, message: entries[advisorIndex].message } : null;
-        },
+        pair: (responseId, depth) => nativeTranscriptPair(read(depth), responseId),
       },
       services: async () => SERVICE_AREAS,
       booking: { contacts: () => trpc.syntra.contacts.query() },
@@ -103,7 +97,8 @@ export function useAgentPlaceRuntime() {
               if (enabled) activated = true;
               send({ type: 'state', state: !enabled && activated && state === 'idle' ? 'closed'
                 : state === 'connecting' || state === 'idle' ? 'connecting'
-                : state === 'speaking' || state === 'thinking' || state === 'building' ? 'speaking' : 'listening' });
+                : state === 'thinking' || state === 'building' ? 'thinking'
+                : state === 'speaking' ? 'speaking' : 'listening' });
             }, { fireImmediately: true }));
             disposers.push(reaction(() => store.voiceCaption || store.lastVoiceText, text => {
               if (text.trim()) send({ type: 'transcript', role: store.voiceState === 'speaking' ? 'advisor' : 'visitor', text, final: false });

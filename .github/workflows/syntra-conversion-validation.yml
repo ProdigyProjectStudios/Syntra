@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - feature/assessment-conversion
+      - feature/syntra-assessment-voice
+  pull_request:
+    branches:
+      - feature/assessment-conversion
   workflow_dispatch:
 
 permissions:
@@ -27,6 +31,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Consultation regression tests
         run: pnpm test
+      - name: Development audio and authorization regressions
+        run: pnpm test:voice
       - name: TypeScript
         run: pnpm run typecheck
       - name: AgentPlace transfer validation

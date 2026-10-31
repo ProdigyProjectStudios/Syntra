@@ -1,4 +1,5 @@
 export type Depth = "concise" | "detailed" | "deep_dive";
+export type SpecialistId = "syntra" | "technical" | "automation";
 export const BRIEF_KEYS = ["objective", "service", "proposedSolution", "requirements", "integrations", "budget", "timeline", "nextStep"] as const;
 export type BriefKey = (typeof BRIEF_KEYS)[number];
 export type BriefFields = Record<BriefKey, string | null>;
@@ -51,16 +52,19 @@ export interface AdvisorInput {
   currentBrief: Brief;
   depth: Depth;
   isFirstMessage: boolean;
+  specialist?: SpecialistId;
 }
 export interface AIProvider {
   consult(input: AdvisorInput): Promise<AdvisorResult>;
 }
-export interface TurnInput { content: string; depth: Depth; requestId: string }
+export interface TurnInput { content: string; depth: Depth; requestId: string; specialist?: SpecialistId }
 export interface TurnReply {
   visitorMessage: Message;
   message: Message;
   brief: Brief;
   suggestedNextSteps: string[];
+  /** Missing on historical receipts, where the specialist is Syntra. */
+  specialist?: SpecialistId;
 }
 /** owner is a trusted identity from the host, never from request JSON. */
 export interface ConversationRepository {
@@ -73,17 +77,32 @@ export interface ConversationRepository {
 }
 export type VoiceEvent =
   | { type: "state"; state: "connecting" | "listening" | "thinking" | "speaking" | "closed" }
+  | { type: "input"; speaking: boolean }
+  | { type: "specialist"; specialist: SpecialistId }
   | { type: "amplitude"; value: number }
-  | { type: "transcript"; text: string; final: boolean; role: "visitor" | "advisor" }
+  | { type: "transcript"; text: string; final: boolean; role: "visitor" | "advisor"; id?: string }
+  /** Discard only an unaccepted visitor hypothesis, never a saved/final transcript. */
+  | { type: "transcript-clear"; role: "visitor"; id?: string }
   | { type: "conversation-updated" }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string; recoverable?: boolean; retryable?: boolean; recovery?: "turn" | "playback"; originalTurn?: TurnInput };
 export interface VoiceConnection {
   close(): void | Promise<void>;
+  /** Optional controls are exposed only when the connected transport implements them. */
+  interrupt?: () => void;
+  setMuted?: (muted: boolean) => void | Promise<void>;
+  retryTurn?: () => void;
+  retryPlayback?: () => void;
+  /** Changes mode and voice in the existing conversation; exposed only by supporting hosts. */
+  setSpecialist?: (specialist: SpecialistId) => void | Promise<void>;
+  canSwitchSpecialist?: () => boolean;
 }
+export interface VoiceConnectOptions { depth?: Depth; specialist?: SpecialistId }
 export interface VoiceAdapter {
   available: boolean;
+  /** Omitted by native hosts that have not connected specialist personality and voice controls. */
+  specialists?: readonly SpecialistId[];
   /** Host owns realtime transport, mic permissions, interruption and audio playback. */
-  connect(conversationId: number, onEvent: (event: VoiceEvent) => void, signal: AbortSignal): Promise<VoiceConnection>;
+  connect(conversationId: number, onEvent: (event: VoiceEvent) => void, signal: AbortSignal, options?: VoiceConnectOptions): Promise<VoiceConnection>;
 }
 export interface ContactOption {
   id: string; label: string; detail: string; href: string; kind: "link" | "email" | "phone";

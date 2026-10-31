@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { buildSystemPrompt, ConsultationService, DEPTH_GUIDANCE, manualBrief, mergeBrief, parseAdvisorResult } from "./engine.ts";
 import { EMPTY_FIELDS } from "./types.ts";
 import type { AdvisorResult, Brief, Conversation, ConversationRepository, TurnReply } from "./types.ts";
+import { CONTACT_OPTIONS, SERVICE_AREAS } from "./business.ts";
+import { safeContactHref } from "./handoff.ts";
 
 const empty = (): Brief => ({ ...EMPTY_FIELDS, revision: 0, provenance: {} });
 const result = (changes: AdvisorResult["changes"]): AdvisorResult => ({ reply: "A focused portal is a relevant direction. Who will approve designs?", changes, suggestedNextSteps: [] });
@@ -93,6 +95,20 @@ test("consultation policy covers objections, unknown budgets, scope and honest b
   const prompt = buildSystemPrompt("Client portals");
   for (const term of ["ONE intelligent question", "unrealistic budgets", "out-of-scope", "Never invent", "Manual corrections", "do not know"]) assert.ok(prompt.includes(term), term);
 });
+test("consultation offers an approved contact route without claiming an action or sharing data", () => {
+  const prompt = buildSystemPrompt(SERVICE_AREAS.map(service => `${service.name}: ${service.description}`).join("\n"));
+  const contacts = CONTACT_OPTIONS.map(safeContactHref).filter((href): href is string => href !== null);
+  assert.ok(contacts.length > 0, "A ready visitor needs a genuine approved next step");
+  for (const href of contacts) {
+    const route = new URL(href);
+    assert.equal(route.origin, "https://digitalprodigy.dev");
+    assert.equal(route.search, "", "Contact navigation must not transmit a brief in query parameters");
+    assert.ok(prompt.includes(href), "Model and handoff UI must offer the same approved destination");
+  }
+  assert.match(prompt, /visitor submits the external form/i);
+  assert.match(prompt, /cannot verify its outcome/i);
+  assert.match(prompt, /Never claim a submission or booking succeeded/i);
+});
 test("malformed and multi-question provider output fails explicitly", () => {
   assert.throws(() => parseAdvisorResult('{"reply":""}', false));
   assert.throws(() => parseAdvisorResult('{"reply":"Budget? Timeline?"}', false));
@@ -144,6 +160,63 @@ test("idempotent retry replays the saved turn without calling provider", async (
 test("a request ID cannot be reused for changed content", async () => {
   const f = fixture(); f.repository.replay = async () => f.saved;
   await assert.rejects(new ConsultationService(f.repository, f.provider).send("owner-a", 1, { content: "A different message", depth: "concise", requestId: "same" }), /different message/);
+});
+test("a full conversation rejects a new model call while preserving completed retries", async () => {
+  const f = fixture();
+  f.c.messages = Array.from({ length: 240 }, (_, index) => ({
+    id: index + 1, role: index % 2 === 0 ? "visitor" as const : "advisor" as const,
+    content: `Turn detail ${index}`, depth: "concise", createdAt: "2026-10-31T00:00:00Z",
+  }));
+  const service = new ConsultationService(f.repository, f.provider);
+  await assert.rejects(service.send("owner-a", 1, { content: "One more request", depth: "concise", requestId: "new" }), { status: 422 });
+  assert.equal(f.received(), undefined);
+  assert.equal(f.commits(), 0);
+  f.repository.replay = async () => f.saved;
+  assert.equal(await service.send("owner-a", 1, { content: "Design reviews", depth: "concise", requestId: "same" }), f.saved);
+  assert.equal(f.received(), undefined);
+});
+test("specialist consultation uses the same provider history and manually edited brief", async () => {
+  const f = fixture();
+  f.c.messages.push({ id: 20, role: "visitor", content: "We use HubSpot and have a £5000 budget", depth: "detailed", createdAt: "" });
+  f.c.brief = manualBrief(empty(), { budget: "£5000", integrations: "HubSpot" }, 0);
+  await new ConsultationService(f.repository, f.provider).send("owner-a", 1, {
+    content: "Now design the integration", depth: "deep_dive", requestId: "technical-1", specialist: "technical",
+  });
+  const input = f.received() as { specialist: string; history: { content: string }[]; currentBrief: Brief };
+  assert.equal(input.specialist, "technical");
+  assert.equal(input.history[0].content, "We use HubSpot and have a £5000 budget");
+  assert.equal(input.currentBrief.budget, "£5000");
+  assert.equal(input.currentBrief.provenance.budget?.status, "manual");
+  assert.equal(f.commits(), 1);
+});
+test("legacy replay belongs to Syntra and cannot be reinterpreted as another specialist", async () => {
+  const f = fixture();
+  f.repository.replay = async () => f.saved;
+  const service = new ConsultationService(f.repository, f.provider);
+  const input = { content: "Design reviews", depth: "concise" as const, requestId: "same" };
+  assert.equal(await service.send("owner-a", 1, { ...input, specialist: "syntra" }), f.saved);
+  await assert.rejects(service.send("owner-a", 1, { ...input, specialist: "technical" }), { status: 409 });
+  assert.equal(f.received(), undefined);
+  assert.equal(f.commits(), 0);
+});
+test("specialist replay rejects identity changes without another provider invocation", async () => {
+  const f = fixture();
+  f.saved.specialist = "technical";
+  f.repository.replay = async () => f.saved;
+  const service = new ConsultationService(f.repository, f.provider);
+  const input = { content: "Design reviews", depth: "concise" as const, requestId: "same" };
+  assert.equal(await service.send("owner-a", 1, { ...input, specialist: "technical" }), f.saved);
+  await assert.rejects(service.send("owner-a", 1, { ...input, specialist: "automation" }), { status: 409 });
+  await assert.rejects(service.send("owner-a", 1, input), { status: 409 });
+  assert.equal(f.received(), undefined);
+});
+test("unrecognized specialist identifiers are rejected before model or persistence", async () => {
+  const f = fixture();
+  await assert.rejects(new ConsultationService(f.repository, f.provider).send("owner-a", 1, {
+    content: "Plan my project", depth: "detailed", requestId: "invalid-role", specialist: "unapproved" as never,
+  }), { status: 400 });
+  assert.equal(f.received(), undefined);
+  assert.equal(f.commits(), 0);
 });
 test("old quotes cannot revert a corrected confirmed answer", () => {
   const current = { ...empty(), budget: "£9000", provenance: { budget: { status: "confirmed" as const, evidence: "£9000" } } };

@@ -44,7 +44,7 @@ for (const host of ['agent-dev-client', 'agent-dev-server']) {
 const frontend = path.join(root, 'artifacts/digital-prodigy/src');
 for (const file of await files(frontend)) {
   const relative = path.relative(frontend, file);
-  if (['main.tsx', 'lib/runtime.ts', 'vite-env.d.ts'].includes(relative) || relative.startsWith('assets/')) continue;
+  if (['main.tsx', 'lib/runtime.ts', 'vite-env.d.ts'].includes(relative) || relative.startsWith('assets/') || relative.startsWith('lib/development-voice/')) continue;
   let content = await fs.readFile(file, 'utf8');
   if (/\.(tsx?|css)$/.test(file)) {
     const imported = specifier => {
@@ -69,9 +69,6 @@ for (const file of await files(path.join(root, 'lib/consultation/src'))) {
     await emit(path.join(target, path.basename(file)), await fs.readFile(file), path.relative(root, file));
   }
 }
-const catalogue = await fs.readFile(path.join(root, 'artifacts/api-server/src/lib/advisor-data.ts'), 'utf8');
-await emit(path.join(client, 'shared/catalogue.ts'), catalogue.slice(0, catalogue.indexOf('// Do not present')),
-  'artifacts/api-server/src/lib/advisor-data.ts');
 await emit('agent-dev-client/static/syntra/assets/dp-logo.png',
   await fs.readFile(path.join(frontend, 'assets/dp-logo.png')), 'artifacts/digital-prodigy/src/assets/dp-logo.png');
 await fs.writeFile(path.join(out, 'syntra-transfer-manifest.json'), JSON.stringify({

@@ -1,4 +1,15 @@
 import type { Depth, Message } from "./types.ts";
+
+/** Recover a canonical pair by native response identity, never by visual proximity. */
+export function nativeTranscriptPair(
+  entries: Array<{ responseId: string; message: Message }>,
+  responseId: string,
+): { visitorMessage: Message; message: Message } | null {
+  const visitor = entries.find(entry => entry.responseId === responseId && entry.message.role === "visitor");
+  const advisor = entries.find(entry => entry.responseId === responseId && entry.message.role === "advisor");
+  return visitor && advisor ? { visitorMessage: visitor.message, message: advisor.message } : null;
+}
+
 export interface NativeTranscriptPart {
   /** Stable native content/part identity, not a timestamp or filtered-array index. */
   key: string;

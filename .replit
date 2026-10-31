@@ -21,3 +21,10 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+AZURE_SPEECH_REGION = "uksouth"
+SYNTRA_VOICE_PROVIDER = "azure"
+VITE_SYNTRA_VOICE_PROVIDER = "azure"

@@ -195,8 +195,9 @@ paths:
     post:
       operationId: createVoiceSession
       tags: [advisor]
-      summary: Provision a voice session
-      description: Provisions a real-time voice session for hands-free conversation with the advisor
+      summary: Legacy native voice provisioning status
+      deprecated: true
+      description: Legacy compatibility endpoint; it does not create a working audio connection. Native AgentPlace owns provisioning. The optional Replit speech adapter uses /voice/token after consultation ownership checks.
       requestBody:
         required: true
         content:
@@ -204,8 +205,8 @@ paths:
             schema:
               $ref: "#/components/schemas/VoiceSessionInput"
       responses:
-        "201":
-          description: Voice session provisioned
+        "200":
+          description: Native voice provisioning is unavailable from this development endpoint
           content:
             application/json:
               schema:
@@ -352,6 +353,8 @@ components:
     MessageInput:
       type: object
       properties:
+        specialist:
+          $ref: "#/components/schemas/SpecialistId"
         requestId:
           type: string
           format: uuid
@@ -369,6 +372,8 @@ components:
     AdvisorReply:
       type: object
       properties:
+        specialist:
+          $ref: "#/components/schemas/SpecialistId"
         visitorMessage:
           $ref: "#/components/schemas/Message"
         message:
@@ -388,6 +393,11 @@ components:
     ResponseDepth:
       type: string
       enum: [concise, detailed, deep_dive]
+
+    SpecialistId:
+      type: string
+      description: Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.
+      enum: [syntra, technical, automation]
 
     Brief:
       type: object

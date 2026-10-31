@@ -23,6 +23,7 @@ export * from './messageInput';
 export * from './messageRole';
 export * from './responseDepth';
 export * from './serviceArea';
+export * from './specialistId';
 export * from './voiceSession';
 export * from './voiceSessionInput';
 export * from './voiceSessionStatus';

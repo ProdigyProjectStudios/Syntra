@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SyntraConsultationRepository, blankBrief, type NativeStorage } from "./native-repository.ts";
 import { createNativeRuntime, type NativePorts } from "./native-runtime.ts";
-import { NativeTranscript, type NativeTranscriptPart } from "./native-transcript.ts";
+import { NativeTranscript, nativeTranscriptPair, type NativeTranscriptPart } from "./native-transcript.ts";
 import { verifyNativeCompletion } from "./native-completion.ts";
 import { manualBrief } from "./engine.ts";
 import type { Conversation, Message } from "./types.ts";
@@ -60,6 +60,32 @@ test("native restart restores depth, provenance, receipts and latest brief", asy
   assert.equal(snapshot.brief.provenance.budget?.status, "confirmed");
   assert.equal((await restarted.beginTurn(1, "request_native_1", "Budget £6000", "deep_dive")).status, "completed");
 });
+test("native reservations and receipts bind one specialist without changing the shared brief", async () => {
+  const storage = new Memory();
+  const repo = new SyntraConsultationRepository(storage, "native-specialist");
+  const brief = await repo.updateBrief(1, { budget: "£6000" }, 0);
+  await repo.beginTurn(1, "specialist_request", "Design the integration", "deep_dive", "technical");
+  await assert.rejects(repo.beginTurn(1, "specialist_request", "Design the integration", "deep_dive", "automation"), { status: 409 });
+  await repo.attachResponseId("specialist_request", "specialist-response");
+  await repo.completeTurn("specialist_request", "specialist-response", "Here is the approach", "Design the integration");
+  const restarted = new SyntraConsultationRepository(storage, "native-specialist");
+  assert.equal((await restarted.beginTurn(1, "specialist_request", "Design the integration", "deep_dive", "technical")).status, "completed");
+  await assert.rejects(restarted.beginTurn(1, "specialist_request", "Design the integration", "deep_dive", "automation"), { status: 409 });
+  assert.deepEqual((await restarted.get(1)).brief, brief);
+});
+test("native legacy receipts without specialist metadata replay only as Syntra", async () => {
+  const { storage, repo } = await reserve("legacy-specialist");
+  await repo.attachResponseId("request_native_1", "response1");
+  await repo.completeTurn("request_native_1", "response1", "Saved legacy reply", "Budget £6000");
+  for (const [path, contents] of storage.files) {
+    const old = JSON.parse(contents);
+    for (const turn of old.turns) delete turn.specialist;
+    storage.files.set(path, JSON.stringify(old));
+  }
+  const restarted = new SyntraConsultationRepository(storage, "legacy-specialist");
+  assert.equal((await restarted.beginTurn(1, "request_native_1", "Budget £6000", "deep_dive", "syntra")).status, "completed");
+  await assert.rejects(restarted.beginTurn(1, "request_native_1", "Budget £6000", "deep_dive", "technical"), { status: 409 });
+});
 test("voice drafts are not committed on tool execution or cancellation", async () => {
   const repo = new SyntraConsultationRepository(new Memory(), "voice-cancel");
   await repo.stageNativeVoiceChanges("voice1", "Budget £6000", { budget: change });
@@ -81,6 +107,102 @@ test("voice commit preserves concurrent manual clears", async () => {
   await repo.stageNativeVoiceChanges("voice1", "Budget £6000", { budget: change });
   const edited = await repo.updateBrief(1, { budget: null }, 0);
   assert.deepEqual(await repo.completeNativeVoiceTurn("voice1"), edited);
+});
+test("native typed and voice reservations exclude new cross-mode work until successful completion", async () => {
+  const storage = new Memory();
+  const first = new SyntraConsultationRepository(storage, "cross-mode-success");
+  const second = new SyntraConsultationRepository(storage, "cross-mode-success");
+  await first.stageNativeVoiceChanges("voice-first", "Budget £6000", { budget: change });
+  await assert.rejects(second.beginTurn(1, "typed_after_voice", "Plan my portal", "detailed"), { status: 409 });
+  await assert.rejects(second.stageNativeVoiceChanges("voice-second", "Another request", {}), { status: 409 });
+  await second.stageNativeVoiceChanges("voice-first", "Budget £6000", { budget: change });
+  assert.equal((await first.get(1)).brief.budget, null, "Repeated staging is not a successful response");
+
+  const voiceBrief = await first.completeNativeVoiceTurn("voice-first", "Budget £6000");
+  assert.equal(voiceBrief.budget, "£6000");
+  assert.equal((await second.beginTurn(1, "typed_after_voice", "Plan my portal", "detailed")).status, "reserved");
+  assert.equal((await first.beginTurn(1, "typed_after_voice", "Plan my portal", "detailed")).status, "pending");
+  await assert.rejects(first.stageNativeVoiceChanges("voice-second", "Another request", {}), { status: 409 });
+  assert.deepEqual((await first.stageNativeVoiceChanges("voice-first", "Budget £6000", {})).brief, voiceBrief);
+  assert.deepEqual(await first.completeNativeVoiceTurn("voice-first", "Budget £6000"), voiceBrief);
+
+  await second.attachResponseId("typed_after_voice", "typed-response");
+  await second.completeTurn("typed_after_voice", "typed-response", "We can plan the portal.", "Plan my portal");
+  await first.stageNativeVoiceChanges("voice-second", "Another request", {});
+  assert.equal((await second.beginTurn(1, "typed_after_voice", "Plan my portal", "detailed")).status, "completed",
+    "A completed typed receipt remains recoverable while voice is active");
+  assert.equal((await first.get(1)).messageCount, 4, "Replays and blocked requests must not append messages");
+});
+test("native trusted terminal release unblocks the other mode without committing discarded drafts", async () => {
+  const { storage, repo } = await reserve("cross-mode-release");
+  await repo.stageBriefChanges("request_native_1", { budget: change });
+  const resumed = new SyntraConsultationRepository(storage, "cross-mode-release");
+  await assert.rejects(resumed.stageNativeVoiceChanges("voice-next", "Budget £6000", { budget: change }), { status: 409 });
+  // Only the trusted lifecycle calls discard after its terminal-evidence check.
+  await resumed.discardTurn("request_native_1");
+  await repo.stageNativeVoiceChanges("voice-next", "Budget £6000", { budget: change });
+  await assert.rejects(resumed.beginTurn(1, "typed_after_release", "Plan the integration", "detailed"), { status: 409 });
+  await resumed.discardTurn("voice-next", true);
+  await assert.rejects(repo.completeNativeVoiceTurn("voice-next", "Budget £6000"), { status: 404 });
+  assert.equal((await repo.beginTurn(1, "typed_after_release", "Plan the integration", "detailed")).status, "reserved");
+  const snapshot = await resumed.get(1);
+  assert.equal(snapshot.brief.budget, null);
+  assert.equal(snapshot.messageCount, 0);
+});
+test("native shared gate admits only one simultaneous typed or distinct voice reservation", async () => {
+  for (const order of ["typed-first", "voice-first", "two-voice"] as const) {
+    const storage = new Memory();
+    const first = new SyntraConsultationRepository(storage, `cross-mode-race-${order}`);
+    const second = new SyntraConsultationRepository(storage, `cross-mode-race-${order}`);
+    await first.ensureSession();
+    const typed = () => first.beginTurn(1, "simultaneous_typed", "Design the portal", "detailed");
+    const voice = () => second.stageNativeVoiceChanges("simultaneous-voice", "Automate our workflow", {});
+    const operations = order === "typed-first" ? [typed, voice]
+      : order === "voice-first" ? [voice, typed]
+      : [voice, () => first.stageNativeVoiceChanges("different-voice", "A separate request", {})];
+    const results = await Promise.allSettled(operations.map(operation => operation()));
+    assert.equal(results.filter(result => result.status === "fulfilled").length, 1, order);
+    const rejected = results.find(result => result.status === "rejected") as PromiseRejectedResult;
+    assert.equal(rejected.reason.status, 409, order);
+    assert.equal((await first.get(1)).messageCount, 0);
+  }
+});
+test("native legacy overlapping reservations can finish without permitting fresh work", async () => {
+  const { storage } = await reserve("legacy-cross-mode");
+  for (const [path, raw] of storage.files) {
+    const legacy = JSON.parse(raw);
+    legacy.pendingVoice = { "legacy-voice": { content: "Plan our portal", changes: {}, baseBrief: legacy.brief } };
+    storage.files.set(path, JSON.stringify(legacy));
+  }
+  const restarted = new SyntraConsultationRepository(storage, "legacy-cross-mode");
+  assert.equal((await restarted.beginTurn(1, "request_native_1", "Budget £6000", "deep_dive")).status, "pending");
+  await restarted.stageNativeVoiceChanges("legacy-voice", "Plan our portal", {});
+  await assert.rejects(restarted.beginTurn(1, "fresh_typed_request", "A new request", "detailed"), { status: 409 });
+  await assert.rejects(restarted.stageNativeVoiceChanges("fresh-voice", "A new request", {}), { status: 409 });
+  await restarted.attachResponseId("request_native_1", "legacy-response");
+  await restarted.completeTurn("request_native_1", "legacy-response", "Let's plan it.", "Budget £6000");
+  await assert.rejects(restarted.beginTurn(1, "fresh_typed_request", "A new request", "detailed"), { status: 409 });
+  await restarted.completeNativeVoiceTurn("legacy-voice", "Plan our portal");
+  assert.equal((await restarted.beginTurn(1, "fresh_typed_request", "A new request", "detailed")).status, "reserved");
+  assert.equal((await restarted.get(1)).messageCount, 4);
+});
+test("native turn limit counts voice history before admitting text and preserves completed replays", async () => {
+  const repo = new SyntraConsultationRepository(new Memory(), "combined-turn-cap");
+  await repo.beginTurn(1, "typed_before_voice", "Plan my project", "detailed");
+  await repo.attachResponseId("typed_before_voice", "typed-response");
+  await repo.completeTurn("typed_before_voice", "typed-response", "What should it do?", "Plan my project");
+  for (let index = 0; index < 119; index++) {
+    await repo.stageNativeVoiceChanges(`voice-${index}`, `Project detail ${index}`, {});
+    await repo.completeNativeVoiceTurn(`voice-${index}`, `Project detail ${index}`);
+  }
+  const before = await repo.get(1);
+  assert.equal(before.messageCount, 240);
+  await assert.rejects(repo.beginTurn(1, "text_after_full_voice", "A new request", "detailed"), { status: 422 });
+  assert.deepEqual(await repo.beginTurn(1, "typed_before_voice", "Plan my project", "detailed"), {
+    status: "completed", responseId: "typed-response",
+  });
+  assert.deepEqual(await repo.completeNativeVoiceTurn("voice-118", "Project detail 118"), before.brief);
+  assert.equal((await repo.get(1)).messageCount, before.messageCount);
 });
 test("empty/repeated manual saves do not invent revisions", () => {
   const initial = blankBrief();
@@ -126,6 +248,14 @@ test("adapter sends once, returns both canonical messages, replays completed tur
   assert.deepEqual(await f.runtime.messages.send(1, input), result);
   assert.equal(f.sends(), 1);
 });
+test("native message admission carries the captured specialist to the existing runtime", async () => {
+  const f = fixture();
+  let metadata: Record<string, unknown> | undefined;
+  f.ports.messaging.send = async (_text, value, admitted) => { metadata = value; admitted("native-response"); };
+  await f.runtime.messages.send(1, { ...input, specialist: "technical" });
+  assert.equal(metadata?.syntraSpecialist, "technical");
+  assert.equal(metadata?.syntraRequestId, input.requestId);
+});
 test("uncertain native admission is never resubmitted", async () => {
   const f = fixture();
   f.admission({ status: "pending" });
@@ -165,6 +295,25 @@ test("late aborted native voice acquisition is closed", async () => {
   await assert.rejects(f.runtime.voice.connect(1, () => events++, controller.signal), /canceled/);
   assert.equal(closes, 1); assert.equal(events, 0); assert.equal(f.sends(), 0);
 });
+test("native conversion ports require literal consent before any external provider call", async () => {
+  const f = fixture();
+  let bookings = 0, enquiries = 0;
+  f.ports.booking.book = async () => { bookings++; return { status: "confirmed", reference: "BOOKING-1" }; };
+  f.ports.booking.submitEnquiry = async () => { enquiries++; return { status: "confirmed", reference: "ENQUIRY-1" }; };
+  const runtime = createNativeRuntime(f.ports);
+  const enquiry = { conversationId: 1, requestId: "consented_request", briefRevision: 0,
+    brief: { ...blankBrief(), objective: "Plan my project" }, name: "Jane Example", email: "jane@example.com", consent: true };
+  for (const consent of [false, "false", "true", 1, undefined, null]) {
+    await assert.rejects(runtime.booking.book!(1, consent as boolean), /confirmation/);
+    await assert.rejects(runtime.booking.submitEnquiry!({ ...enquiry, consent: consent as boolean }), /confirmation/);
+  }
+  assert.equal(bookings, 0);
+  assert.equal(enquiries, 0);
+  await runtime.booking.book!(1, true);
+  await runtime.booking.submitEnquiry!(enquiry);
+  assert.equal(bookings, 1);
+  assert.equal(enquiries, 1);
+});
 test("trusted completion denies forged identity, failed response or missing proof", () => {
   const proof = { sessionKey: "scope", requestId: "request", responseId: "response", visitorText: "Goal", reply: "Answer", status: "succeeded" as const };
   assert.equal(verifyNativeCompletion(proof, "scope", "request", "response"), proof);
@@ -197,4 +346,28 @@ test("streamed updates replace a native part without duplicates or dropping repe
   assert.equal(after[0].message.content, "Hello world");
   assert.equal(transcript.read([part(), part({ hidden: true })], "detailed").length, 0);
   assert.equal(transcript.read([part(), part({ key: "another-real-part" })], "detailed")[0].message.content, "Budget £6000\n\nBudget £6000");
+});
+test("native completion selects its own visitor from interleaved responses", () => {
+  const transcript = new NativeTranscript();
+  const entries = transcript.read([
+    part({ key: "visitor-a", responseId: "response-a", text: "Build a portal" }),
+    part({ key: "visitor-b", responseId: "response-b", text: "Automate my CRM" }),
+    part({ key: "advisor-a", responseId: "response-a", role: "advisor", text: "A client portal fits." }),
+  ], "detailed");
+  const pair = nativeTranscriptPair(entries, "response-a")!;
+  assert.equal(pair.visitorMessage.content, "Build a portal");
+  assert.equal(pair.message.content, "A client portal fits.");
+  assert.equal(nativeTranscriptPair(entries, "response-b"), null);
+  assert.deepEqual(nativeTranscriptPair(entries.toReversed(), "response-a"), pair);
+  assert.deepEqual(nativeTranscriptPair(entries, "response-a"), pair);
+});
+test("native completion waits for its canonical pair instead of fabricating a visitor", () => {
+  const transcript = new NativeTranscript();
+  const entries = transcript.read([
+    part({ key: "earlier-visitor", responseId: "earlier", text: "Unrelated prior question" }),
+    part({ key: "current-advisor", responseId: "current", role: "advisor", text: "Current answer" }),
+  ], "concise");
+  assert.equal(nativeTranscriptPair(entries, "current"), null);
+  assert.equal(nativeTranscriptPair(entries, "missing"), null);
+  assert.equal(nativeTranscriptPair([], "current"), null);
 });

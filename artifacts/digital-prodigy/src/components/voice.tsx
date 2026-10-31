@@ -8,6 +8,7 @@ import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
 import { NeuralCore, type CoreState } from '@/components/neural-core';
 import { VoiceSpecialistRail, SPECIALIST_VISUALS } from '@/components/voice-specialist-rail';
+import { VoiceConnectionLifecycle, isLocalVoiceNotice, reconnectFailure } from '@/components/voice-connection-lifecycle';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 /** Any surface can open voice mode by dispatching this window event. */
@@ -48,6 +49,8 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   const stageRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
+  const previousCaptionRef = useRef<Caption | null>(null);
+  const recoveryRef = useRef<HTMLDivElement>(null);
   const depthRef = useRef(depth);
   depthRef.current = depth;
   const specialistRef = useRef(specialist);
@@ -63,10 +66,15 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
     const initialSpecialist = runtime.voice.specialists?.includes(specialistRef.current) ? specialistRef.current : 'syntra';
     specialistRef.current = initialSpecialist; setSpecialist(initialSpecialist);
     const controller = new AbortController();
-    let ownedConnection: VoiceConnection | undefined;
+    const closeFailure: VoiceFailure = {
+      message: 'The voice connection could not close cleanly. Continue in chat and check your browser’s microphone indicator.',
+      recoverable: false,
+      retryable: false,
+    };
+    const lifecycle = new VoiceConnectionLifecycle(controller.signal, () => setFailure(closeFailure));
     let voiceConversationId: number | undefined;
     const handleEvent = (event: VoiceEvent) => {
-      if (controller.signal.aborted) return;
+      if (!lifecycle.admitEvent(event)) return;
       switch (event.type) {
         case 'specialist':
           // The adapter may restore a pending turn with a different role after reload.
@@ -75,6 +83,8 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           break;
         case 'input':
           setInputSpeaking(event.speaking);
+          // Final recognition can settle after speech-end without changing this boolean.
+          refreshControls(value => value + 1);
           break;
         case 'amplitude':
           amplitude.current = Number.isFinite(event.value) ? Math.max(0, Math.min(1, event.value)) : 0;
@@ -83,7 +93,11 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           amplitude.current = 0;
           setTransportState(event.state);
           if (event.state === 'closed') {
-            setFailure(previous => previous ?? { message: 'The voice connection closed. Reconnect when you are ready.' });
+            connectionRef.current = null; setConnection(null);
+            setInputSpeaking(false); setMuted(false); setControlPending(false);
+            setSelectionNotice(null);
+            switchingRef.current = false; setSwitching(false);
+            setFailure(previous => lifecycle.closeFailed ? closeFailure : reconnectFailure(previous));
           }
           break;
         case 'transcript':
@@ -92,6 +106,11 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           if (event.role === 'visitor') setFailure(previous =>
             previous?.recovery === 'playback' ||
             (event.final && previous?.recoverable && previous.retryable === false && !previous.recovery) ? null : previous);
+          break;
+        case 'transcript-clear':
+          setCaption(previous => previous?.role === event.role && !previous.final &&
+            (!event.id || previous.id === event.id) ? null : previous);
+          refreshControls(value => value + 1);
           break;
         case 'conversation-updated':
           // Capability getters can change even when the visible transport state stays listening.
@@ -102,7 +121,11 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           }
           break;
         case 'error':
-          setFailure(event); amplitude.current = 0;
+          if (!lifecycle.closed && isLocalVoiceNotice(event)) setSelectionNotice(event.message);
+          else {
+            setFailure(lifecycle.closed ? lifecycle.closeFailed ? closeFailure : reconnectFailure(event) : event);
+            amplitude.current = 0;
+          }
           break;
       }
     };
@@ -114,24 +137,24 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
         voiceConversationId = id;
         if (controller.signal.aborted) return;
         const connected = await runtime.voice.connect(id, handleEvent, controller.signal, { depth: depthRef.current, specialist: initialSpecialist });
-        if (controller.signal.aborted) {
-          await connected.close();
-        } else {
-          ownedConnection = connected;
+        if (lifecycle.attach(connected)) {
           connectionRef.current = connected;
           setConnection(connected);
         }
       } catch (error) {
-        if (!controller.signal.aborted) {
-          setFailure({ message: error instanceof Error ? error.message : 'Voice could not connect. Your consultation is still available in chat.' });
+        if (!controller.signal.aborted && !lifecycle.closeFailed &&
+            !(lifecycle.closed && error instanceof Error && error.name === 'AbortError')) {
+          const detail = { message: error instanceof Error ? error.message : 'Voice could not connect. Your consultation is still available in chat.' };
+          setFailure(lifecycle.closed ? reconnectFailure(detail) : detail);
         }
       }
     })();
     return () => {
+      const ownedConnection = lifecycle.connection;
       controller.abort(); amplitude.current = 0;
       switchingRef.current = false;
       if (connectionRef.current === ownedConnection) connectionRef.current = null;
-      if (ownedConnection) void Promise.resolve(ownedConnection.close()).catch(() => {});
+      lifecycle.dispose();
     };
   }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey]);
 
@@ -158,8 +181,16 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   }, [open]);
 
   useEffect(() => {
-    if (captionRef.current) captionRef.current.scrollTop = captionRef.current.scrollHeight;
+    const previous = previousCaptionRef.current;
+    const completeReply = caption?.role === 'advisor' && caption.final &&
+      (previous?.role !== 'advisor' || previous.id !== caption.id || previous.final);
+    if (captionRef.current) captionRef.current.scrollTop = completeReply ? 0 : captionRef.current.scrollHeight;
+    previousCaptionRef.current = caption;
   }, [caption]);
+
+  useEffect(() => {
+    if (recoveryRef.current) recoveryRef.current.scrollTop = 0;
+  }, [failure?.originalTurn?.requestId]);
 
   useEffect(() => {
     if (!selectionNotice) return;
@@ -317,9 +348,14 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
                 {selectionNotice && <p role="status" className="mx-auto mt-2 max-w-md text-[11px] leading-relaxed text-amber-200/85">{selectionNotice}</p>}
               </div>
               {failure ? (
-                <div role="alert" className="mx-auto max-w-lg" data-testid="status-voice-error">
-                  <p className="text-sm leading-relaxed text-rose-200/90">{failure.message}</p>
+                <div ref={recoveryRef} role="region" className="mx-auto max-h-[min(19dvh,160px)] max-w-lg overflow-y-auto overscroll-contain scroll-thin"
+                  tabIndex={0} aria-label="Voice recovery details" data-testid="status-voice-error">
+                  <p role="alert" className="text-sm leading-relaxed text-rose-200/90">{failure.message}</p>
                   {failure.recovery === 'turn' && <p className="mt-2 text-xs leading-relaxed text-white/45">Retry preserves your original turn. Your saved conversation and brief stay together.</p>}
+                  {failure.recovery === 'turn' && failure.originalTurn && <div className="mt-3 text-left" data-testid="voice-original-request">
+                    <p className="mb-1.5 font-mono text-[9px] uppercase tracking-[.2em] text-primary/65">Original request · retry uses these words</p>
+                    <p className="whitespace-pre-wrap break-words text-sm font-light leading-relaxed text-white/65">{failure.originalTurn.content}</p>
+                  </div>}
                 </div>
               ) : caption?.text ? (
                 <div>

@@ -12,9 +12,9 @@ Baseline: `feature/assessment-conversion` at `dd977aa9894da38234dca25b1cf74b5294
 
 ## Validation for this checkpoint
 
-- 105 regression tests passed: 30 consultation, 30 native, 14 handoff, 18 voice-controller, 6 PCM player and 7 speech-token broker.
+- 146 regression tests passed after Pro run 2: 102 consultation/native/handoff/controller tests and 44 voice transport/lifecycle/diagnostics/admission/token tests. The exact suite breakdown is in [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md).
 - Full workspace TypeScript checks and production builds passed.
-- Deterministic transfer: 128 checksums, 124 TS/TSX syntax files and scoped CSS compilation passed. Exported tests were executed; native SDK typing and real audio are separate gates.
+- Deterministic transfer: 129 checksums, 125 TS/TSX syntax files and scoped CSS compilation passed. Exported tests were executed; native SDK typing and real audio are separate gates.
 - All three engineering roles reviewed the same changes. Existing working branches and the native runtime are preserved.
 
 ## Voice and specialist implementation

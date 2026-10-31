@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ConversationVoiceController } from "./voice-controller.ts";
+import { ConversationVoiceController, type VoiceTurnPhase } from "./voice-controller.ts";
 import { blankBrief } from "./native-repository.ts";
 import type { Depth, SpecialistId, TurnInput, TurnReply, VoiceEvent } from "./types.ts";
 
@@ -26,12 +26,14 @@ function fixture(options: Partial<Options> = {}, initialPending?: TurnInput) {
   const sends: TurnInput[] = [];
   const spoken: Array<{ text: string; signal: AbortSignal; start: () => void }> = [];
   const pending: Array<TurnInput | null> = [];
+  const phases: VoiceTurnPhase[] = [];
   const timers: Array<{ run: () => void; canceled: boolean }> = [];
   let stops = 0, nextId = 0, depth: Depth = "detailed";
   let specialist: SpecialistId = "syntra";
   let sendImpl: Ports["send"] = async input => reply(input, sends.length * 2);
   let speakImpl: Ports["speak"] = async (_text, _signal, onPlaybackStart) => { onPlaybackStart(); };
   let persistImpl: NonNullable<Ports["onPendingChange"]> = () => {};
+  let phaseImpl: NonNullable<Ports["onTurnPhase"]> = () => {};
   const ports: Ports = {
     send: input => { sends.push(structuredClone(input)); return sendImpl(input); },
     speak: (text, signal, start) => { spoken.push({ text, signal, start }); return speakImpl(text, signal, start); },
@@ -42,6 +44,7 @@ function fixture(options: Partial<Options> = {}, initialPending?: TurnInput) {
     requestId: () => `voice_request_${++nextId}`,
     ...(initialPending ? { pendingTurn: initialPending } : {}),
     onPendingChange: input => { persistImpl(input); pending.push(input ? structuredClone(input) : null); },
+    onTurnPhase: event => { phases.push({ ...event }); phaseImpl(event); },
   };
   const controller = new ConversationVoiceController(ports, {
     schedule: run => {
@@ -58,13 +61,14 @@ function fixture(options: Partial<Options> = {}, initialPending?: TurnInput) {
     controller.flush();
   };
   return {
-    controller, events, sends, spoken, pending, say,
+    controller, events, sends, spoken, pending, phases, say,
     stops: () => stops,
     setDepth: (value: Depth) => { depth = value; },
     setSpecialist: (value: SpecialistId) => { specialist = value; },
     setSend: (value: Ports["send"]) => { sendImpl = value; },
     setSpeak: (value: Ports["speak"]) => { speakImpl = value; },
     setPersist: (value: NonNullable<Ports["onPendingChange"]>) => { persistImpl = value; },
+    setPhase: (value: NonNullable<Ports["onTurnPhase"]>) => { phaseImpl = value; },
     runClock: () => {
       for (const timer of timers.splice(0)) if (!timer.canceled) timer.run();
     },
@@ -285,6 +289,185 @@ test("voice backpressure identifies a rejected phrase and permits it after queue
   f.controller.close();
 });
 
+test("voice rejection after a new speech onset still drains previously accepted fragments", async () => {
+  const f = fixture({ maxQueuedCharacters: 24 });
+  f.controller.final("accepted", "First point.");
+  f.controller.speechStarted();
+  assert.equal(f.controller.final("rejected", "This phrase cannot fit in the remaining queue"), false);
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 1, "A rejected phrase must not strand earlier accepted speech");
+  assert.equal(f.sends[0].content, "First point.");
+  assert.equal(f.events.filter(event => event.type === "input").at(-1)?.speaking, false);
+  f.controller.close();
+});
+
+test("voice duplicate final callbacks cannot cancel a trusted endpoint or add another request", async () => {
+  for (const repeated of ["First point.", "Unexpected changed duplicate."]) {
+    const f = fixture();
+    f.controller.final("accepted", "First point.");
+    f.controller.speechStarted();
+    f.controller.speechEnded();
+    f.controller.noMatch();
+    assert.equal(f.controller.final("accepted", repeated), false);
+    f.runClock();
+    await settle();
+    assert.equal(f.sends.length, 1);
+    assert.equal(f.sends[0].content, "First point.");
+    assert.equal(f.events.filter(event => event.type === "input").at(-1)?.speaking, false);
+    assert.equal(f.controller.canSwitchSpecialist(), true);
+    f.controller.close();
+  }
+});
+
+test("voice stale duplicate cannot end a newer identified utterance", async () => {
+  const f = fixture();
+  f.controller.final("accepted", "First point.");
+  f.controller.interim("current", "Second point");
+  assert.equal(f.controller.final("accepted", "First point."), false);
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 0, "The current partial is still being spoken");
+  assert.equal(f.events.filter(event => event.type === "input").at(-1)?.speaking, true);
+  assert.equal(f.controller.canSwitchSpecialist(), false);
+  f.controller.final("current", "Second point.");
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].content, "First point. Second point.");
+  f.controller.close();
+});
+
+test("voice delayed earlier final joins the queue without finalizing the newer partial", async () => {
+  const f = fixture();
+  f.controller.interim("earlier", "First point");
+  f.controller.speechEnded();
+  f.controller.interim("newer", "Second point");
+  f.controller.final("earlier", "First point.");
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 0);
+  assert.equal(f.controller.canSwitchSpecialist(), false);
+  const caption = f.events.filter(event => event.type === "transcript").at(-1)!;
+  assert.equal(caption.id, "newer");
+  assert.equal(caption.final, false);
+  assert.equal(caption.text, "First point. Second point");
+  f.controller.final("newer", "Second point.");
+  f.runClock();
+  await settle();
+  assert.equal(f.sends[0].content, "First point. Second point.");
+  assert.equal(f.sends.length, 1);
+  f.controller.close();
+});
+
+test("voice no-match preserves accepted fragments and does not clear newer input", async () => {
+  const f = fixture();
+  f.controller.final("accepted", "We need a portal.");
+  f.controller.interim("current", "Unclear extra phrase");
+  f.controller.noMatch("older-result");
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 0);
+  assert.equal(f.events.filter(event => event.type === "input").at(-1)?.speaking, true);
+  assert.ok(!f.events.some(event => event.type === "transcript-clear"));
+  f.controller.noMatch("current");
+  f.runClock();
+  await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].content, "We need a portal.");
+  assert.ok(f.events.some(event => event.type === "transcript-clear" && event.id === "current"));
+  assert.ok(f.events.some(event => event.type === "transcript" && event.role === "visitor" && event.final && event.text === "We need a portal."));
+  f.controller.close();
+});
+
+test("voice terminal no-match IDs cannot unlock or relabel a later utterance", async () => {
+  const f = fixture();
+  f.controller.interim("rejected", "Uncertain phrase");
+  f.controller.noMatch("rejected");
+  assert.equal(f.controller.canSwitchSpecialist(), true);
+  f.setSpecialist("automation");
+  f.controller.speechStarted();
+  f.controller.noMatch("rejected");
+  assert.equal(f.controller.canSwitchSpecialist(), false, "An old terminal result is not the end of the new recognition cycle");
+  f.controller.interim("rejected", "A late changed partial");
+  assert.equal(f.controller.final("rejected", "A late changed final"), false);
+  f.runClock(); await settle();
+  assert.equal(f.sends.length, 0);
+  f.controller.interim("new-result", "Automate our workflow");
+  f.controller.final("new-result", "Automate our workflow");
+  f.runClock(); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.sends[0].content, "Automate our workflow");
+  assert.equal(f.sends[0].specialist, "automation");
+  f.controller.close();
+});
+
+test("voice no-match offers the interrupted model reply without automatic speech or another request", async () => {
+  for (const completedBeforeNoMatch of [false, true]) {
+    const f = fixture();
+    const model = deferred<TurnReply>();
+    f.setSend(() => model.promise);
+    f.say("request", "Explain the integration");
+    f.controller.interim("unclear", "Maybe");
+    if (completedBeforeNoMatch) {
+      model.resolve(reply(f.sends[0]));
+      await settle();
+      assert.equal(f.spoken.length, 0);
+    }
+    f.controller.noMatch("unclear");
+    if (!completedBeforeNoMatch) model.resolve(reply(f.sends[0]));
+    await settle();
+    assert.equal(f.spoken.length, 0, "A rejected utterance must not automatically revive old audio");
+    assert.ok(f.events.some(event => event.type === "error" && event.recovery === "playback" && event.retryable));
+    f.controller.retryPlayback();
+    await settle();
+    assert.equal(f.sends.length, 1);
+    assert.equal(f.spoken.length, 1);
+    assert.equal(f.spoken[0].text, "Answer to Explain the integration");
+    f.controller.close();
+  }
+});
+
+test("voice no-match can replay a stopped speaker without repeating the model", async () => {
+  const f = fixture();
+  const oldPlayback = deferred<void>();
+  f.setSpeak(async (_text, _signal, start) => { start(); return f.spoken.length === 1 ? oldPlayback.promise : undefined; });
+  f.say("request", "Explain the integration");
+  await settle();
+  const first = f.spoken[0];
+  f.controller.interim("noise", "Uncertain sound");
+  assert.equal(first.signal.aborted, true);
+  f.controller.noMatch("noise");
+  await settle();
+  assert.equal(f.spoken.length, 1);
+  f.controller.retryPlayback();
+  await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.spoken.length, 2);
+  oldPlayback.resolve();
+  await settle();
+  assert.equal(f.spoken.length, 2, "The interrupted transport finishing late cannot replay again");
+  f.controller.close();
+});
+
+test("voice explicit stop discards provisional recovery even if no-match and model completion arrive later", async () => {
+  const f = fixture();
+  const model = deferred<TurnReply>();
+  f.setSend(() => model.promise);
+  f.say("request", "Explain the integration");
+  f.controller.interim("noise", "Uncertain sound");
+  f.controller.interrupt();
+  f.controller.noMatch("noise");
+  model.resolve(reply(f.sends[0]));
+  await settle();
+  f.controller.retryPlayback();
+  await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.spoken.length, 0);
+  assert.ok(!f.events.some(event => event.type === "error" && event.recovery === "playback"));
+  f.controller.close();
+});
+
 test("voice close cancels queued work and suppresses late model, playback and caption callbacks", async () => {
   const f = fixture();
   const first = deferred<TurnReply>();
@@ -328,9 +511,38 @@ test("voice input activity unlocks specialist selection after a no-match utteran
   f.controller.interim("unclear", "A partly recognized phrase");
   assert.equal(f.controller.canSwitchSpecialist(), false);
   f.controller.speechEnded();
+  assert.equal(f.controller.canSwitchSpecialist(), false, "A physical pause does not prove the pending recognition result is final");
+  f.controller.noMatch("unclear");
   assert.equal(f.controller.canSwitchSpecialist(), true);
-  assert.deepEqual(f.events.filter(event => event.type === "input").map(event => event.speaking), [true, false]);
+  const activity = f.events.filter(event => event.type === "input");
+  assert.equal(activity[0].speaking, true);
+  assert.equal(activity.at(-1)?.speaking, false);
   assert.equal(f.sends.length, 0, "A no-match utterance must not create a request merely to unlock navigation");
+  f.controller.close();
+});
+
+test("voice recovery exposes the original immutable intent and diagnostics cannot disrupt retries", async () => {
+  const f = fixture();
+  f.setPhase(() => { throw new Error("Local performance diagnostics unavailable"); });
+  f.setSend(input => f.sends.length === 1 ? Promise.reject(new Error("Acknowledgement lost")) : Promise.resolve(reply(input)));
+  f.say("first", "Plan the architecture");
+  await settle();
+  f.say("later", "We use an existing CRM");
+  const recovery = f.events.filter((event): event is Extract<VoiceEvent, { type: "error" }> => event.type === "error" && event.recovery === "turn").at(-1)!;
+  assert.deepEqual(recovery.originalTurn, f.sends[0]);
+  recovery.originalTurn!.content = "A consumer accidentally mutated its event";
+  f.controller.retryTurn();
+  await settle();
+  assert.equal(f.sends.length, 3);
+  assert.equal(f.sends[1].content, "Plan the architecture");
+  assert.deepEqual(f.sends[1], f.sends[0]);
+  assert.equal(f.sends[2].content, "We use an existing CRM");
+  const admissions = f.phases.filter(event => event.phase === "admitted");
+  assert.equal(admissions[0].turn, admissions[1].turn);
+  assert.equal(admissions[1].retry, true);
+  assert.notEqual(admissions[1].turn, admissions[2].turn);
+  assert.deepEqual(f.phases.filter(event => event.phase === "playback").map(event => event.turn), [admissions[2].turn]);
+  assert.ok(f.phases.every(event => Object.keys(event).every(key => ["turn", "phase", "retry"].includes(key))));
   f.controller.close();
 });
 

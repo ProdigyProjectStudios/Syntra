@@ -2,6 +2,8 @@
 
 Implementation and evidence as of 31 October 2026. This guide distinguishes portable implementation from live provider and native-host verification.
 
+Pro run 2 reliability changes and verification boundaries are recorded in [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md).
+
 ## Architecture
 
 `VoiceAdapter` remains the replaceable runtime boundary. AgentPlace keeps its own model, native realtime voice, session lifecycle and transcript owner. Replit can opt into an Azure development adapter without changing that host integration.
@@ -10,7 +12,11 @@ The development path is microphone capture → continuous speech recognition →
 
 Speech synthesis emits raw 24 kHz, 16-bit mono PCM chunks. The player owns the scheduled audio nodes and stops them immediately on interruption. Epoch checks discard late synthesis/model playback callbacks. An already-admitted model request is allowed to settle and persist; interrupting speech does not erase it or send the same intent again.
 
-Azure's speech-start events drive turn-taking; a sustained local input-energy onset also cancels audible output without a network round trip. Echo cancellation, noise suppression and automatic gain control are requested from the browser. The local energy threshold is a heuristic that needs real speaker/headset testing. It is not a claim of semantic VAD or measured echo rejection. The neural animation reads microphone/output analyser RMS; it no longer invents a speaking envelope.
+Azure's meaningful recognition events drive turn-taking; a sustained local input-energy rise also cancels audible output without a network round trip. During output, a bare provider speech-start event alone does not cancel playback. The local detector learns a bounded noise floor only outside playback/recognized input. Meaningful partial/final recognition can still interrupt a quiet speaker below the energy threshold. No text-similarity filter discards genuine repeated words.
+
+Echo cancellation, noise suppression and automatic gain control are requested from the browser. The energy detector is a heuristic that needs real speaker/headset testing; it is not semantic VAD or measured echo rejection. The neural animation still reads actual microphone/output analyser RMS, with unchanged visual design.
+
+If a local-only interruption becomes quiet and the provider supplies no recognition events for five seconds, the adapter retires that recognizer's epoch before releasing the pending input. It then starts fresh recognition and asks the visitor to repeat the uncaptured interruption. Renewed local energy resets the grace period; provider activity cancels this fallback. It never timeout-unlocks an identified provider interim or admits a late old-epoch final under a different specialist.
 
 The model currently returns a complete structured consultation reply before synthesis starts. Audio is streamed, but LLM tokens are not yet streamed directly into speech. Improve this only after live measurements identify the dominant latency and after preserving atomic brief updates and safe turn replay.
 
@@ -51,6 +57,8 @@ The token broker has conservative per-owner and process request limits. These ar
 
 The adapter dynamically loads the SDK on voice entry. Closing the dialog stops microphone tracks, cancels owned playback, closes provider resources and removes timers/listeners. Quiet sessions close after approximately three minutes; an active response is not cut off by that timer.
 
+Only one connection belongs to an adapter at a time. Closing during a microphone permission prompt rejects promptly; any late grant is stopped rather than adopted. Another unresolved prompt is not opened. The SDK receives an owned clone of the retained microphone stream. Mute retires its callbacks and clone; unmute starts fresh recognition in the same consultation. A new SDK recognizer waits for the previous close callback, with a five-second bounded wait. A failed or stalled shutdown does not authorize a second provider stream. Microphone loss closes the session; suspended playback exposes replay of the saved reply.
+
 ## Three specialists, one customer context
 
 | Stored role ID | Working identity | Responsibility | Development voice |
@@ -75,11 +83,13 @@ Native repository guards prevent new typed reservations while voice work is stag
 - Before a new model send, the original input is saved in tab-scoped session storage. Storage failure prevents an unsafe send. An uncertain outcome exposes an explicit retry of the original request, not a new request ID.
 - Playback failure exposes **Replay response** and uses the already-saved reply; it never reruns the model. The replay interaction can also unlock browser audio when autoplay restrictions suspended it.
 - A barge-in stops audio immediately. A late model response can update the canonical conversation and brief while its obsolete speech remains suppressed.
+- Correlated NoMatch results clear only an unaccepted interim. If no replacement turn was captured, a saved interrupted reply can be replayed explicitly. A physical speech-end event alone does not resolve a pending transcript or unlock specialist selection.
+- A model/HTTP response that remains unconfirmed for 120 seconds becomes an uncertain original request. The underlying model is not claimed canceled; late output is suppressed until the same request is explicitly recovered. The UI shows which original words will be retried, separately from newer held speech.
 - Muting disables capture tracks. Closing the connection stops them. A provider/permission failure leaves the saved text consultation available.
 
 ## Automated and live verification
 
-The current automated total is 105: consultation 30, native 30, handoff 14, voice controller 18, PCM player 6 and token broker 7. These check state transitions, serialization, safe retries, role capture, shared context, source cancellation, empty audio recovery, token boundaries and legacy compatibility. The full TypeScript build and deterministic AgentPlace transfer also pass. Unit tests do not measure microphone hardware, cloud latency or actual voice quality.
+The current automated total is 146: consultation 30, native 30, handoff 14, voice controller 28, Azure adapter 16, PCM player 8, UI connection lifecycle 5, local onset gate 2, diagnostics 3, development API admission 3 and token broker 7. Browser/provider objects in adapter tests are deterministic fakes. These checks verify ownership and event ordering, not actual capture, audible output, echo rejection, cloud latency or voice quality. The full TypeScript/build and deterministic transfer also pass; the transfer validates 129 checksums and 125 TS/TSX files.
 
 | Live scenario | Acceptance evidence to collect | Current status |
 | --- | --- | --- |
@@ -92,7 +102,7 @@ The current automated total is 105: consultation 30, native 30, handoff 14, voic
 | Visual and device pass | Replit desktop/tablet/mobile, small viewport, keyboard focus, reduced motion, captions and rail overlap; actual input/output amplitude responds to sound. | Pending |
 | Native AgentPlace | Host SDK/type integration, free Luna, real native microphone/playback, exact response-identity transcript pairing, safe retries, real enquiry link and public signed-out URL. | Pending |
 
-Local Performance API measurements retain the most recent `syntra.voice.model-response`, `syntra.voice.synthesis-to-audio` and `syntra.voice.final-transcript-to-audio` duration. They contain no transcript or account data and are not sent to telemetry. Inspect them after real speech in browser developer tools:
+Local Performance API measurements retain at most 64 numeric samples per metric. Controller sequence numbers correlate each original turn internally and never appear as customer/request identifiers in measurements. No transcript, audio or account data is recorded or sent to telemetry. Inspect results after real speech in browser developer tools:
 
 ```js
 performance.getEntriesByType('measure')
@@ -100,7 +110,21 @@ performance.getEntriesByType('measure')
   .map(({ name, duration }) => ({ name, milliseconds: Math.round(duration) }));
 ```
 
-Capture multiple real turns to report median and p95 rather than extrapolating from a single sample. These durations begin at the documented frontend events; they do not measure the time from the physical end of speech to arrival of the recognition final, or hardware speaker latency.
+| Metric suffix | What it measures |
+| --- | --- |
+| `recognition-sdk` | SDK-reported time from its last contributing audio fragment to receipt of the recognition result. |
+| `final-to-admission` | First accepted final fragment to model admission, including coalescing and waiting for an earlier request. |
+| `model-response` | Original consultation API round trip, including model execution and transport. |
+| `turn-recovery` | Retried request round trip, which may retrieve a receipt; kept separate from original model timings. |
+| `synthesis-first-byte`, `synthesis-finish`, `synthesis-connection`, `synthesis-network`, `synthesis-service` | Optional numeric properties from actual Azure synthesis results. |
+| `synthesis-to-audio` | Synthesis attempt start to scheduling the first playable PCM chunk; includes explicit playback attempts. |
+| `reply-to-audio`, `final-transcript-to-audio` | Correlated original reply/final-fragment timing to first PCM scheduling; explicit replays and recovered requests are excluded. |
+| `interruption-stop` | Synchronous software cancellation work, not physical speaker stop latency. |
+| `connection-ready` | SDK/token/microphone/startup time, including time waiting for permission. |
+
+Capture multiple real turns to report median and p95. Scheduling a Web Audio source is not measurement of sound at a speaker. The configured 500 ms provider segmentation silence and 350 ms final-fragment coalescing remain unchanged pending empirical tuning; they are configured waits, not observed end-to-end latency. This implementation still awaits the complete structured model reply before speech. See Microsoft's [latency guidance](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-lower-speech-synthesis-latency) and the installed 1.53.0 SDK's `PropertyId` definitions for provider metric meanings.
+
+The development API now acquires its process-local admission guard before the first asynchronous receipt lookup. This prevents two same-session requests from entering the model together in one server process. Database transactions protect committed message pairs/receipts; they do not serialize model calls across workers. Distributed admission remains a deployment concern, and AgentPlace retains its own trusted native admission/lifecycle requirements.
 
 ## Transfer and release
 

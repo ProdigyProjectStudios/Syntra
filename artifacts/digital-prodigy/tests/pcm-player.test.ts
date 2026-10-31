@@ -24,10 +24,12 @@ class FakeSource {
   startAt: number | undefined;
   stopped = false;
   disconnected = false;
+  throwStop = false;
+  throwDisconnect = false;
   connect() {}
-  disconnect() { this.disconnected = true; }
+  disconnect() { if (this.throwDisconnect) throw new Error("Source disconnect failed"); this.disconnected = true; }
   start(time: number) { this.startAt = time; }
-  stop() { this.stopped = true; }
+  stop() { if (this.throwStop) throw new Error("Source stop failed"); this.stopped = true; }
   finish() { this.onended?.(); }
 }
 class FakeContext {
@@ -36,8 +38,9 @@ class FakeContext {
   destination = {};
   analyser = new FakeAnalyser();
   sources: FakeSource[] = [];
+  buffers = 0;
   createAnalyser() { return this.analyser; }
-  createBuffer(_channels: number, length: number, rate: number) { return new FakeBuffer(length, rate); }
+  createBuffer(_channels: number, length: number, rate: number) { this.buffers++; return new FakeBuffer(length, rate); }
   createBufferSource() { const source = new FakeSource(); this.sources.push(source); return source; }
 }
 function fixture() {
@@ -157,4 +160,33 @@ test("PCM empty or incomplete streams fail without playback and release the next
   context.sources[0].finish();
   await next;
   player.dispose();
+});
+
+test("PCM rejects a single oversized provider chunk before allocating audio buffers or nodes", async () => {
+  const { player, context } = fixture();
+  const playback = player.begin(() => { assert.fail("Rejected audio must not start playback"); });
+  const overThreeMinutes = new ArrayBuffer((180 * 24_000 + 1) * 2);
+  assert.throws(() => player.append(overThreeMinutes), /long|limit|buffer|180/i);
+  assert.equal(context.buffers, 0, "The cap must apply to the incoming chunk as well as existing queued audio");
+  assert.equal(context.sources.length, 0);
+  player.stop();
+  await playback;
+  player.dispose();
+});
+
+test("PCM cancellation releases remaining nodes when one stop or disconnect throws", async () => {
+  const { player, context } = fixture();
+  const playback = player.begin(() => {});
+  for (const sample of [100, 200, 300]) player.append(pcm([sample]));
+  context.sources[0].throwStop = true;
+  context.sources[1].throwDisconnect = true;
+  assert.doesNotThrow(() => player.stop());
+  await playback;
+  assert.equal(context.sources[0].disconnected, true, "A failed stop must still disconnect its source");
+  assert.equal(context.sources[1].stopped, true);
+  assert.equal(context.sources[2].stopped, true);
+  assert.equal(context.sources[2].disconnected, true, "One broken node cannot prevent cleanup of its successors");
+  assert.ok(context.sources.every(source => source.onended === null));
+  assert.doesNotThrow(() => player.dispose());
+  assert.throws(() => player.begin(() => {}), /closed|disposed/i);
 });

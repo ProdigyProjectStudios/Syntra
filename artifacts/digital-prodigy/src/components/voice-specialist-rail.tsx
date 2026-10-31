@@ -58,8 +58,9 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
     : id !== active ? lockedReason : undefined;
   const changeExpansion = (next: boolean) => {
     setExpanded(next); setHovered(null); setFocused(null);
-    // Expansion replaces its toggle button; keep keyboard focus inside the voice dialog.
-    requestAnimationFrame(() => buttons.current.get(active)?.focus({ preventScroll: true }));
+    // The selected orb survives both layouts. Focus it before the toggle unmounts,
+    // without a delayed callback that could steal focus after the dialog closes.
+    buttons.current.get(active)?.focus({ preventScroll: true });
   };
   const choose = (id: SpecialistId) => {
     if (id === active || reason(id) || switching) return;

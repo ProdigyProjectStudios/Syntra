@@ -81,8 +81,10 @@ export type VoiceEvent =
   | { type: "specialist"; specialist: SpecialistId }
   | { type: "amplitude"; value: number }
   | { type: "transcript"; text: string; final: boolean; role: "visitor" | "advisor"; id?: string }
+  /** Discard only an unaccepted visitor hypothesis, never a saved/final transcript. */
+  | { type: "transcript-clear"; role: "visitor"; id?: string }
   | { type: "conversation-updated" }
-  | { type: "error"; message: string; recoverable?: boolean; retryable?: boolean; recovery?: "turn" | "playback" };
+  | { type: "error"; message: string; recoverable?: boolean; retryable?: boolean; recovery?: "turn" | "playback"; originalTurn?: TurnInput };
 export interface VoiceConnection {
   close(): void | Promise<void>;
   /** Optional controls are exposed only when the connected transport implements them. */

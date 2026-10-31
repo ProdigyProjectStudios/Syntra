@@ -2,7 +2,7 @@
 
 ## Current milestone — 31 October 2026
 
-The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 105 passing consultation, native, handoff, controller, PCM and token-broker tests; full TypeScript/build; and 128 transfer checksums with 124 TS/TSX syntax files. The real external enquiry page was inspected, without submitting a message. The new speech transport and three-specialist interface have not yet passed rendered Replit or live microphone checks. See [Voice intelligence](VOICE-INTELLIGENCE.md) for the pending acceptance matrix.
+The sections below record the earlier Replit pass, not a new browser run. Current source validation is recorded in [Assessment readiness](ASSESSMENT-READINESS.md): 146 passing consultation and voice reliability tests; full TypeScript/build; and 129 transfer checksums with 125 TS/TSX syntax files. The real external enquiry page was inspected during run 1 without submitting a message. The new speech transport and three-specialist interface have not yet passed rendered Replit or live microphone checks. See [Voice reliability — run 2](VOICE-RELIABILITY-RUN-2.md) for fixes, evidence limits and the pending live matrix.
 
 ## Earlier Replit checkpoint
 

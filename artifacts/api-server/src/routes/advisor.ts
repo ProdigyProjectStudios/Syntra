@@ -9,6 +9,7 @@ import { BRIEF_KEYS, ConsultationError, ConsultationService, normalizeSpecialist
 import { SERVICE_AREAS, CONTACT_OPTIONS } from "../lib/advisor-data";
 import { replitAI } from "../lib/advisor-ai";
 import { repository } from "../lib/consultation-repository";
+import { createConversationAdmissionGate } from "../lib/conversation-admission";
 import { privateSession } from "../middlewares/privacy";
 import { issueSpeechToken, speechConfiguration } from "../lib/speech-provider";
 
@@ -36,8 +37,9 @@ router.get("/conversations/:id", async (req, res) => {
   res.json(GetConversationResponse.parse(conversation));
 });
 
-// Bound costly model work; database locking additionally protects against multiple server instances.
-const busy = new Set<string>();
+// Bound model work within this process. Database transactions separately protect
+// committed message pairs/receipts; they do not lock the preceding model call.
+const admission = createConversationAdmissionGate();
 const rate = new Map<string, { count: number; until: number }>();
 router.post("/conversations/:id/messages", async (req, res) => {
   const { id } = SendMessageParams.parse(req.params);
@@ -45,21 +47,21 @@ router.post("/conversations/:id/messages", async (req, res) => {
   if (!input.success || !input.data.content.trim()) { res.status(400).json({ error: "Provide a message, a response depth and a valid request ID." }); return; }
   const owner = res.locals.owner as string;
   const key = `${owner}:${id}`;
-  if (busy.has(key)) throw new ConsultationError(409, "A response is already being prepared for this session.");
-  const replay = await repository.replay(owner, id, input.data.requestId);
-  if (replay) {
-    if (replay.visitorMessage.content !== input.data.content || replay.visitorMessage.depth !== input.data.depth || normalizeSpecialist(replay.specialist) !== normalizeSpecialist(input.data.specialist)) throw new ConsultationError(409, "This request ID was already used for a different message.");
-    res.json(SendMessageResponse.parse(replay)); return;
-  }
-  const now = Date.now();
-  for (const [k, r] of rate) if (r.until < now) rate.delete(k);
-  const limit = rate.get(owner) ?? { count: 0, until: now + 60000 };
-  if (limit.count >= 12) { res.setHeader("Retry-After", "60"); throw new ConsultationError(429, "Please wait a minute before sending more messages."); }
-  rate.set(owner, { ...limit, count: limit.count + 1 });
-  busy.add(key);
-  try {
+  // Claim before any asynchronous receipt lookup: two requests can otherwise
+  // both observe an idle session and enter the model after their lookups settle.
+  await admission.run(key, async () => {
+    const replay = await repository.replay(owner, id, input.data.requestId);
+    if (replay) {
+      if (replay.visitorMessage.content !== input.data.content || replay.visitorMessage.depth !== input.data.depth || normalizeSpecialist(replay.specialist) !== normalizeSpecialist(input.data.specialist)) throw new ConsultationError(409, "This request ID was already used for a different message.");
+      res.json(SendMessageResponse.parse(replay)); return;
+    }
+    const now = Date.now();
+    for (const [k, r] of rate) if (r.until < now) rate.delete(k);
+    const limit = rate.get(owner) ?? { count: 0, until: now + 60000 };
+    if (limit.count >= 12) { res.setHeader("Retry-After", "60"); throw new ConsultationError(429, "Please wait a minute before sending more messages."); }
+    rate.set(owner, { ...limit, count: limit.count + 1 });
     res.json(SendMessageResponse.parse(await service.send(owner, id, input.data)));
-  } finally { busy.delete(key); }
+  });
 });
 router.get("/conversations/:id/brief", async (req, res) => {
   const { id } = GetBriefParams.parse(req.params);

@@ -10,6 +10,7 @@ Syntra's canonical React/TypeScript frontend and consultation domain are version
 - **[Assessment QA](docs/ASSESSMENT-CONVERSION-QA.md)** — completed browser checks and host-specific limitations.
 - **[Current assessment readiness](docs/ASSESSMENT-READINESS.md)** — verified conversion route and remaining public-release gates.
 - **[Voice intelligence](docs/VOICE-INTELLIGENCE.md)** — development speech setup, shared specialist context, provider decision and live acceptance checks.
+- **[Voice reliability — run 2](docs/VOICE-RELIABILITY-RUN-2.md)** — verified fixes, 146 automated tests, latency diagnostics and credentialed run 3 scope.
 
 ## Development
 

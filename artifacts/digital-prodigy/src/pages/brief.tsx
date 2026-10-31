@@ -10,6 +10,7 @@ import { errorMessage } from '@/lib/errors';
 import { useAdvisor } from '@/lib/advisor';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorOrb } from '@/components/advisor-ui';
+import { BriefHandoff } from '@/components/brief-handoff';
 import { cn } from '@/lib/utils';
 
 const FIELDS: { key: BriefKey; label: string; wide?: boolean }[] = [
@@ -53,6 +54,7 @@ export default function BriefPage() {
       {isError && (
         <button onClick={() => refetch()} className="flex items-center gap-2 text-destructive" data-testid="button-retry-brief"><RotateCw className="h-4 w-4" /> Brief failed to load. Retry</button>
       )}
+      {data && conversationId && <div className="mb-4"><BriefHandoff brief={data} /></div>}
       {data && conversationId && (
         <div className="grid gap-3 md:grid-cols-2">
           {FIELDS.map((f, i) => <Field key={`${conversationId}-${f.key}`} id={conversationId} field={f} value={data[f.key]} index={i} revision={data.revision} provenance={data.provenance[f.key]} />)}

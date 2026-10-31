@@ -107,7 +107,7 @@ export class HandoffCoordinator {
   private readonly inflight = new Map<string, { signature: string; promise: Promise<EnquiryReceipt> }>();
   private readonly complete = new Map<string, { signature: string; receipt: EnquiryReceipt }>();
 
-  submit(input: EnquiryInput, gateway?: EnquiryGateway): Promise<EnquiryReceipt> {
+  async submit(input: EnquiryInput, gateway?: EnquiryGateway): Promise<EnquiryReceipt> {
     validateEnquiry(input);
     if (!gateway) return Promise.reject(new HandoffError("unconfirmed", "No verified enquiry integration has been connected."));
     const signature = JSON.stringify([input.conversationId, input.briefRevision, input.brief, clean(input.name), input.email.trim().toLowerCase(), input.note?.trim() || ""]);

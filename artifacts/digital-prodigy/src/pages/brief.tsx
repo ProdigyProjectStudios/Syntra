@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
-import { Check, Pencil, X, RotateCw } from 'lucide-react';
+import { Check, Copy, Download, Pencil, X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRuntimeKeys } from '@/lib/runtime-context';
 import { useGetBrief, useUpdateBrief } from '@/lib/runtime-hooks';
-import type { BriefKey, Brief, Conversation, FieldProvenance } from '@workspace/consultation';
+import { formatProjectBrief, type BriefKey, type Brief, type Conversation, type FieldProvenance } from '@workspace/consultation';
 import { errorMessage } from '@/lib/errors';
 import { useAdvisor } from '@/lib/advisor';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +29,22 @@ export default function BriefPage() {
   const { data, isLoading, isError, refetch } = useGetBrief(id);
   const filled = data ? FIELDS.filter((f) => data[f.key]).length : 0;
   const pct = filled / FIELDS.length;
+  const [exportStatus, setExportStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const markdown = data ? formatProjectBrief(data) : '';
+  async function copy() {
+    if (!markdown) return;
+    try { await navigator.clipboard.writeText(markdown); setExportStatus('copied'); }
+    catch { setExportStatus('failed'); }
+  }
+  function download() {
+    if (!markdown) return;
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = 'syntra-project-brief.md';
+    document.body.appendChild(a); a.click(); a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setExportStatus('idle');
+  }
 
   return (
     <div>
@@ -38,7 +54,22 @@ export default function BriefPage() {
           <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">The brief, <span className="text-ember glow-text">as it forms.</span></h1>
           <p className="mt-3 max-w-xl text-foreground/65">Only what has been discussed or clearly marked as a direction. Click any field to correct it.</p>
         </div>
-        <CompletionDial pct={pct} filled={filled} lit={FIELDS.map((f) => !!data?.[f.key])} />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="flex gap-2">
+              <button type="button" onClick={() => void copy()} disabled={!data} data-testid="button-copy-brief"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/[.055] px-3 py-2 text-[11px] text-primary transition hover:bg-primary/[.12] disabled:opacity-35">
+                {exportStatus === 'copied' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />} {exportStatus === 'copied' ? 'Copied' : 'Copy'}
+              </button>
+              <button type="button" onClick={download} disabled={!data} data-testid="button-export-brief"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 text-[11px] text-foreground/80 transition hover:border-primary/30 hover:text-primary disabled:opacity-35">
+                <Download className="h-3.5 w-3.5" /> Export
+              </button>
+            </div>
+            {exportStatus === 'failed' && <span role="alert" className="text-[10px] text-amber-200">Clipboard unavailable. Use Export.</span>}
+          </div>
+          <CompletionDial pct={pct} filled={filled} lit={FIELDS.map((f) => !!data?.[f.key])} />
+        </div>
       </div>
 
       {!conversationId && (

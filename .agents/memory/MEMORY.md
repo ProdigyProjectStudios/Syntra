@@ -1,5 +1,7 @@
 # Memory Index
 
+- [Voice experience](voice-experience.md) — realtime interruption, natural female presentation and short pending-response labels.
+
 - [Enquiry retry safety](enquiry-retries.md) — uncertain provider outcomes must retain the original request ID and reviewed snapshot across navigation/refresh.
 
 - [Syntra identity](syntra-identity.md) — the AI assistant is named Syntra, matching the repository name.

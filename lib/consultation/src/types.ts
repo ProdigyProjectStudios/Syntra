@@ -72,7 +72,7 @@ export interface ConversationRepository {
   editBrief(owner: string, id: number, changes: Partial<BriefFields>, revision: number): Promise<Brief>;
 }
 export type VoiceEvent =
-  | { type: "state"; state: "connecting" | "listening" | "speaking" | "closed" }
+  | { type: "state"; state: "connecting" | "listening" | "thinking" | "speaking" | "closed" }
   | { type: "amplitude"; value: number }
   | { type: "transcript"; text: string; final: boolean; role: "visitor" | "advisor" }
   | { type: "conversation-updated" }

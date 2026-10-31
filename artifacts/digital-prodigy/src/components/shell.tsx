@@ -5,8 +5,8 @@ import { Compass, Boxes, FileText, CalendarClock, History, Plus, X } from 'lucid
 import { useAdvisor } from '@/lib/advisor';
 import { AdvisorOrb, Composer, DepthSwitch, HistoryList, Stream } from '@/components/advisor-ui';
 import { VoiceConsole, OPEN_VOICE_EVENT } from '@/components/voice';
-import { NeuralField } from '@/components/neural-field';
-import { ClickBurst } from '@/components/click-burst';
+import { DeferredVisuals } from '@/components/deferred-visuals';
+import { useReadyRoute } from '@/lib/route-pages';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import logo from '@/assets/dp-logo.png';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ const NAV = [
 
 export function Shell({ children }: { children: (location: string) => ReactNode }) {
   const [location, navigate] = useLocation();
+  const readyLocation = useReadyRoute(location);
   const { setConversationId, conversation, sending, pendingText } = useAdvisor();
   const [voice, setVoice] = useState(false);
   const [hist, setHist] = useState(false);
@@ -44,7 +45,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
   return (
     <div className="env dark relative flex h-[100dvh] w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-0 z-0 grid-floor" />
-      <NeuralField energy={sending || voice ? 1 : 0} paused={mobile && voice} />
+      <DeferredVisuals energy={sending || voice ? 1 : 0} paused={mobile && voice} />
 
       {/* Slim instrument rail */}
       <aside className="relative z-20 hidden w-[72px] shrink-0 flex-col items-center py-5 lg:flex">
@@ -113,22 +114,25 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
         </nav>
 
         <div className="flex min-h-0 flex-1 gap-5 px-4 py-4 sm:px-6">
-          <main ref={main} className="relative min-h-0 min-w-0 flex-1 overflow-y-auto scroll-thin [mask-image:linear-gradient(to_bottom,transparent,black_24px,black_calc(100%-24px),transparent)]">
+          <main ref={main} aria-busy={readyLocation !== location} className="relative min-h-0 min-w-0 flex-1 overflow-y-auto scroll-thin [mask-image:linear-gradient(to_bottom,transparent,black_24px,black_calc(100%-24px),transparent)]">
+            {readyLocation === null && <div role="status" className="mx-auto max-w-4xl py-6 text-sm text-muted-foreground">Loading view…</div>}
             <AnimatePresence mode="wait" onExitComplete={() => {
               // Reset only after the frozen outgoing page fades, before the new
               // page enters. Chat can still scroll to its latest turn on mount.
               main.current?.scrollTo({ top: 0, behavior: 'instant' });
             }}>
+              {readyLocation !== null && (
               <motion.div
-                key={location}
+                key={readyLocation}
                 initial={{ opacity: 0, y: mobile ? 8 : 24, filter: mobile ? 'none' : 'blur(10px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: mobile ? -4 : -12, filter: mobile ? 'none' : 'blur(8px)' }}
                 transition={{ duration: mobile ? 0.2 : 0.55, ease: [0.16, 1, 0.3, 1] }}
                 className="mx-auto max-w-4xl py-1 sm:py-6"
               >
-                {children(location)}
+                {children(readyLocation)}
               </motion.div>
+              )}
             </AnimatePresence>
           </main>
           <AnimatePresence>
@@ -178,7 +182,6 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
       </AnimatePresence>
 
       <VoiceConsole open={voice} onClose={() => setVoice(false)} />
-      <ClickBurst />
     </div>
   );
 }

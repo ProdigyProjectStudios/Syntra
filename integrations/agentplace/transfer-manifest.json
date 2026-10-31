@@ -106,12 +106,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/App.tsx",
       "source": "artifacts/digital-prodigy/src/App.tsx",
-      "sha256": "1c262996b7a2d8d995f9daa0f6bd6d6b6f623852a5e04a64ba04909011ab51b1"
+      "sha256": "35f2987fdc1ba2074783f1ae71ae535015d8644c53141a29e0d42613d4d1389c"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/advisor-ui.tsx",
       "source": "artifacts/digital-prodigy/src/components/advisor-ui.tsx",
-      "sha256": "5b77716160be668abf9122a905a848544e52ecc2517403824797881bd015415c"
+      "sha256": "3e04531e01f786e6ed67f06d80f01e0c59f7fe8705ba37e5154c8c31c7a71eb5"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/click-burst.tsx",
@@ -122,6 +122,11 @@
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/constellation.tsx",
       "source": "artifacts/digital-prodigy/src/components/constellation.tsx",
       "sha256": "3b0c96eda0205929ab228b2ffe9929e52502d0275e57e21235925ffb778b0c87"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/deferred-visuals.tsx",
+      "source": "artifacts/digital-prodigy/src/components/deferred-visuals.tsx",
+      "sha256": "49d83f90fb0524a195dffdd11f86ff73f15b3c2330b7f94fab6d4aeb4e4e478d"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/error-boundary.tsx",
@@ -141,7 +146,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/shell.tsx",
       "source": "artifacts/digital-prodigy/src/components/shell.tsx",
-      "sha256": "16cc7ecc6b3ff02b8830c6733a0f93dbaef8e0bf496c34be3676d487b4b89cf9"
+      "sha256": "26e4e79a9ce2da83b79ee0d74d988c3c26d74426c0cc1254bdf1ad3a5d6a8d0c"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/ui/accordion.tsx",
@@ -419,9 +424,14 @@
       "sha256": "ba3c5e4b8bc87ad96ce636b50a75a800685decc7a5fa824e3d5281d991c47339"
     },
     {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/visual-effects.tsx",
+      "source": "artifacts/digital-prodigy/src/components/visual-effects.tsx",
+      "sha256": "d9aa900dfb4dd86ecb5c17271a15a2bf2acec394c1d77b79cc4a5ce84b4ada8a"
+    },
+    {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/voice.tsx",
       "source": "artifacts/digital-prodigy/src/components/voice.tsx",
-      "sha256": "5b639a1d5c803835bdbb7249ce22f239892940dbc04b72d79d70c895e11b75a0"
+      "sha256": "baf6cb7b0d5854067d58969dedd74e8502deca227af56de99b2822897c959e11"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/hooks/use-media-query.ts",
@@ -462,6 +472,11 @@
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/query-client.ts",
       "source": "artifacts/digital-prodigy/src/lib/query-client.ts",
       "sha256": "f9c3f0d47f455160b082fb9ab8fb37541e1eab6c6b2b1f8dadd52ea28ff0d1a4"
+    },
+    {
+      "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/route-pages.tsx",
+      "source": "artifacts/digital-prodigy/src/lib/route-pages.tsx",
+      "sha256": "238ad9742902de4b1a7dfb2b1e154dffd740e24ef0dbab262b3b1a7325791300"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/lib/runtime-context.tsx",
@@ -581,12 +596,12 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/types.ts",
       "source": "lib/consultation/src/types.ts",
-      "sha256": "e1984c77c0348d6172c82f039c3e4453256606a8dd32a5b7bb1be483f9602de8"
+      "sha256": "0998033fa6b24138ac327400caefff93558136dec1c9e6159236b9769c1dd624"
     },
     {
       "path": "agent-dev-server/src/bl/syntra/shared/types.ts",
       "source": "lib/consultation/src/types.ts",
-      "sha256": "e1984c77c0348d6172c82f039c3e4453256606a8dd32a5b7bb1be483f9602de8"
+      "sha256": "0998033fa6b24138ac327400caefff93558136dec1c9e6159236b9769c1dd624"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/shared/catalogue.ts",

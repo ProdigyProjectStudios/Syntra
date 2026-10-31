@@ -37,3 +37,23 @@ Syntra's conversion path must remain truthful and work inside AgentPlace with Lu
 
 ## AgentPlace boundary
 Use the native AgentPlace runtime for model, sessions and voice. Replit may test the domain state machine with fakes, but no mock is presented as a production integration.
+
+
+## Implementation on feature/assessment-conversion
+
+- `lib/consultation/src/handoff.ts` formats a grounded, portable eight-field brief, reports completeness and provenance, validates safe approved channels and defines the consent-gated enquiry coordinator.
+- `lib/consultation/src/handoff.test.ts` tests missing consent, unsafe URL schemes, missing provider, duplicate requests, request-ID collisions, receipt verification and failure recovery.
+- `artifacts/digital-prodigy/src/pages/book.tsx` provides the premium handoff workspace, live dossier, copy/Markdown actions and conditional consent form.
+- `artifacts/digital-prodigy/src/pages/brief.tsx` exposes direct copy and export actions on the editable brief.
+- `ConsultationRuntime.booking.submitEnquiry` is OPTIONAL. The UI does not show the submission form unless the host explicitly exposes it. No Replit fake provider or fake appointment exists.
+- GitHub Actions runs `pnpm test`, `pnpm typecheck`, `pnpm test:agentplace` and `pnpm build` on this feature branch.
+
+### Required real-provider integration before any live submission
+
+AgentPlace must implement `booking.submitEnquiry` through a verified destination and actual provider API. The trusted server MUST derive the visitor/session ownership, re-read the current reviewed brief and revision from host storage (do not trust the browser's brief payload), require explicit consent, enforce a persistent per-session idempotency key across retries/workers, and return `{ status: "confirmed", reference: "<provider receipt>" }` ONLY after provider acknowledgement. Use server-side credentials and contact-destination allowlists. An unknown provider outcome must not be represented as confirmation.
+
+For providers without an actual action, configure only approved `booking.contacts()` links. Clicking a link opens the external channel; it does not book or send anything on the user's behalf. Until an approved channel exists, the user can copy/export their brief locally.
+
+### Visual QA required
+
+Check at 1440×900 and 375×812, including long requirements, missing objective, editing the brief then returning, keyboard focus, opening approved contact links, reduced motion, clipboard-denied fallback and the disconnected-enquiry state. This branch's source and CI checks are not substitutes for rendered browser or real provider tests.

@@ -1,0 +1,460 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: advisor
+    description: AI build advisor operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /services:
+    get:
+      operationId: listServices
+      tags: [advisor]
+      summary: List service areas
+      description: Returns Digital Prodigy's four service areas for the Solutions experience
+      responses:
+        "200":
+          description: Service areas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceArea"
+
+  /contact-options:
+    get:
+      operationId: listContactOptions
+      tags: [advisor]
+      summary: List contact options
+      description: Returns Digital Prodigy's verified human contact options for the Book experience
+      responses:
+        "200":
+          description: Contact options
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactOption"
+
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [advisor]
+      summary: List conversations
+      description: Returns all advisor conversations, most recent first, for persistent chat history
+      responses:
+        "200":
+          description: Conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConversationSummary"
+    post:
+      operationId: createConversation
+      tags: [advisor]
+      summary: Start a conversation
+      description: Creates a new advisor conversation and returns it with the advisor's opening message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+
+  /conversations/{id}:
+    get:
+      operationId: getConversation
+      tags: [advisor]
+      summary: Get a conversation
+      description: Returns a conversation with its full message history and working brief
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "404":
+          description: Not found
+
+  /conversations/{id}/messages:
+    post:
+      operationId: sendMessage
+      tags: [advisor]
+      summary: Send a message
+      description: Sends a visitor message at the chosen response depth and returns the advisor's reply plus the updated working brief
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: Advisor reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdvisorReply"
+        "404":
+          description: Not found
+
+  /conversations/{id}/brief:
+    get:
+      operationId: getBrief
+      tags: [advisor]
+      summary: Get the working brief
+      description: Returns the live project brief assembled from the conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Working brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brief"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateBrief
+      tags: [advisor]
+      summary: Update the working brief
+      description: Manually edits fields of the working brief
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BriefUpdate"
+      responses:
+        "200":
+          description: Updated brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Brief"
+        "404":
+          description: Not found
+
+  /voice/sessions:
+    post:
+      operationId: createVoiceSession
+      tags: [advisor]
+      summary: Provision a voice session
+      description: Provisions a real-time voice session for hands-free conversation with the advisor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoiceSessionInput"
+      responses:
+        "201":
+          description: Voice session provisioned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoiceSession"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ServiceArea:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - tagline
+        - description
+        - capabilities
+
+    ContactOption:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        detail:
+          type: string
+        href:
+          type: string
+        kind:
+          type: string
+          enum: [link, email, phone]
+      required:
+        - id
+        - label
+        - detail
+        - href
+        - kind
+
+    ConversationSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        depth:
+          $ref: "#/components/schemas/ResponseDepth"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        messageCount:
+          type: integer
+      required:
+        - id
+        - title
+        - depth
+        - createdAt
+        - updatedAt
+        - messageCount
+
+    Conversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        depth:
+          $ref: "#/components/schemas/ResponseDepth"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        brief:
+          $ref: "#/components/schemas/Brief"
+      required:
+        - id
+        - title
+        - depth
+        - createdAt
+        - updatedAt
+        - messages
+        - brief
+
+    ConversationInput:
+      type: object
+      properties:
+        depth:
+          $ref: "#/components/schemas/ResponseDepth"
+      required:
+        - depth
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [visitor, advisor]
+        content:
+          type: string
+        depth:
+          $ref: "#/components/schemas/ResponseDepth"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - role
+        - content
+        - depth
+        - createdAt
+
+    MessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+          minLength: 1
+        depth:
+          $ref: "#/components/schemas/ResponseDepth"
+      required:
+        - content
+        - depth
+
+    AdvisorReply:
+      type: object
+      properties:
+        message:
+          $ref: "#/components/schemas/Message"
+        brief:
+          $ref: "#/components/schemas/Brief"
+        suggestedNextSteps:
+          type: array
+          items:
+            type: string
+      required:
+        - message
+        - brief
+        - suggestedNextSteps
+
+    ResponseDepth:
+      type: string
+      enum: [concise, detailed, deep_dive]
+
+    Brief:
+      type: object
+      properties:
+        objective:
+          type: ["string", "null"]
+        service:
+          type: ["string", "null"]
+        proposedSolution:
+          type: ["string", "null"]
+        requirements:
+          type: ["string", "null"]
+        integrations:
+          type: ["string", "null"]
+        budget:
+          type: ["string", "null"]
+        timeline:
+          type: ["string", "null"]
+        nextStep:
+          type: ["string", "null"]
+      required:
+        - objective
+        - service
+        - proposedSolution
+        - requirements
+        - integrations
+        - budget
+        - timeline
+        - nextStep
+
+    BriefUpdate:
+      type: object
+      properties:
+        objective:
+          type: ["string", "null"]
+        service:
+          type: ["string", "null"]
+        proposedSolution:
+          type: ["string", "null"]
+        requirements:
+          type: ["string", "null"]
+        integrations:
+          type: ["string", "null"]
+        budget:
+          type: ["string", "null"]
+        timeline:
+          type: ["string", "null"]
+        nextStep:
+          type: ["string", "null"]
+
+    VoiceSessionInput:
+      type: object
+      properties:
+        conversationId:
+          type: integer
+      required:
+        - conversationId
+
+    VoiceSession:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [provisioned]
+        conversationId:
+          type: integer
+        transport:
+          type: string
+        detail:
+          type: string
+      required:
+        - id
+        - status
+        - conversationId
+        - transport
+        - detail

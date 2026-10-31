@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Digital Prodigy — AI Build Advisor"
+description = "An AI-native advisory workspace for Digital Prodigy: a conversational build advisor with four experiences (Discover, Solutions, Project Brief, Book), response-depth switching (Concise/Detailed/Deep Dive), persistent chat, and provision for real-time voice."
+version = "1.0.0"
+id = "artifacts/digital-prodigy"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24057
+
+[services.development]
+run = "pnpm --filter @workspace/digital-prodigy run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/digital-prodigy", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/digital-prodigy/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24057"
+BASE_PATH = "/"

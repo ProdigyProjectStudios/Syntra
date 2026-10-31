@@ -1,67 +1,61 @@
-# Agentplace integration registration patch (platform-owned seams)
+# Narrow Agentplace registration patch
 
-The files below are Agentplace runtime infrastructure. This export does not mirror them. Apply only the following Syntra-specific edits to the original Agentplace project; keep surrounding code and security/session controls intact.
+This document records the small native integration seams required by the Syntra-owned source. It is not a copy of Agentplace infrastructure. Keep transport, authentication, session persistence, the messaging pipeline, the native voice engine, and built-in catalog intact. Merge these entries into the current platform files; do not replace existing registries with the Syntra-only examples below.
 
-## 1. Server startup: `agent-dev-server/src/server.ts`
+## Server surface contract
 
-Add the Syntra router imports alongside the existing router imports:
+Copy `agent-dev-server/src/surfaces/syntra-integration-proof.ts` to the same path in the Agentplace server project. Merge its `SYNTRA_DASHBOARD` contract into the existing `src/surfaces/index.ts` `AGENT_SURFACE_CONTRACTS` map. The existing tool registry already consumes that map; do not add a second screen transport or custom `RenderSurface` implementation.
+
+## Session brief tool and router
+
+The exported tool is at `integrations/agentplace/agent-dev-server/src/bl/tools/update-syntra-brief.tool.ts`. The original source path was `agent-dev-server/src/bl/tools/impl/update-syntra-brief.tool.ts`; this export is intentionally flattened under `src/bl/tools/`, and its relative imports have been adjusted for that location. Keep it at the exported path unless you also restore the original `impl/` path and its original relative imports.
+
+In `src/bl/messaging/tool-registry.factory.ts`, import the class from `../tools/update-syntra-brief.tool.ts` and add it to the existing per-session tool registry with the current trusted storage factory and session key:
 
 ```ts
-import { createSyntraRouter } from './trpc/routers/syntra.router.ts';
-import { createAppRouter } from './trpc/router';
+add(new UpdateSyntraBriefTool({ storageFactory, sessionKey }));
 ```
 
-In `Server.start()`, immediately after creating the platform router, build the Syntra router from the platform's storage factory and compose the app router:
+Copy `agent-dev-server/src/trpc/routers/syntra.router.ts` to the matching router directory. Extend the existing `src/trpc/router.ts` app-router factory to accept that router and mount it under the `syntra` key. In `src/server.ts`, create it with the existing `AgentStorageFactoryService` and pass it to the app-router factory. The procedures derive scope from trusted `ctx.sessionKey`; never accept a browser-supplied session identity or expose the private record path.
 
-```ts
-const platformRouter = createPlatformRouter({ container: this.container, sessionManager });
-const syntraRouter = createSyntraRouter(storageFactory);
-const appRouter = createAppRouter(platformRouter, syntraRouter);
-```
+## Client surface and viewport
 
-Retain the existing transport registration that serves `appRouter`; do not replace request/session infrastructure.
+Copy `agent-dev-client/src/app/agent/surfaces/SyntraIntegrationProof.tsx` and merge its `SyntraDashboard` entry into the existing `AGENT_SURFACE_COMPONENTS` map in `src/app/agent/surfaces/index.ts`. The renderer already reads this registry.
 
-## 2. tRPC composition: `agent-dev-server/src/trpc/router.ts`
+`SyntraDashboard` imports `useSyntraViewport` from `src/app/lib/stage/SyntraViewportContext.tsx`. Copy `patches/client-stage/SyntraViewportContext.tsx` to that path. In the current `StageLayout.tsx`, provide `{ expanded, setExpanded }` around the existing layout, add `data-syntra-viewport={expanded ? 'true' : undefined}` to the stage root, and show an accessible **Agent controls** button when expanded that calls `setExpanded(false)`. Keep the existing rail, dock, stage controller, voice owner, and scroll/session state; the added full-screen mode only changes presentation.
 
-Extend the existing `createAppRouter` function's typed inputs and router map only:
+Append these scoped layout rules to the existing `stage-effects.css` (preserve other platform rules):
 
-```ts
-import type { createSyntraRouter } from './routers/syntra.router.ts';
-
-export function createAppRouter(
-  platformRouter: ReturnType<typeof createPlatformRouter>,
-  syntraRouter: ReturnType<typeof createSyntraRouter>,
-) {
-  return createRouter({
-    platform: platformRouter,
-    syntra: syntraRouter,
-  });
+```css
+.stage[data-syntra-viewport="true"] {
+  position: fixed; z-index: 1000; inset: 0; display: block;
+  width: 100vw; height: 100dvh; min-height: 0; overflow: hidden; transform: none;
+}
+.stage[data-syntra-viewport="true"] .stage-workspace {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+.stage[data-syntra-viewport="true"] .stage-workspace > :not(.stage-canvas) { display: none; }
+.stage[data-syntra-viewport="true"] .stage-canvas {
+  width: 100%; height: 100%; overflow: auto; padding: 0;
+}
+.stage[data-syntra-viewport="true"] .stage-page { width: 100%; height: 100%; padding: 0 !important; }
+.stage[data-syntra-viewport="true"] .stage-page > .mx-auto {
+  width: 100%; height: 100%; max-width: none; padding: 0;
+}
+.stage[data-syntra-viewport="true"] .stage-page > .mx-auto > .relative {
+  width: 100%; height: 100%;
+}
+.stage[data-syntra-viewport="true"] .stage-dock,
+.stage[data-syntra-viewport="true"] .stage-activity-panel,
+.stage[data-syntra-viewport="true"] .stage-activity-trigger {
+  display: none !important;
+}
+.stage-syntra-return { font: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  .stage-syntra-return { transition: none; }
 }
 ```
 
-## 3. Agent tool registry: `agent-dev-server/src/bl/messaging/tool-registry.factory.ts`
+## Merge safety
 
-Add the custom tool import:
-
-```ts
-import { UpdateSyntraBriefTool } from '../tools/impl/update-syntra-brief.tool.ts';
-```
-
-Within the platform-tool construction method, next to the existing `FilesystemTool` registration, add it only when a trusted session key is present:
-
-```ts
-add(new FilesystemTool({ storageFactory, sessionKey }));
-if (sessionKey) {
-  add(new UpdateSyntraBriefTool({ storageFactory, sessionKey }));
-}
-```
-
-Do not accept session identity from tool input or browser JSON; `UpdateSyntraBriefTool` obtains identity from the trusted host state.
-
-## 4. Client surface registry
-
-The Syntra-specific view host and `AGENT_SURFACE_COMPONENTS` map are included in this export under `agent-dev-client/src/app/agent/surfaces/`. Merge `SyntraDashboard` into the existing surface component registry rather than replacing other registered surfaces.
-
-## 5. Stage viewport interface
-
-The included `SyntraViewportContext.tsx` is the small Syntra-specific control interface used by the dashboard host. Supply `{ expanded, setExpanded }` from the platform stage's existing expansion state. Do not copy or replace stage, scrolling, or canvas internals.
+Preserve pre-existing surface contracts/components and router keys. Do not copy Agentplace `src/app/lib/**`, `src/services/**`, messaging or transport source from this export; only apply the context, small `StageLayout` presentation seam, and CSS above. The native host remains authoritative for identity, transcript, voice, and model execution.

@@ -134,7 +134,8 @@ export default function Book() {
       .filter((contact): contact is ContactOption & { safeHref: string } => Boolean(contact.safeHref)),
     [contacts],
   );
-  const canSubmit = Boolean(id && brief && runtime.booking.submitEnquiry);
+  const hasScopedBrief = Boolean(brief && briefCompleteness(brief).complete > 0);
+  const canSubmit = Boolean(id && brief?.objective?.trim() && runtime.booking.submitEnquiry);
   const activeSubmit = submitState === 'submitting';
 
   async function copyBrief() {
@@ -214,7 +215,7 @@ export default function Book() {
           )}>
             <span className={cn('font-mono text-[10px]', i === 2 ? 'text-primary' : 'text-muted-foreground')}>{step.number}</span>
             <span className="text-[11px] text-foreground/80">{step.label}</span>
-            {i === 0 && brief && <Check className="ml-auto h-3 w-3 text-cyan-300/70" />}
+            {i === 0 && hasScopedBrief && <Check className="ml-auto h-3 w-3 text-cyan-300/70" />}
           </div>
         ))}
       </div>
@@ -245,7 +246,7 @@ export default function Book() {
                 {brief?.objective || 'Your project objective will appear as the consultation develops.'}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => void copyBrief()} disabled={!brief}
+                <button type="button" onClick={() => void copyBrief()} disabled={!hasScopedBrief}
                   className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/[.1] px-4 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/[.17] disabled:cursor-not-allowed disabled:opacity-40"
                   data-testid="button-copy-handoff">
                   {feedback === 'copied' ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}

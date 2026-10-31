@@ -79,8 +79,10 @@ export interface EnquiryGateway {
   submitEnquiry(input: EnquiryInput): Promise<EnquiryReceipt>;
 }
 export class HandoffError extends Error {
-  constructor(public readonly code: "consent" | "details" | "collision" | "unconfirmed", message: string) {
+  readonly code: "consent" | "details" | "collision" | "unconfirmed";
+  constructor(code: "consent" | "details" | "collision" | "unconfirmed", message: string) {
     super(message);
+    this.code = code;
     this.name = "HandoffError";
   }
 }

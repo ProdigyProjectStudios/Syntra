@@ -95,6 +95,8 @@ export interface BookingAdapter {
   contacts(): Promise<ContactOption[]>;
   /** No implicit booking. Only expose when the host has a real connected action. */
   book?: (conversationId: number, confirmedByVisitor: boolean) => Promise<{ status: "confirmed"; reference: string }>;
+  /** Only present after a verified, server-side provider is connected. */
+  submitEnquiry?: (input: import("./handoff.ts").EnquiryInput) => Promise<import("./handoff.ts").EnquiryReceipt>;
 }
 /** Browser-facing boundary. Implement from AgentPlace's documented SDK, not guessed URLs. */
 export interface ConsultationRuntime {

@@ -29,8 +29,7 @@ export class NativeTranscript {
     // Streaming updates may repeat a native part ID. Latest content wins, while
     // insertion order and UI identity stay stable. A later hidden update removes it.
     for (const part of new Map(parts.map(part => [part.key, part])).values()) {
-      if (part.hidden || part.reasoning || !part.text.trim() || part.text === "[user opened the agent]" ||
-          (part.kind === "audio" && part.role === "advisor")) continue;
+      if (part.hidden || part.reasoning || !part.text.trim() || part.text === "[user opened the agent]") continue;
       if (!part.key || !part.responseId) throw new Error("Native transcript identities are required.");
       const key = `${part.responseId}:${part.role}`;
       const group = groups.get(key) ?? [];
@@ -39,7 +38,8 @@ export class NativeTranscript {
     }
     return [...groups].map(([key, group]) => {
       if (!this.ids.has(key)) this.ids.set(key, this.ids.size + 1);
-      // Prefer the native text representation over the same visitor audio transcription.
+      // Prefer canonical text over its audio transcript mirror for either role.
+      // Audio-only native replies still belong in the shared conversation.
       const textParts = group.some(p => p.kind === "text") ? group.filter(p => p.kind === "text") : group;
       const text = textParts.map(p => p.text.trim()).join("\n\n");
       const first = group[0];

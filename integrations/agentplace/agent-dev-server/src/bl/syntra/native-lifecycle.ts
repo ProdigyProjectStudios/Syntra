@@ -8,6 +8,8 @@ export interface NativeLifecycleEvidence extends NativeTurnVerifier {
   canDiscard(sessionKey: string, requestId: string, voice: boolean): Promise<boolean>;
   voiceCompleted(sessionKey: string, turnId: string): Promise<{
     sessionKey: string; turnId: string; status: 'succeeded' | 'running' | 'failed' | 'canceled'; visitorText: string;
+    /** Canonical transcript response identity, when supplied by the native SDK. */
+    responseId?: string;
   } | null>;
 }
 /** Register these callbacks with existing native lifecycle events, not a new transport. */
@@ -25,7 +27,7 @@ export function createSyntraLifecycle(storage: AgentStorageFactoryService, nativ
       if (!proof || proof.sessionKey !== session || proof.turnId !== turnId || proof.status !== 'succeeded') {
         throw new Error('Native voice completion could not be verified.');
       }
-      return repository(session).completeNativeVoiceTurn(turnId, proof.visitorText);
+      return repository(session).completeNativeVoiceTurn(turnId, proof.visitorText, proof.responseId);
     },
     async terminalFailure(session: string, requestId: string, voice = false) {
       if (!await native.canDiscard(session, requestId, voice)) throw new Error('Uncertain native admission must not be released.');

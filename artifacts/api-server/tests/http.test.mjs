@@ -1,17 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// Run against the managed development workflows. Uses synthetic sessions only.
-const origin = 'http://localhost:80';
+// Run against managed development workflows, or an explicitly selected live host.
+// Creates isolated synthetic sessions and uses the host's existing model allowance.
+const target = new URL(process.env.SYNTRA_HTTP_ORIGIN || 'http://localhost:80');
+if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password ||
+    target.pathname !== '/' || target.search || target.hash) throw new Error('Choose an HTTP API origin without credentials or a path.');
+if (!['localhost', '127.0.0.1', '[::1]'].includes(target.hostname) && process.env.SYNTRA_HTTP_LIVE !== '1') {
+  throw new Error('Set SYNTRA_HTTP_LIVE=1 before invoking the selected live model/API.');
+}
+const origin = target.origin;
 function browser() {
-  let cookie = '';
+  const cookies = new Map();
   return async (path, method = 'GET', body, extraHeaders = {}) => {
     const response = await fetch(origin + '/api' + path, {
-      method, headers: { cookie, ...(body ? { 'content-type': 'application/json' } : {}), ...extraHeaders },
+      method, headers: { cookie: [...cookies].map(([name, value]) => `${name}=${value}`).join('; '), ...(body ? { 'content-type': 'application/json' } : {}), ...extraHeaders },
       body: body ? JSON.stringify(body) : undefined,
     });
-    const setCookie = response.headers.get('set-cookie');
-    if (setCookie) cookie = setCookie.split(';')[0];
+    // Deployed hosts also set routing cookies. Never discard the private session
+    // by treating multiple Set-Cookie headers as one comma-separated cookie.
+    for (const header of response.headers.getSetCookie()) {
+      const pair = header.split(';')[0];
+      const equal = pair.indexOf('=');
+      if (equal > 0) cookies.set(pair.slice(0, equal), pair.slice(equal + 1));
+    }
     return { status: response.status, headers: response.headers, body: await response.json() };
   };
 }
@@ -20,7 +32,7 @@ test('private Replit API, brief concurrency and real AI persistence', { timeout:
   const created = await a('/conversations', 'POST', { depth: 'detailed' });
   assert.equal(created.status, 201);
   const id = created.body.id;
-  console.info('Synthetic API test session:', id);
+  console.info('Created an isolated synthetic API test session.');
   await t.test('private cookie and no shared caching', () => {
     assert.match(created.headers.get('set-cookie'), /HttpOnly/i);
     assert.equal(created.headers.get('cache-control'), 'no-store');
@@ -54,7 +66,7 @@ test('private Replit API, brief concurrency and real AI persistence', { timeout:
   let reply;
   await t.test('real provider reply is atomic, grounded and persists on reload', async () => {
     reply = await a(`/conversations/${id}/messages`, 'POST', request);
-    assert.equal(reply.status, 200, JSON.stringify(reply.body));
+    assert.equal(reply.status, 200, 'The real consultation provider must complete the synthetic request.');
     assert.equal(reply.body.visitorMessage.content, request.content);
     assert.ok(reply.body.message.content.length > 30);
     assert.ok((reply.body.message.content.match(/\?/g) ?? []).length <= 1);
@@ -81,7 +93,7 @@ test('private Replit API, brief concurrency and real AI persistence', { timeout:
     const edit = await a(`/conversations/${id}/brief`, 'PATCH', { revision: current.body.revision, budget: '£10000' });
     assert.equal(edit.status, 200);
     const next = await pendingReply;
-    assert.equal(next.status, 200, JSON.stringify(next.body));
+    assert.equal(next.status, 200, 'The real provider must complete the depth-change request.');
     assert.equal(next.body.message.depth, 'deep_dive'); assert.equal(next.body.brief.budget, '£10000');
     assert.equal((await a(`/conversations/${id}`)).body.messages.length, 5);
     assert.ok(next.body.message.content.length > 200);

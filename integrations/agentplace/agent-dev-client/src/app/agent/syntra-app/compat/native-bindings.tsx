@@ -36,7 +36,7 @@ export function useAgentPlaceRuntime() {
           if (item.isReasoning || !item.content.trim() || item.content === '[user opened the agent]') return [];
           return [{ ...identity.identify(item, index), role, kind: 'text', text: item.content }];
         }
-        if (item.type === ContentType.Audio && role === 'visitor' && item.content.text?.trim()) {
+        if (item.type === ContentType.Audio && item.content.text?.trim()) {
           return [{ ...identity.identify(item, index), role, kind: 'audio', text: item.content.text }];
         }
         return [];

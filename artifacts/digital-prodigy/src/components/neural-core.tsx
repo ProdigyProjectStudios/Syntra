@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { useVisualActivity } from '@/hooks/use-visual-activity';
 
 export type CoreState = 'connecting' | 'idle' | 'speaking' | 'error';
 
@@ -51,6 +52,9 @@ type CoreProps = {
 export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNodes = 640, bloom: withBloom = true, still = false, className }: CoreProps) {
   const mobile = useMediaQuery('(max-width: 639px), (pointer: coarse)');
   const nodes = mobile ? Math.min(requestedNodes, 220) : requestedNodes;
+  const active = useVisualActivity();
+  const activeRef = useRef(active);
+  activeRef.current = active;
   const internalAmp = useRef(0);
   const ampRef = amplitude ?? internalAmp;
   const external = !!amplitude;
@@ -225,7 +229,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
     const frame = (now: number) => {
-      if ((document.hidden || !onScreen.current) && !still) { last = now; raf = requestAnimationFrame(frame); return; }
+      if ((document.hidden || !onScreen.current || !activeRef.current) && !still) { last = now; raf = requestAnimationFrame(frame); return; }
       if (mobile && !still && now - last < 1000 / 30) { raf = requestAnimationFrame(frame); return; }
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;

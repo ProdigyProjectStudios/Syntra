@@ -36,6 +36,14 @@ interface SavedTurn {
   reply: string;
 }
 
+interface SavedVoiceContext {
+  turnId: string;
+  depth: Depth;
+  createdAt: string;
+  /** Supplied only by the trusted native completion hook, never inferred from turnId. */
+  responseId?: string;
+}
+
 interface SyntraRecord {
   version: 1;
   createdAt: string;
@@ -47,7 +55,8 @@ interface SyntraRecord {
   pendingTurns: Record<string, PendingTurn>;
   voiceTurnIds: string[];
   voiceMessages: string[];
-  pendingVoice?: Record<string, { content: string; changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>; baseBrief: Brief }>;
+  voiceContexts?: SavedVoiceContext[];
+  pendingVoice?: Record<string, { content: string; depth?: Depth; createdAt?: string; changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>; baseBrief: Brief }>;
 }
 
 export interface SessionSnapshot {
@@ -101,6 +110,32 @@ function isDepth(value: unknown): value is Depth {
   return value === 'concise' || value === 'detailed' || value === 'deep_dive';
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+function isTimestamp(value: unknown): value is string {
+  return typeof value === 'string' && Number.isFinite(Date.parse(value));
+}
+function validVoiceMetadata(candidate: Partial<SyntraRecord>): boolean {
+  if (candidate.voiceContexts !== undefined) {
+    if (!Array.isArray(candidate.voiceContexts) || !candidate.voiceContexts.every(context =>
+      isPlainRecord(context) && typeof context.turnId === 'string' && !!context.turnId.trim() &&
+      isDepth(context.depth) && isTimestamp(context.createdAt) &&
+      (context.responseId === undefined || (typeof context.responseId === 'string' && !!context.responseId.trim())))) return false;
+    if (new Set(candidate.voiceContexts.map(context => context.turnId)).size !== candidate.voiceContexts.length) return false;
+    if (candidate.voiceContexts.some(context => !candidate.voiceTurnIds?.includes(context.turnId))) return false;
+  }
+  if (candidate.pendingVoice !== undefined) {
+    if (!isPlainRecord(candidate.pendingVoice)) return false;
+    for (const pending of Object.values(candidate.pendingVoice)) {
+      if (!isPlainRecord(pending) || typeof pending.content !== 'string' || !isPlainRecord(pending.changes) ||
+          (pending.depth !== undefined && !isDepth(pending.depth)) ||
+          (pending.createdAt !== undefined && !isTimestamp(pending.createdAt))) return false;
+    }
+  }
+  return true;
+}
+
 function isRecord(value: unknown): value is SyntraRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const candidate = value as Partial<SyntraRecord>;
@@ -113,7 +148,8 @@ function isRecord(value: unknown): value is SyntraRecord {
     !!candidate.brief &&
     Array.isArray(candidate.turns) &&
     !!candidate.pendingTurns &&
-    Array.isArray(candidate.voiceTurnIds)
+    Array.isArray(candidate.voiceTurnIds) &&
+    validVoiceMetadata(candidate)
   );
 }
 
@@ -361,8 +397,8 @@ export class SyntraConsultationRepository {
         createdAt: pending.createdAt,
         reply,
       });
-      if (record.turns.length === 1) record.title = titleFor(pending.content);
-      record.depth = pending.depth;
+      if (record.turns.length + record.voiceTurnIds.length === 1) record.title = titleFor(pending.content);
+      // beginTurn captured the requested depth. A later preference change must survive completion.
       delete record.pendingTurns[requestId];
       await this.#save(record);
       return record.brief;
@@ -374,7 +410,13 @@ export class SyntraConsultationRepository {
     if (!turnId || !content.trim() || content.length > 12000) throw new ConsultationError(400, 'A stable native voice turn and final visitor transcript are required.');
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
-      if (record.voiceTurnIds.includes(turnId)) return { brief: record.brief, depth: record.depth };
+      const completedIndex = record.voiceTurnIds.indexOf(turnId);
+      if (completedIndex >= 0) {
+        if (record.voiceMessages[completedIndex]?.trim() !== content.trim()) {
+          throw new ConsultationError(409, 'This voice turn was already completed with another transcript.');
+        }
+        return { brief: record.brief, depth: record.voiceContexts?.find(turn => turn.turnId === turnId)?.depth ?? record.depth };
+      }
       const prior = record.pendingVoice?.[turnId];
       if (prior && prior.content !== content) throw new ConsultationError(409, 'This voice turn is already bound to another transcript.');
       // Repeated tool calls belong to the existing reservation. Keep them resumable,
@@ -394,19 +436,28 @@ export class SyntraConsultationRepository {
       }
       record.pendingVoice ??= {};
       record.pendingVoice[turnId] = {
-        content, changes: { ...prior?.changes, ...changes },
+        content, depth: prior?.depth ?? record.depth, createdAt: prior?.createdAt ?? new Date().toISOString(),
+        changes: { ...prior?.changes, ...changes },
         baseBrief: prior?.baseBrief ?? structuredClone(record.brief),
       };
       await this.#save(record);
-      return { brief: record.brief, depth: record.depth };
+      return { brief: record.brief, depth: record.pendingVoice[turnId].depth! };
     });
   }
 
   /** Trusted host success hook only. Never invoke from a browser transcript/caption callback. */
-  async completeNativeVoiceTurn(turnId: string, verifiedVisitorText?: string): Promise<Brief> {
+  async completeNativeVoiceTurn(turnId: string, verifiedVisitorText?: string, responseId?: string): Promise<Brief> {
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
-      if (record.voiceTurnIds.includes(turnId)) return record.brief;
+      const completedIndex = record.voiceTurnIds.indexOf(turnId);
+      if (completedIndex >= 0) {
+        const context = record.voiceContexts?.find(turn => turn.turnId === turnId);
+        if ((verifiedVisitorText !== undefined && record.voiceMessages[completedIndex]?.trim() !== verifiedVisitorText.trim()) ||
+            (responseId && context?.responseId && context.responseId !== responseId)) {
+          throw new ConsultationError(409, 'This voice turn was already completed by another native response.');
+        }
+        return record.brief;
+      }
       const pending = record.pendingVoice?.[turnId];
       if (!pending) throw new ConsultationError(404, 'Native voice draft not found.');
       if (verifiedVisitorText !== undefined && pending.content.trim() !== verifiedVisitorText.trim()) {
@@ -414,13 +465,17 @@ export class SyntraConsultationRepository {
       }
       const changes = { ...pending.changes };
       for (const key of BRIEF_KEYS) {
-        if (pending.baseBrief[key] !== record.brief[key] ||
+        if (!pending.baseBrief || pending.baseBrief[key] !== record.brief[key] ||
             JSON.stringify(pending.baseBrief.provenance[key]) !== JSON.stringify(record.brief.provenance[key])) delete changes[key];
       }
       record.brief = mergeBrief(record.brief, { reply: '', changes, suggestedNextSteps: [] },
         [...record.turns.map(t => t.content), ...record.voiceMessages, pending.content], pending.content);
       record.voiceTurnIds.push(turnId);
       record.voiceMessages.push(pending.content);
+      record.voiceContexts ??= [];
+      record.voiceContexts.push({ turnId, depth: pending.depth ?? record.depth,
+        createdAt: pending.createdAt ?? new Date().toISOString(), ...(responseId ? { responseId } : {}) });
+      if (record.turns.length + record.voiceTurnIds.length === 1) record.title = titleFor(pending.content);
       // Keep receipts for the whole bounded consultation, not a sliding window that admits duplicates.
       delete record.pendingVoice![turnId];
       await this.#save(record);
@@ -457,7 +512,11 @@ export class SyntraConsultationRepository {
       updatedAt: record.updatedAt,
       messageCount: (record.turns.length + record.voiceTurnIds.length) * 2,
       brief: record.brief,
-      turns: record.turns.map(({ requestId, responseId, depth, createdAt, specialist }) => ({ requestId, responseId, depth, createdAt, specialist: normalizeSpecialist(specialist) })),
+      turns: [
+        ...record.turns.map(({ requestId, responseId, depth, createdAt, specialist }) => ({ requestId, responseId, depth, createdAt, specialist: normalizeSpecialist(specialist) })),
+        ...(record.voiceContexts ?? []).flatMap(turn => turn.responseId ? [{ requestId: turn.turnId,
+          responseId: turn.responseId, depth: turn.depth, createdAt: turn.createdAt, specialist: 'syntra' as const }] : []),
+      ],
     };
   }
 }

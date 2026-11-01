@@ -8,13 +8,13 @@ import {
 import { BRIEF_KEYS, ConsultationError, ConsultationService, normalizeSpecialist, type BriefFields } from "@workspace/consultation";
 import { SERVICE_AREAS, CONTACT_OPTIONS } from "../lib/advisor-data";
 import { replitAI } from "../lib/advisor-ai";
-import { repository } from "../lib/consultation-repository";
-import { createConversationAdmissionGate } from "../lib/conversation-admission";
+import { repository, repositoryForTransaction, withConsultationTransaction, type ConsultationTransaction } from "../lib/consultation-repository";
+import { pool, type DatabaseClient } from "@workspace/db";
+import { createPostgresConversationAdmissionGate } from "../lib/postgres-admission";
 import { privateSession } from "../middlewares/privacy";
 import { issueSpeechToken, speechConfiguration } from "../lib/speech-provider";
 
 const router: IRouter = Router();
-const service = new ConsultationService(repository, replitAI);
 router.get("/services", (_req, res) => { res.json(ListServicesResponse.parse(SERVICE_AREAS)); });
 router.get("/contact-options", (_req, res) => { res.json(ListContactOptionsResponse.parse(CONTACT_OPTIONS)); });
 router.get("/voice/config", (_req, res) => {
@@ -37,9 +37,9 @@ router.get("/conversations/:id", async (req, res) => {
   res.json(GetConversationResponse.parse(conversation));
 });
 
-// Bound model work within this process. Database transactions separately protect
-// committed message pairs/receipts; they do not lock the preceding model call.
-const admission = createConversationAdmissionGate();
+// Hold a PostgreSQL transaction advisory lock through model generation and receipt commit,
+// so autoscaled workers share the same admission boundary. No schema migration is needed.
+const admission = createPostgresConversationAdmissionGate<DatabaseClient, ConsultationTransaction>(pool, withConsultationTransaction);
 const rate = new Map<string, { count: number; until: number }>();
 router.post("/conversations/:id/messages", async (req, res) => {
   const { id } = SendMessageParams.parse(req.params);
@@ -49,19 +49,22 @@ router.post("/conversations/:id/messages", async (req, res) => {
   const key = `${owner}:${id}`;
   // Claim before any asynchronous receipt lookup: two requests can otherwise
   // both observe an idle session and enter the model after their lookups settle.
-  await admission.run(key, async () => {
-    const replay = await repository.replay(owner, id, input.data.requestId);
+  const reply = await admission.run(key, async transaction => {
+    const turnRepository = repositoryForTransaction(transaction);
+    const service = new ConsultationService(turnRepository, replitAI);
+    const replay = await turnRepository.replay(owner, id, input.data.requestId);
     if (replay) {
       if (replay.visitorMessage.content !== input.data.content || replay.visitorMessage.depth !== input.data.depth || normalizeSpecialist(replay.specialist) !== normalizeSpecialist(input.data.specialist)) throw new ConsultationError(409, "This request ID was already used for a different message.");
-      res.json(SendMessageResponse.parse(replay)); return;
+      return SendMessageResponse.parse(replay);
     }
     const now = Date.now();
     for (const [k, r] of rate) if (r.until < now) rate.delete(k);
     const limit = rate.get(owner) ?? { count: 0, until: now + 60000 };
     if (limit.count >= 12) { res.setHeader("Retry-After", "60"); throw new ConsultationError(429, "Please wait a minute before sending more messages."); }
     rate.set(owner, { ...limit, count: limit.count + 1 });
-    res.json(SendMessageResponse.parse(await service.send(owner, id, input.data)));
+    return SendMessageResponse.parse(await service.send(owner, id, input.data));
   });
+  res.json(reply);
 });
 router.get("/conversations/:id/brief", async (req, res) => {
   const { id } = GetBriefParams.parse(req.params);

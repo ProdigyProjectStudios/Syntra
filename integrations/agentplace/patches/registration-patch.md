@@ -56,7 +56,7 @@ Associate the visitor and advisor entries of a turn with the same canonical resp
 
 The repository rejects new typed reservations while native voice staging is pending and rejects new voice staging while another typed/voice turn is pending. Completed receipts and same-turn staging remain recoverable. The atomic storage gate and these guards protect staged work, but native voice staging starts inside a tool, after the provider model has already been admitted. The actual host must serialize typed/voice admissions across complete model lifetimes, including the interval before the first tool call. Test both arrival orders and terminal cancellation. Do not release reservations on a browser timeout or assume a storage mutex alone provides this model-lifetime guarantee.
 
-The current native transcript mapper only projects final/native text or visitor audio into the UI; hidden/reasoning/assistant audio playback is excluded. Confirm the host's actual role enum and AgentContent schema at native compile time. If its assistant role has another name, map that in `compat/native-bindings.tsx`, not in the shared UI. Native captions are display-only; never send them to `messages.send`.
+The native transcript mapper projects canonical native text or audio transcripts for both visitor and advisor into the UI. It prefers text when an audio transcript mirrors the same response/role, so an audio-only reply remains visible without becoming a second message. Hidden/reasoning content and audio without transcript text are excluded. Pass only canonical stored AgentContent through this boundary; transient playback captions are not a transcript source. Confirm the host's actual role enum and AgentContent schema at native compile time. If its assistant role has another name, map that in `compat/native-bindings.tsx`, not in the shared UI. Native captions are display-only; never send them to `messages.send`.
 
 The platform must already authenticate and derive `ctx.sessionKey`. A procedure named `publicProcedure` is not proof of trusted authentication: verify the existing middleware derives a non-forgeable native session. Never accept session identity from the request body or expose private record paths.
 
@@ -85,3 +85,20 @@ Keep the native React root, rail, dock, controller, scroll/session state and Sta
 ## Required native verification before deployment
 
 Run the actual client/server typechecks/builds in the AgentPlace workspace; verify trusted auth and atomic gate semantics; test browser disconnect during response, replay, cancellation, manual edit during generation, voice interruption/reconnect, session switch and 375px layout. This reconciliation does not claim those unavailable native SDK checks have already passed.
+
+
+### Native voice history and response depth
+
+Pass the canonical native response ID as `voiceCompleted(...).responseId` when the
+host SDK provides it. This is distinct from the tool's native turn ID; never
+invent a response ID or assume the two identities match. The repository stores
+that trusted mapping with the depth captured at first tool staging, so later
+response-depth changes do not relabel the saved spoken exchange. Legacy records
+without this metadata remain readable and use the existing session-depth fallback.
+A native turn already in progress retains its original depth; a preference change
+applies to following turns. Typed completion likewise preserves a newer preference.
+
+The repository still requires the host's native admission gate before model
+execution and trusted terminal lifecycle evidence. Browser disconnect and timeout
+are not terminal-failure proof. None of these transfer changes connects Azure to
+AgentPlace or changes the free Luna requirement.

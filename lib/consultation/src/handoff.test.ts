@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { briefCompleteness, formatProjectBrief, safeContactHref, HandoffCoordinator, readEnquiryAttempt, saveEnquiryAttempt, type EnquiryInput } from "./handoff.ts";
+import { briefCompleteness, formatProjectBrief, safeContactHref, HandoffCoordinator, readEnquiryAttempt, saveEnquiryAttempt, validateEnquiry, type EnquiryInput } from "./handoff.ts";
 import { EMPTY_FIELDS, type Brief } from "./types.ts";
 
 const brief: Brief = { ...EMPTY_FIELDS, revision: 3, objective: "Reduce manual follow-up", budget: "£7,000", service: "AI automation systems",
@@ -88,4 +88,58 @@ test("unsafe saved attempts fail explicitly and unconsented details are never ca
 });
 test("a truthy string is not explicit consent", async () => {
   await assert.rejects(new HandoffCoordinator().submit({ ...input, consent: "yes" as unknown as boolean }), { code: "consent" });
+});
+
+test("an unconfirmed provider outcome cannot reuse its request ID for a changed enquiry", async () => {
+  const coordinator = new HandoffCoordinator();
+  let calls = 0;
+  const gateway = { submitEnquiry: async () => { calls++; throw Error("Lost acknowledgement"); } };
+  await assert.rejects(coordinator.submit(input, gateway));
+  await assert.rejects(coordinator.submit({ ...input, brief: { ...input.brief, budget: "£25,000" } }, gateway), { code: "collision" });
+  assert.equal(calls, 1);
+  await assert.rejects(coordinator.submit(input, gateway), /Lost acknowledgement/);
+  assert.equal(calls, 2, "Only the original reviewed intent can be retried");
+});
+
+test("admission snapshots protect consented fields from caller mutation", async () => {
+  const candidate = { ...input, brief: { ...input.brief } };
+  let received: EnquiryInput | undefined;
+  const pending = new HandoffCoordinator().submit(candidate, { submitEnquiry: async value => {
+    received = value;
+    assert.ok(Object.isFrozen(value));
+    assert.ok(Object.isFrozen(value.brief));
+    return { status: "confirmed", reference: "reviewed-original" };
+  } });
+  candidate.brief.objective = "A different project";
+  candidate.name = "Different person";
+  candidate.requestId = "different-request";
+  await pending;
+  assert.equal(received?.brief.objective, input.brief.objective);
+  assert.equal(received?.name, input.name);
+  assert.equal(received?.requestId, input.requestId);
+  assert.deepEqual(Object.keys(received!.brief).sort(), Object.keys(EMPTY_FIELDS).sort());
+});
+
+test("receipt consumers cannot change a cached provider reference", async () => {
+  const coordinator = new HandoffCoordinator();
+  let calls = 0;
+  const gateway = { submitEnquiry: async () => { calls++; return { status: "confirmed" as const, reference: "original-reference" }; } };
+  const [first, second] = await Promise.all([coordinator.submit(input, gateway), coordinator.submit(input, gateway)]);
+  first.reference = "changed";
+  assert.equal(second.reference, "original-reference");
+  assert.equal((await coordinator.submit(input, gateway)).reference, "original-reference");
+  assert.equal(calls, 1);
+});
+
+test("malformed or oversized saved enquiry fields fail closed", () => {
+  for (const malformed of [
+    { ...input, name: null }, { ...input, email: 3 }, { ...input, note: {} },
+    { ...input, requestId: 12345678 }, { ...input, brief: null },
+    { ...input, brief: { ...input.brief, budget: 5000 } },
+    { ...input, brief: { ...input.brief, requirements: "x".repeat(4001) } },
+  ]) {
+    assert.throws(() => validateEnquiry(malformed as unknown as EnquiryInput), { code: "details" });
+    const storage = { getItem: () => JSON.stringify({ input: malformed, state: "pending" }), setItem: () => {} };
+    assert.throws(() => readEnquiryAttempt(storage, "scope", input.conversationId), { code: "unconfirmed" });
+  }
 });

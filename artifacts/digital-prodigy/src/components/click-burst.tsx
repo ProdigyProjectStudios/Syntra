@@ -138,5 +138,5 @@ export function ClickBurst() {
     };
   }, []);
 
-  return <canvas ref={ref} aria-hidden className="pointer-events-none fixed inset-0 z-[70] h-full w-full" />;
+  return <canvas ref={ref} data-visual-layer="interaction" aria-hidden className="pointer-events-none fixed inset-0 z-[70] h-full w-full" />;
 }

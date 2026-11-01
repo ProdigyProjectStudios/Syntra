@@ -235,6 +235,7 @@ export function NeuralField({ energy = 0, paused = false }: { energy?: number; p
   return (
     <canvas
       ref={ref}
+      data-visual-layer="ambient"
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 opacity-90"
       style={{ maskImage: 'radial-gradient(120% 100% at 50% 40%, #000 30%, rgba(0,0,0,.35) 80%)', WebkitMaskImage: 'radial-gradient(120% 100% at 50% 40%, #000 30%, rgba(0,0,0,.35) 80%)' }}

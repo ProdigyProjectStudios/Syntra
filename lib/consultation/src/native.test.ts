@@ -331,11 +331,11 @@ test("native text/audio mirrors produce one visitor message and preserve existin
   const after = transcript.read([part(), part({ key: "audio1", kind: "audio" }), part({ key: "answer", role: "advisor", text: "Question?" })], "concise");
   assert.deepEqual(after[0], before[0]); assert.equal(after.length, 2);
 });
-test("hidden/reasoning/audio playback is not another advisor transcript", () => {
+test("hidden/reasoning and audio without a transcript never create visible messages", () => {
   const transcript = new NativeTranscript();
   assert.equal(transcript.read([
     part({ hidden: true }), part({ reasoning: true }),
-    part({ role: "advisor", kind: "audio" }),
+    part({ role: "advisor", kind: "audio", text: "" }),
   ], "detailed").length, 0);
 });
 test("streamed updates replace a native part without duplicates or dropping repeated distinct parts", () => {
@@ -370,4 +370,97 @@ test("native completion waits for its canonical pair instead of fabricating a vi
   assert.equal(nativeTranscriptPair(entries, "current"), null);
   assert.equal(nativeTranscriptPair(entries, "missing"), null);
   assert.equal(nativeTranscriptPair([], "current"), null);
+});
+
+
+test("canonical audio-only native exchanges remain visible and text mirrors replace without duplication", () => {
+  const transcript = new NativeTranscript();
+  const audio = [part({ key: "heard", kind: "audio" }),
+    part({ key: "spoken", role: "advisor", kind: "audio", text: "A focused portal fits." })];
+  const first = transcript.read(audio, "concise");
+  const pair = nativeTranscriptPair(first, "response1")!;
+  assert.equal(first.length, 2);
+  assert.equal(pair.message.content, "A focused portal fits.");
+  const mirrored = transcript.read([...audio,
+    part({ key: "written", role: "advisor", text: "A focused portal fits. What needs approval?" })], "concise");
+  assert.equal(mirrored.length, 2);
+  assert.equal(mirrored[1].message.id, pair.message.id);
+  assert.equal(mirrored[1].message.content, "A focused portal fits. What needs approval?");
+});
+
+test("native completion preserves a response-depth preference changed during generation", async () => {
+  const { repo } = await reserve("depth-changed-during-generation");
+  await repo.attachResponseId("request_native_1", "response1");
+  await repo.ensureSession("concise");
+  await repo.completeTurn("request_native_1", "response1", "Here is the detailed comparison.", "Budget £6000");
+  const snapshot = await repo.get(1);
+  assert.equal(snapshot.depth, "concise", "The next response uses the visitor's latest preference");
+  assert.equal(snapshot.turns[0].depth, "deep_dive", "The completed response keeps its admitted depth");
+});
+
+test("native voice receipts preserve admitted depth, first title and canonical response identity across reload", async () => {
+  const storage = new Memory();
+  const repo = new SyntraConsultationRepository(storage, "voice-depth-receipt");
+  await repo.ensureSession("deep_dive");
+  assert.equal((await repo.stageNativeVoiceChanges("voice-context", "Plan an approvals portal", {})).depth, "deep_dive");
+  await repo.ensureSession("concise");
+  assert.equal((await repo.stageNativeVoiceChanges("voice-context", "Plan an approvals portal", {})).depth, "deep_dive");
+  await repo.completeNativeVoiceTurn("voice-context", "Plan an approvals portal", "native-response-context");
+  const resumed = new SyntraConsultationRepository(storage, "voice-depth-receipt");
+  const snapshot = await resumed.get(1);
+  assert.equal(snapshot.depth, "concise");
+  assert.equal(snapshot.title, "Plan an approvals portal");
+  assert.equal(snapshot.messageCount, 2);
+  assert.equal(snapshot.turns[0].responseId, "native-response-context");
+  assert.equal(snapshot.turns[0].depth, "deep_dive");
+  assert.equal((await resumed.stageNativeVoiceChanges("voice-context", "Plan an approvals portal", {})).depth, "deep_dive");
+  await assert.rejects(resumed.stageNativeVoiceChanges("voice-context", "A different transcript", {}), { status: 409 });
+  await assert.rejects(resumed.completeNativeVoiceTurn("voice-context", "A different transcript"), { status: 409 });
+  await assert.rejects(resumed.completeNativeVoiceTurn("voice-context", "Plan an approvals portal", "another-response"), { status: 409 });
+  await resumed.beginTurn(1, "typed_after_first_voice", "Discuss integrations", "detailed");
+  await resumed.attachResponseId("typed_after_first_voice", "typed-response");
+  await resumed.completeTurn("typed_after_first_voice", "typed-response", "We can connect the systems.");
+  assert.equal((await resumed.get(1)).title, "Plan an approvals portal", "Switching mode does not replace the first-turn title");
+});
+
+
+test("native optional voice metadata rejects corruption without rewriting the stored record", async () => {
+  const mutations = [
+    (record: Record<string, unknown>) => { record.voiceContexts = {}; },
+    (record: Record<string, unknown>) => { record.voiceContexts = [{ turnId: "voice", depth: "invalid", createdAt: visitor.createdAt }]; },
+    (record: Record<string, unknown>) => { record.voiceContexts = [{ turnId: "voice", depth: "concise", createdAt: visitor.createdAt, responseId: 12 }]; },
+    (record: Record<string, unknown>) => { record.pendingVoice = { voice: { content: "Plan a portal", changes: {}, depth: "invalid" } }; },
+    (record: Record<string, unknown>) => { record.pendingVoice = { voice: { content: "Plan a portal", changes: {}, createdAt: "not-a-date" } }; },
+  ];
+  for (const [index, mutate] of mutations.entries()) {
+    const storage = new Memory();
+    const repo = new SyntraConsultationRepository(storage, `invalid-metadata-${index}`);
+    await repo.ensureSession();
+    for (const [path, raw] of storage.files) {
+      const record = JSON.parse(raw);
+      mutate(record);
+      const corrupted = JSON.stringify(record);
+      storage.files.set(path, corrupted);
+      await assert.rejects(repo.get(1), /Invalid Syntra consultation record/);
+      assert.equal(storage.files.get(path), corrupted, "A malformed record is never silently discarded or replaced");
+    }
+  }
+});
+
+test("legacy native voice drafts without new depth metadata remain recoverable", async () => {
+  const storage = new Memory();
+  const repo = new SyntraConsultationRepository(storage, "legacy-voice-metadata");
+  await repo.ensureSession("concise");
+  await repo.stageNativeVoiceChanges("legacy-voice", "Plan a portal", {});
+  for (const [path, raw] of storage.files) {
+    const record = JSON.parse(raw);
+    delete record.voiceContexts;
+    delete record.pendingVoice["legacy-voice"].depth;
+    delete record.pendingVoice["legacy-voice"].createdAt;
+    storage.files.set(path, JSON.stringify(record));
+  }
+  const resumed = new SyntraConsultationRepository(storage, "legacy-voice-metadata");
+  await resumed.completeNativeVoiceTurn("legacy-voice", "Plan a portal");
+  assert.equal((await resumed.get(1)).messageCount, 2);
+  assert.equal((await resumed.get(1)).depth, "concise");
 });

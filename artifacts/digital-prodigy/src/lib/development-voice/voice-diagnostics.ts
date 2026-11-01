@@ -12,7 +12,7 @@ type Trace = { queued: number; admitted?: number; reply?: number; retried?: bool
 const STAGES = [
   'connection.open', 'connection.ready', 'connection.state', 'connection.close', 'connection.failed',
   'authorization.ready', 'authorization.refresh', 'authorization.failed',
-  'capture.requested', 'capture.ready', 'capture.sample', 'capture.ended', 'capture.muted',
+  'capture.requested', 'capture.ready', 'capture.sample', 'capture.ended', 'capture.muted', 'capture.interrupted',
   'audio.state', 'recognition.starting', 'recognition.ready', 'recognition.retiring',
   'recognition.retired', 'recognition.speech-start', 'recognition.speech-end',
   'recognition.interim', 'recognition.final', 'recognition.no-match', 'recognition.duplicate',

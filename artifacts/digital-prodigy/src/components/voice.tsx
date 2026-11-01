@@ -23,10 +23,10 @@ function captionMatches(previous: Caption | null, next: Caption) {
     previous?.text === next.text && previous?.final === next.final;
 }
 
-export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: boolean; onClose: () => void; onConnectionFailed?: () => void }) {
   const { runtime, native, scope } = useRuntime();
   const { getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey } = useRuntimeKeys();
-  const { ensureConversation, depth } = useAdvisor();
+  const { ensureVoiceConversation: ensureConversation, depth } = useAdvisor();
   const qc = useQueryClient();
   const reduceMotion = useReducedMotion();
   const compact = useMediaQuery('(max-width: 639px)');
@@ -47,6 +47,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   const connectionRef = useRef<VoiceConnection | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
   const previousCaptionRef = useRef<Caption | null>(null);
@@ -56,6 +57,11 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   const specialistRef = useRef(specialist);
   specialistRef.current = specialist;
   const switchingRef = useRef(false);
+  const retryPreparation = useRef<AbortController | null>(null);
+  const connectionFailed = useRef(onConnectionFailed);
+  connectionFailed.current = onConnectionFailed;
+
+  useEffect(() => () => { retryPreparation.current?.abort(); retryPreparation.current = null; }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -143,6 +149,10 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           setConnection(connected);
         }
       } catch (error) {
+        if (!controller.signal.aborted) {
+          retryPreparation.current?.abort(); retryPreparation.current = null;
+          connectionFailed.current?.();
+        }
         if (!controller.signal.aborted && !lifecycle.closeFailed &&
             !(lifecycle.closed && error instanceof Error && error.name === 'AbortError')) {
           const detail = { message: error instanceof Error ? error.message : 'Voice could not connect. Your consultation is still available in chat.' };
@@ -162,9 +172,10 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
   useEffect(() => {
     if (!open || !stageRef.current) return;
     const stage = stageRef.current;
-    const resize = () => setSize(Math.round(Math.max(100, Math.min(stage.clientWidth * 0.92, stage.clientHeight - 140, 560))));
+    const resize = () => setSize(Math.round(Math.max(64, Math.min(stage.clientWidth * 0.92, stage.clientHeight - (detailsRef.current?.offsetHeight ?? 140) + 16, 560))));
     const observer = new ResizeObserver(resize);
     observer.observe(stage);
+    if (detailsRef.current) observer.observe(detailsRef.current);
     resize();
     window.addEventListener('resize', resize);
     return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
@@ -241,7 +252,13 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
     const retry = failure.recovery === 'turn' ? current?.retryTurn : failure.recovery === 'playback' ? current?.retryPlayback : undefined;
     // Ambiguous sends must be recovered through their original connection and request ID.
     if (failure.recovery && !retry) return;
-    if (!failure.recovery) { setAttempt(value => value + 1); return; }
+    if (!failure.recovery) {
+      retryPreparation.current?.abort();
+      const preparation = new AbortController();
+      retryPreparation.current = preparation;
+      runtime.voice.prepare?.(preparation.signal);
+      setAttempt(value => value + 1); return;
+    }
     const previousFailure = failure;
     setControlPending(true); setFailure(null);
     try { await retry!.call(current); }
@@ -299,7 +316,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
     <AnimatePresence>
       {open && (
         <motion.div ref={dialogRef}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: reduceMotion ? 0 : .4 } }}
           transition={{ duration: reduceMotion ? 0 : .55, ease: [0.16, 1, 0.3, 1] }}
@@ -312,7 +329,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
             style={{ background: 'radial-gradient(60% 55% at 50% 45%, rgba(29,78,216,.16), rgba(34,211,238,.05) 40%, transparent 70%)' }} />
           <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.75))' }} />
 
-          <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 sm:px-8 sm:py-5">
+          <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 sm:px-8 sm:py-5" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
             <div className="flex min-w-0 items-center gap-2.5 font-mono text-[9px] uppercase tracking-[.22em] text-white/45 sm:text-[10px] sm:tracking-[.3em]">
               <span className="relative flex h-1.5 w-1.5 shrink-0">
                 <span className={cn('absolute inset-0 rounded-full', failure ? 'bg-rose-400' : 'bg-primary', available && !failure && !muted && 'motion-safe:animate-ping opacity-60')} />
@@ -330,7 +347,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
           <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
             lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
 
-          <div ref={stageRef} className="absolute inset-x-0 flex min-h-0 flex-col items-center justify-center sm:left-20 sm:right-2 lg:left-0 lg:right-0" style={{ top: compact ? 132 : 68, bottom: stageBottom }}>
+          <div ref={stageRef} className="absolute inset-x-0 flex min-h-0 flex-col items-center justify-center sm:left-20 sm:right-2 lg:left-0 lg:right-0" style={{ top: `calc(${compact ? 132 : 68}px + env(safe-area-inset-top))`, bottom: `calc(${stageBottom}px + env(safe-area-inset-bottom))` }}>
             <motion.div initial={reduceMotion ? false : { scale: .94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: reduceMotion ? 0 : 1, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none relative z-[5] shrink-0">
               <motion.div animate={{ filter: `hue-rotate(${failure ? 0 : visual.hue}deg)` }} transition={{ duration: reduceMotion ? 0 : .55 }}>
@@ -341,7 +358,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
                 transition={{ duration: reduceMotion ? 0 : .6 }} style={{ borderTopColor: `${visual.color}55`, borderBottomColor: `${visual.color}18` }} />
             </motion.div>
 
-            <div className="relative z-10 -mt-4 w-full max-w-2xl px-6 text-center sm:-mt-6">
+            <div ref={detailsRef} className="relative z-10 -mt-4 w-full max-w-2xl shrink-0 px-6 text-center sm:-mt-6">
               <div className="mb-3" data-testid="voice-active-specialist">
                 <motion.p key={profile.id} initial={reduceMotion ? false : { opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduceMotion ? 0 : .24 }} className="font-display text-[15px] font-light tracking-[.18em]" style={{ color: visual.color }}>{profile.name}</motion.p>
@@ -382,7 +399,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
             </div>
           </div>
 
-          <div className={cn('absolute inset-x-0 z-10 flex flex-col items-center gap-3 px-4', discloseProvider ? 'bottom-14' : 'bottom-7 sm:bottom-8')}>
+          <div className={cn('absolute inset-x-0 z-10 flex flex-col items-center gap-3 px-4', discloseProvider ? 'bottom-[calc(3.5rem+env(safe-area-inset-bottom))]' : 'bottom-[calc(1.75rem+env(safe-area-inset-bottom))] sm:bottom-[calc(2rem+env(safe-area-inset-bottom))]')}>
             {canRecover && <button onClick={() => void recover()} disabled={controlPending} data-testid="button-retry-voice"
               className="flex items-center gap-2 rounded-full border border-primary/30 bg-[#04030B]/85 px-5 py-2.5 text-sm text-primary transition hover:bg-primary/10 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
               <RotateCw className={cn('h-4 w-4', controlPending && 'motion-safe:animate-spin')} strokeWidth={1.5} /> {controlPending ? 'Recovering…' : recoveryLabel}
@@ -405,7 +422,7 @@ export function VoiceConsole({ open, onClose }: { open: boolean; onClose: () => 
               </button>
             </div>
           </div>
-          <div className="absolute inset-x-5 bottom-2 z-10 text-center" data-testid="status-voice-session">
+          <div className="absolute inset-x-5 bottom-[calc(.5rem+env(safe-area-inset-bottom))] z-10 text-center" data-testid="status-voice-session">
             <div className="flex items-center justify-center gap-1.5 font-mono text-[8px] uppercase tracking-[.2em] text-white/25">
               {available && <Volume2 className="h-2.5 w-2.5" />}
               {available ? native ? 'AgentPlace native voice · shared consultation' : 'Voice · shared consultation' : 'No audio connection'}

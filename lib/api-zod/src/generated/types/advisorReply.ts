@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { Blueprint } from './blueprint';
 import type { Brief } from './brief';
 import type { Message } from './message';
 import type { SpecialistId } from './specialistId';
@@ -14,5 +15,6 @@ export interface AdvisorReply {
   visitorMessage: Message;
   message: Message;
   brief: Brief;
+  blueprint?: Blueprint;
   suggestedNextSteps: string[];
 }

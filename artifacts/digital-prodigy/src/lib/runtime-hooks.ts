@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { BriefFields } from '@workspace/consultation';
+import type { BriefFields, Blueprint } from '@workspace/consultation';
 import { useRuntime, useRuntimeKeys } from './runtime-context';
 
 export function useListServices() {
@@ -25,4 +25,12 @@ export function useGetBrief(id: number) {
 export function useUpdateBrief() {
   const { runtime } = useRuntime();
   return useMutation({ mutationFn: ({ id, data: { revision, ...changes } }: { id: number; data: Partial<BriefFields> & { revision: number } }) => runtime.briefs.update(id, changes, revision) });
+}
+
+export function useGetBlueprint(id: number) {
+  const { runtime } = useRuntime();
+  const { getGetBlueprintQueryKey } = useRuntimeKeys();
+  return useQuery({ queryKey: getGetBlueprintQueryKey(id), queryFn: ({ signal }) => runtime.blueprints!.get(id, signal),
+    enabled: id > 0 && Boolean(runtime.blueprints), refetchOnWindowFocus: true, refetchInterval: 15000,
+    structuralSharing: (previous, next) => previous && (previous as Blueprint).version > (next as Blueprint).version ? previous : next });
 }

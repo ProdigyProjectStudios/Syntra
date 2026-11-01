@@ -1,6 +1,6 @@
 import express, { type Express, type ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
-import { ConsultationError } from "@workspace/consultation";
+import { ConsultationError, BlueprintVersionConflict, BlueprintChangeRejected } from "@workspace/consultation";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -36,7 +36,7 @@ const handleError: ErrorRequestHandler = (error, req, res, _next) => {
   const status = error instanceof ConsultationError ? error.status : error.name === "ZodError" || error.type === "entity.parse.failed" ? 400 : error.status === 413 ? 413 : 502;
   // Never log transcripts, provider request bodies, cookies or personal brief data.
   req.log.warn({ status, errorType: error.name ?? "Error" }, "Consultation request failed");
-  res.status(status).json({ error: error instanceof ConsultationError ? error.message : status === 400 ? "Invalid request." : status === 413 ? "Request too large." : "The advisor could not complete this request. Your saved data is unchanged; please retry." });
+  res.status(status).json({ ...(error instanceof BlueprintVersionConflict || error instanceof BlueprintChangeRejected ? { code: error.code } : {}), error: error instanceof ConsultationError ? error.message : status === 400 ? "Invalid request." : status === 413 ? "Request too large." : "The request outcome could not be confirmed. Your saved conversation is available; retry the original request to confirm its outcome." });
 };
 app.use(handleError);
 

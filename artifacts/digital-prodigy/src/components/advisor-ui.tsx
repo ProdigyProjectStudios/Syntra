@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUp, ArrowUpRight, RotateCw } from 'lucide-react';
 import { useListConversations } from '@/lib/runtime-hooks';
-import type { Message } from '@workspace/consultation';
+import { getSpecialistProfile, type Message } from '@workspace/consultation';
 import { formatDistanceToNow } from 'date-fns';
 import { DEPTHS, useAdvisor } from '@/lib/advisor';
 import { NeuralCore } from '@/components/neural-core';
@@ -81,7 +81,8 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
 
 /* ---------- Composer ---------- */
 export function Composer({ onSpeak }: { onSpeak: () => void }) {
-  const { send, sending, depth } = useAdvisor();
+  const { send, sending, depth, specialist } = useAdvisor();
+  const profile = getSpecialistProfile(specialist);
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
   const [wake, setWake] = useState(false);
@@ -145,12 +146,12 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
                 submit();
               }
             }}
-            placeholder={mobile ? 'Message Syntra…' : 'What are you thinking of building?'}
+            placeholder={mobile ? `Message ${profile.name}…` : specialist === 'syntra' ? 'What are you thinking of building?' : `Explore your project with ${profile.name}…`}
             aria-label="Message the advisor"
             className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin sm:py-3 sm:text-[15px] sm:leading-relaxed"
           />
           <div className="hidden sm:flex items-center self-center pr-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">
-            {DEPTHS.find((d) => d.id === depth)?.label}
+            {profile.name} / {DEPTHS.find((d) => d.id === depth)?.label}
           </div>
           <button
             type="button"

@@ -191,6 +191,84 @@ paths:
         "404":
           description: Not found
 
+  /conversations/{id}/blueprint:
+    get:
+      operationId: getBlueprint
+      tags: [advisor]
+      summary: Read the session's solution blueprint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Versioned solution blueprint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Blueprint"
+        "404":
+          description: Conversation not found
+    patch:
+      operationId: updateBlueprint
+      tags: [advisor]
+      summary: Save a version-checked visitor correction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlueprintUpdate"
+      responses:
+        "200":
+          description: Saved blueprint with edit provenance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Blueprint"
+        "404":
+          description: Conversation not found
+        "409":
+          description: Blueprint changed or request identity conflicts
+
+  /conversations/{id}/blueprint/regenerate:
+    post:
+      operationId: regenerateBlueprint
+      tags: [advisor]
+      summary: Update blueprint from the canonical brief
+      description: Synchronizes brief-derived content and preserves visitor edits and specialist contributions. It does not invoke another model or provision integrations.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlueprintRegenerate"
+      responses:
+        "200":
+          description: Updated solution blueprint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Blueprint"
+        "404":
+          description: Conversation not found
+        "409":
+          description: Blueprint changed or request identity conflicts
+
   /voice/sessions:
     post:
       operationId: createVoiceSession
@@ -311,6 +389,8 @@ components:
             $ref: "#/components/schemas/Message"
         brief:
           $ref: "#/components/schemas/Brief"
+        blueprint:
+          $ref: "#/components/schemas/Blueprint"
       required:
         - id
         - title
@@ -380,6 +460,8 @@ components:
           $ref: "#/components/schemas/Message"
         brief:
           $ref: "#/components/schemas/Brief"
+        blueprint:
+          $ref: "#/components/schemas/Blueprint"
         suggestedNextSteps:
           type: array
           items:
@@ -500,3 +582,329 @@ components:
         - conversationId
         - transport
         - detail
+
+    BlueprintSectionKey:
+      type: string
+      enum:
+      - objectives
+      - services
+      - architecture
+      - integrations
+      - workflows
+      - roadmap
+      - risks
+      - tradeoffs
+      - value
+      - decisions
+    BlueprintStatus:
+      type: string
+      enum:
+      - confirmed
+      - recommendation
+      - assumption
+      - manual
+    BlueprintDetail:
+      type: object
+      properties:
+        label:
+          type: string
+          maxLength: 60
+        value:
+          type: string
+          maxLength: 300
+      required:
+      - label
+      - value
+    BlueprintQuantity:
+      type: object
+      properties:
+        value:
+          type: number
+          minimum: 0
+        status:
+          type: string
+          enum:
+          - confirmed
+          - assumption
+        evidence:
+          type: string
+          maxLength: 2000
+      required:
+      - value
+      - status
+      - evidence
+    BlueprintCalculation:
+      type: object
+      properties:
+        monthlyVolume:
+          $ref: '#/components/schemas/BlueprintQuantity'
+        minutesBefore:
+          $ref: '#/components/schemas/BlueprintQuantity'
+        minutesAfter:
+          $ref: '#/components/schemas/BlueprintQuantity'
+        hourlyCost:
+          $ref: '#/components/schemas/BlueprintQuantity'
+        currency:
+          type: string
+          maxLength: 12
+      required:
+      - monthlyVolume
+      - minutesBefore
+      - minutesAfter
+    BlueprintItem:
+      type: object
+      properties:
+        id:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+          maxLength: 160
+        detail:
+          type: string
+          maxLength: 1200
+        status:
+          $ref: '#/components/schemas/BlueprintStatus'
+        evidence:
+          type: string
+          maxLength: 2000
+        specialist:
+          $ref: '#/components/schemas/SpecialistId'
+        source:
+          type: string
+          enum:
+          - brief
+          - specialist
+          - manual
+        reviewRequired:
+          type: boolean
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlueprintDetail'
+          maxItems: 6
+        calculation:
+          $ref: '#/components/schemas/BlueprintCalculation'
+      required:
+      - id
+      - title
+      - detail
+      - status
+      - evidence
+      - specialist
+      - source
+    BlueprintHistoryItem:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 160
+        detail:
+          type: string
+          maxLength: 240
+        status:
+          $ref: '#/components/schemas/BlueprintStatus'
+      required:
+      - title
+      - detail
+      - status
+    BlueprintChangeRecord:
+      type: object
+      properties:
+        section:
+          $ref: '#/components/schemas/BlueprintSectionKey'
+        itemId:
+          type: string
+          maxLength: 80
+        before:
+          anyOf:
+          - $ref: '#/components/schemas/BlueprintHistoryItem'
+          - type: 'null'
+        after:
+          anyOf:
+          - $ref: '#/components/schemas/BlueprintHistoryItem'
+          - type: 'null'
+      required:
+      - section
+      - itemId
+      - before
+      - after
+    BlueprintVersion:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        source:
+          type: string
+          enum:
+          - brief
+          - specialist
+          - manual
+          - regenerate
+        specialist:
+          $ref: '#/components/schemas/SpecialistId'
+        changedSections:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlueprintSectionKey'
+          maxItems: 10
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlueprintChangeRecord'
+          maxItems: 24
+      required:
+      - version
+      - createdAt
+      - source
+      - specialist
+      - changedSections
+      - changes
+    Blueprint:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        briefRevision:
+          type: integer
+          minimum: 0
+        updatedAt:
+          type: string
+          description: ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.
+        sections:
+          type: object
+          properties:
+            objectives:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            services:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            architecture:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            integrations:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            workflows:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            roadmap:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            risks:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            tradeoffs:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            value:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+            decisions:
+              type: array
+              items:
+                $ref: '#/components/schemas/BlueprintItem'
+              maxItems: 8
+          required:
+          - objectives
+          - services
+          - architecture
+          - integrations
+          - workflows
+          - roadmap
+          - risks
+          - tradeoffs
+          - value
+          - decisions
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlueprintVersion'
+          maxItems: 5
+        removedItemIds:
+          type: array
+          items:
+            type: string
+            maxLength: 100
+      required:
+      - version
+      - briefRevision
+      - updatedAt
+      - sections
+      - history
+      - removedItemIds
+    BlueprintEdit:
+      type: object
+      properties:
+        section:
+          $ref: '#/components/schemas/BlueprintSectionKey'
+        itemId:
+          type: string
+          maxLength: 80
+        title:
+          type: string
+          maxLength: 160
+        detail:
+          type: string
+          maxLength: 1200
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlueprintDetail'
+          maxItems: 6
+        remove:
+          type: boolean
+      required:
+      - section
+      - itemId
+    BlueprintRegenerate:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+      required:
+      - version
+      - requestId
+    BlueprintUpdate:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        requestId:
+          type: string
+          format: uuid
+        edit:
+          $ref: '#/components/schemas/BlueprintEdit'
+      required:
+      - version
+      - requestId
+      - edit

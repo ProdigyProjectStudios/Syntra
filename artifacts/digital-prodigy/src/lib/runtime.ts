@@ -1,6 +1,7 @@
 import {
   listConversations, createConversation, getConversation, sendMessage, getBrief, updateBrief,
   listServices, listContactOptions,
+  getBlueprint, updateBlueprint, regenerateBlueprint,
 } from '@workspace/api-client-react';
 import type { ConsultationRuntime } from '@workspace/consultation';
 import { createLazyAzureVoiceAdapter } from './development-voice/lazy-adapter';
@@ -20,6 +21,11 @@ export const replitRuntime: ConsultationRuntime = {
   briefs: {
     get: (id, signal) => getBrief(id, { signal }),
     update: (id, changes, revision) => updateBrief(id, { ...changes, revision }),
+  },
+  blueprints: {
+    get: (id, signal) => getBlueprint(id, { signal }),
+    update: (id, input) => updateBlueprint(id, input),
+    regenerate: (id, input) => regenerateBlueprint(id, input),
   },
   services: () => listServices(),
   booking: { contacts: () => listContactOptions() },

@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { ArrowUpRight, Check, Copy, Download, Pencil, X, RotateCw } from 'lucide-react';
@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AdvisorOrb } from '@/components/advisor-ui';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { SolutionBlueprint } from '@/components/solution-blueprint';
 
 const FIELDS: { key: BriefKey; label: string; wide?: boolean }[] = [
   { key: 'objective', label: 'Objective', wide: true },
@@ -32,6 +33,11 @@ export default function BriefPage() {
 
 function BriefWorkspace() {
   const { conversationId } = useAdvisor();
+  const { scope } = useRuntime();
+  const viewKey = `syntra.brief.view.v1:${encodeURIComponent(scope)}:${conversationId ?? 'new'}`;
+  const [view, setView] = useState<'brief' | 'blueprint'>(() => { try { return sessionStorage.getItem(viewKey) === 'blueprint' ? 'blueprint' : 'brief'; } catch { return 'brief'; } });
+  const [editField, setEditField] = useState<BriefKey | null>(null);
+  const chooseView = (value: 'brief' | 'blueprint') => { setView(value); try { sessionStorage.setItem(viewKey, value); } catch { /* in-memory view */ } };
   const manualCopyId = useId();
   const id = conversationId ?? 0;
   const { data, isLoading, isError, refetch } = useGetBrief(id);
@@ -59,12 +65,12 @@ function BriefWorkspace() {
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4 sm:mb-8 sm:gap-6">
         <div>
-          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / Working brief</div>
-          <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">The brief, <span className="text-ember glow-text">as it forms.</span></h1>
-          <p className="mt-3 max-w-xl text-foreground/65">Only what has been discussed or clearly marked as a direction. Click any field to correct it.</p>
+          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / {view === 'blueprint' ? 'Solution Blueprint' : 'Working brief'}</div>
+          <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">{view === 'blueprint' ? 'A clear path, ' : 'The brief, '}<span className="text-ember glow-text">{view === 'blueprint' ? 'ready to explore.' : 'as it forms.'}</span></h1>
+          <p className="mt-3 max-w-xl text-foreground/65">{view === 'blueprint' ? 'Business context, system thinking and a phased plan. One living document, with the evidence and open questions visible.' : 'Only what has been discussed or clearly marked as a direction. Click any field to correct it.'}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex flex-col gap-1">
+          {view === 'brief' && <div className="flex flex-col gap-1">
             <div className="flex gap-2">
               <button type="button" onClick={() => void copy()} disabled={!data} data-testid="button-copy-brief"
                 className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/[.055] px-3 py-2 text-[11px] text-primary transition hover:bg-primary/[.12] disabled:opacity-35">
@@ -79,11 +85,18 @@ function BriefWorkspace() {
                 Handoff <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-          </div>
+          </div>}
           <CompletionDial pct={pct} filled={filled} lit={FIELDS.map((f) => !!data?.[f.key])} />
         </div>
       </div>
 
+      <div className="mb-5 flex gap-1 rounded-full border border-white/10 bg-background/45 p-1 sm:mb-7" role="tablist" aria-label="Project deliverable">
+        {(['brief', 'blueprint'] as const).map(value => <button key={value} type="button" role="tab" aria-selected={view === value} aria-controls={`project-deliverable-${value}`} tabIndex={view === value ? 0 : -1} onClick={() => chooseView(value)}
+          onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? 'brief' : event.key === 'End' ? 'blueprint' : view === 'brief' ? 'blueprint' : 'brief'; chooseView(next); event.currentTarget.parentElement?.querySelector<HTMLButtonElement>(`[data-testid="tab-${next === 'brief' ? 'project-brief' : 'solution-blueprint'}"]`)?.focus(); } }}
+          data-testid={value === 'brief' ? 'tab-project-brief' : 'tab-solution-blueprint'} className={cn('min-h-11 min-w-0 flex-1 rounded-full px-3 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary sm:text-sm', view === value ? 'bg-primary/10 text-primary ring-1 ring-inset ring-primary/20' : 'text-muted-foreground hover:text-foreground')}>{value === 'brief' ? 'Project brief' : 'Solution Blueprint'}</button>)}
+      </div>
+      <div role="tabpanel" id={`project-deliverable-${view}`}>
+      {view === 'blueprint' && conversationId ? <SolutionBlueprint id={conversationId} onEditBrief={key => { chooseView('brief'); setEditField(key); }} /> : <>
       {exportStatus === 'failed' && data && (
         <div className="mb-5 rounded-2xl border border-primary/20 bg-primary/[.035] p-4" data-testid="brief-manual-copy">
           <p role="alert" className="text-xs leading-relaxed text-amber-200">Your browser blocked clipboard access. Select the brief below to copy it manually, or use Export.</p>
@@ -108,9 +121,11 @@ function BriefWorkspace() {
       )}
       {data && conversationId && (
         <div className="grid gap-3 md:grid-cols-2">
-          {FIELDS.map((f, i) => <Field key={`${conversationId}-${f.key}`} id={conversationId} field={f} value={data[f.key]} index={i} revision={data.revision} provenance={data.provenance[f.key]} />)}
+          {FIELDS.map((f, i) => <Field key={`${conversationId}-${f.key}`} id={conversationId} field={f} value={data[f.key]} index={i} revision={data.revision} provenance={data.provenance[f.key]} requestedEdit={editField === f.key} onRequestedEdit={() => setEditField(null)} />)}
         </div>
       )}
+      </>}
+      </div>
     </div>
   );
 }
@@ -156,8 +171,8 @@ function CompletionDial({ pct, filled, lit }: { pct: number; filled: number; lit
   );
 }
 
-function Field({ id, field, value, index, revision, provenance }: { id: number; field: (typeof FIELDS)[number]; value: string | null; index: number; revision: number; provenance?: FieldProvenance }) {
-  const { getGetBriefQueryKey, getGetConversationQueryKey } = useRuntimeKeys();
+function Field({ id, field, value, index, revision, provenance, requestedEdit, onRequestedEdit }: { id: number; field: (typeof FIELDS)[number]; value: string | null; index: number; revision: number; provenance?: FieldProvenance; requestedEdit: boolean; onRequestedEdit: () => void }) {
+  const { getGetBriefQueryKey, getGetConversationQueryKey, getGetBlueprintQueryKey } = useRuntimeKeys();
   const qc = useQueryClient();
   const { toast } = useToast();
   const update = useUpdateBrief();
@@ -165,6 +180,13 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
   const [draft, setDraft] = useState('');
   const [editRevision, setEditRevision] = useState(revision);
   const [fired, setFired] = useState(0);
+  const card = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!requestedEdit) return;
+    setDraft(value ?? ''); setEditRevision(revision); setEditing(true);
+    const frame = requestAnimationFrame(() => { card.current?.scrollIntoView({ block: 'center', behavior: 'instant' }); onRequestedEdit(); });
+    return () => cancelAnimationFrame(frame);
+  }, [requestedEdit]);
 
   const save = () => {
     const v = draft.trim();
@@ -173,6 +195,7 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
       {
         onSuccess: (b) => {
           qc.setQueryData(getGetBriefQueryKey(id), b);
+          void qc.invalidateQueries({ queryKey: getGetBlueprintQueryKey(id) });
           qc.setQueryData<Conversation>(getGetConversationQueryKey(id), prev => prev ? { ...prev, brief: b } : prev);
           setEditing(false);
           setFired((n) => n + 1);
@@ -186,7 +209,7 @@ function Field({ id, field, value, index, revision, provenance }: { id: number; 
   };
 
   return (
-    <motion.div
+    <motion.div ref={card}
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}

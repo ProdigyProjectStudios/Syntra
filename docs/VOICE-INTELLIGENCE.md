@@ -1,6 +1,6 @@
 # Syntra Voice Intelligence
 
-Implementation and evidence as of 31 October 2026. This guide distinguishes portable implementation from live provider and native-host verification.
+Architecture guide and historical provider evidence from 31 October 2026; current specialist labels and shared Blueprint notes updated 1 November. See the [proof register](PROOF-REGISTER.md) and [production recovery report](VOICE-PRODUCTION-RECOVERY.md) for the later ten-turn cloud evidence and remaining physical/native-host gates.
 
 Pro run 3 fixes the reproduced repeated-service-ID second-turn failure and adds structured diagnostics: [Continuous conversation — run 3](VOICE-CONTINUITY-RUN-3.md). Earlier reliability work is recorded in [run 2](VOICE-RELIABILITY-RUN-2.md); actual historical provider evidence and the failed second input are in [Azure live verification](AZURE-LIVE-VERIFICATION.md).
 
@@ -64,14 +64,14 @@ Only one connection belongs to an adapter at a time. Closing during a microphone
 | Stored role ID | Working identity | Responsibility | Development voice |
 | --- | --- | --- | --- |
 | `syntra` | Syntra | Principal consultation, qualification and next steps | `en-GB-SoniaNeural` |
-| `technical` | Caelis | Architecture, integrations, dependencies and phased implementation | `en-GB-LibbyNeural` |
-| `automation` | Veyra | Operational workflows, useful automation pilots and explicit savings assumptions | `en-GB-BellaNeural` |
+| `technical` | Kryon — Technical Architect | Architecture, integrations, dependencies and phased implementation | `en-GB-LibbyNeural` |
+| `automation` | Nyx — Automation & Workflow Specialist | Operational workflows, useful automation pilots and explicit savings assumptions | `en-GB-BellaNeural` |
 
-Caelis and Veyra are provisional names. Rename display metadata without changing persisted role IDs. The selected profile contributes guidance to the same underlying model call. There are no three parallel model connections and no separate customer memories. Existing message history, eight-field brief, provenance, manual edits and response depth remain shared.
+Kryon and Nyx are the current specialist names. Their persisted `technical` and `automation` role IDs remain unchanged; historical customer transcripts are not rewritten. The selected profile contributes guidance to the same underlying model call. There are no three parallel model connections and no separate customer memories. Existing message history, eight-field brief, Blueprint, provenance, manual edits and response depth remain shared. The text perspective control shares the current selection with supported development voice profiles.
 
 The role and depth are captured for the first finalized utterance fragment before model admission. Switching is blocked while an utterance, queued request, in-flight model call or uncertain result is unresolved. Switching during playback stops that audio before changing profile. An uncertain request restored after reconnect keeps its original request ID and specialist; the UI adopts the restored identity. Historical inputs without a role default to Syntra.
 
-The compact rail appears only in voice mode, with focus/hover descriptions, keyboard navigation, reduced-motion support and a mobile dock. It preserves the existing neural visual system. Distinct motion/color profiles are UI work, not proof that a provider connection is operating.
+The compact voice rail has focus/hover descriptions, keyboard navigation, reduced-motion support and a mobile dock; the text surface has its own perspective control. They preserve the existing neural visual system. Distinct motion/color profiles are UI work, not proof that a provider connection is operating.
 
 Native hosts advertise supported profiles through the optional voice capabilities. Until AgentPlace supplies real specialist/personality and voice switching, the native UI supports Syntra only. Portable metadata is not a substitute for that host implementation.
 
@@ -89,7 +89,7 @@ Native repository guards prevent new typed reservations while voice work is stag
 
 ## Automated and live verification
 
-The current automated total is 146: consultation 30, native 30, handoff 14, voice controller 28, Azure adapter 16, PCM player 8, UI connection lifecycle 5, local onset gate 2, diagnostics 3, development API admission 3 and token broker 7. Browser/provider objects in adapter tests are deterministic fakes. These checks verify ownership and event ordering, not actual capture, audible output, echo rejection, cloud latency or voice quality. The full TypeScript/build and deterministic transfer also pass; the transfer validates 129 checksums and 125 TS/TSX files.
+The historical run-2 automated total was 146: consultation 30, native 30, handoff 14, voice controller 28, Azure adapter 16, PCM player 8, UI connection lifecycle 5, local onset gate 2, diagnostics 3, development API admission 3 and token broker 7. Browser/provider objects in adapter tests are deterministic fakes. These checks verify ownership and event ordering, not actual capture, audible output, echo rejection, cloud latency or voice quality. The full TypeScript/build and deterministic transfer also pass; the transfer validates 129 checksums and 125 TS/TSX files.
 
 | Live scenario | Acceptance evidence to collect | Current status |
 | --- | --- | --- |

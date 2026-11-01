@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import assert from "node:assert/strict";
 import { pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
 const moduleName = process.env.SYNTRA_PLAYWRIGHT_MODULE || "playwright";
 const { chromium } = await import(
   path.isAbsolute(moduleName) ? pathToFileURL(moduleName).href : moduleName
@@ -18,8 +19,25 @@ const out = path.resolve(
   process.env.SYNTRA_LAYOUT_OUTPUT || "generated-artifacts/frontend-hardening",
 );
 fs.mkdirSync(out, { recursive: true });
+const { build } = createRequire(
+  new URL("../artifacts/api-server/package.json", import.meta.url),
+)("esbuild");
+const domainBundle = await build({
+  stdin: {
+    contents:
+      "export { emptyBlueprint, evolveBlueprint } from './lib/consultation/src/blueprint.ts';",
+    resolveDir: path.resolve("."),
+    loader: "ts",
+  },
+  bundle: true,
+  write: false,
+  format: "iife",
+  platform: "browser",
+  globalName: "SyntraLayoutDomain",
+  logLevel: "silent",
+});
 async function fixture(page) {
-  await page.addInitScript(() => {
+  const install = (domain) => {
     const fields = {
       objective: "A unified approval portal for our production studio.",
       service: "Client portals & dashboards",
@@ -48,9 +66,51 @@ async function fixture(page) {
       depth: "detailed",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      messages: [],
+      messages: sessionStorage.getItem("syntra.layout.history")
+        ? [
+            {
+              id: 1,
+              role: "visitor",
+              content:
+                "Our production studio needs a unified approval portal. Project managers chase revisions by email.",
+              depth: "detailed",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: 2,
+              role: "advisor",
+              content:
+                "A focused approval workflow could make ownership and the next action visible. Who signs off a final version?",
+              depth: "detailed",
+              createdAt: new Date().toISOString(),
+            },
+          ]
+        : [],
       brief,
     };
+    const blueprint = domain.evolveBlueprint(
+      domain.emptyBlueprint(),
+      brief,
+      [
+        {
+          section: "architecture",
+          id: "layout-data-boundary",
+          title: "A deliberate data boundary",
+          detail:
+            "Keep client approvals, internal review notes and integration jobs separately authorized. This is an explicitly synthetic browser layout example.",
+          status: "recommendation",
+          evidence: "",
+          details: [
+            {
+              label: "Data flow",
+              value:
+                "Project coordinator → validated review request → authorized client reviewer → saved decision → controlled integration job.",
+            },
+          ],
+        },
+      ],
+      { visitorHistory: [], latest: "", specialist: "technical" },
+    );
     window.__SYNTRA_LAYOUT_FIXTURE__ = true;
     window.__SYNTRA_RUNTIME__ = {
       sessions: {
@@ -65,6 +125,13 @@ async function fixture(page) {
         },
       },
       briefs: { get: async () => brief, update: async () => brief },
+      blueprints: {
+        get: async () => structuredClone(blueprint),
+        regenerate: async () => structuredClone(blueprint),
+        update: async () => {
+          throw new Error("Editing is covered by the workflow fixture.");
+        },
+      },
       services: async () => [],
       booking: { contacts: async () => [] },
       voice: {
@@ -105,7 +172,8 @@ async function fixture(page) {
         },
       },
     };
-  });
+  };
+  await page.addInitScript({ content: domainBundle.outputFiles[0].text + "\n;(" + install.toString() + ")(SyntraLayoutDomain);" });
 }
 (async () => {
   const browser = await chromium.launch({
@@ -116,6 +184,10 @@ async function fixture(page) {
     args: ["--no-sandbox"],
   });
   const results = [];
+  let activePage;
+  let activeWidth;
+  let activeErrors = [];
+  let activeConsoleErrors = [];
   try {
     for (const [width, height] of [
       [320, 568],
@@ -130,10 +202,14 @@ async function fixture(page) {
         reducedMotion: "no-preference",
       });
       const page = await context.newPage();
+      activePage = page; activeWidth = width; activeConsoleErrors = [];
+      page.on("console", message => { if (message.type() === "error") activeConsoleErrors.push(message.text()); });
       await fixture(page);
       const errors = [];
+      activeErrors = errors;
       page.on("pageerror", (e) => errors.push(e.message));
       await page.goto(base, { waitUntil: "domcontentloaded" });
+      await page.waitForFunction(() => window.__SYNTRA_LAYOUT_FIXTURE__ === true);
       await page.getByTestId("input-message").waitFor();
       await page.waitForTimeout(800);
       const entry = await page.evaluate(() => ({
@@ -188,6 +264,7 @@ async function fixture(page) {
         focus: document.activeElement?.getAttribute("data-testid"),
         inert: document.querySelector(".contents")?.inert,
       }));
+      assert.deepEqual(errors, [], "Browser exception before history dialog check");
       assert.deepEqual(history, {
         role: "dialog",
         focus: "button-close-history",
@@ -363,6 +440,89 @@ async function fixture(page) {
         await page.evaluate(() => window.__preparationAborted),
         "Reconnect preparation leaked after close",
       );
+      await page.evaluate(() =>
+        sessionStorage.setItem("syntra.layout.history", "1"),
+      );
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.getByTestId("text-specialist-switch").waitFor();
+      await page.getByTestId("button-text-specialist-technical").click();
+      assert.equal(
+        await page
+          .getByTestId("button-text-specialist-technical")
+          .getAttribute("aria-checked"),
+        "true",
+      );
+      assert.match(
+        await page.getByTestId("input-message").getAttribute("placeholder"),
+        /Kryon/,
+      );
+      const specialistGeometry = await page
+        .getByTestId("text-specialist-switch")
+        .boundingBox();
+      assert(
+        specialistGeometry.x >= 0 &&
+          specialistGeometry.x + specialistGeometry.width <= width,
+        "Specialist controls overflow",
+      );
+      await page.getByTestId("button-depth-deep_dive").click();
+      await page
+        .getByTestId(width >= 1024 ? "link-project-brief" : "link-m-03")
+        .click();
+      await page.getByTestId("tab-solution-blueprint").click();
+      await page.getByTestId("solution-blueprint").waitFor();
+      const blueprintLayout = await page.evaluate(() => {
+        const measure = (testId) => document.querySelector(`[data-testid="${testId}"]`).getBoundingClientRect().toJSON();
+        const heading = document.querySelector('[data-testid="blueprint-hero-heading"]');
+        return {
+          width: document.documentElement.scrollWidth,
+          hero: document.querySelector('[data-testid="solution-blueprint"]').firstElementChild.getBoundingClientRect().toJSON(),
+          heading: measure("blueprint-hero-heading"),
+          headingLineHeight: parseFloat(getComputedStyle(heading).lineHeight),
+          copy: measure("blueprint-hero-copy"),
+          actions: measure("blueprint-hero-actions"),
+          routeLabel: measure("text-route-label"),
+          sections: [
+            ...document.querySelectorAll('[data-testid^="blueprint-section-"]'),
+          ].map((element) => ({
+            id: element.getAttribute("data-testid"),
+            left: element.getBoundingClientRect().left,
+            right: element.getBoundingClientRect().right,
+          })),
+        };
+      });
+      assert.equal(
+        blueprintLayout.width,
+        width,
+        "Blueprint causes horizontal overflow",
+      );
+      assert.equal(blueprintLayout.sections.length, 10);
+      assert(
+        blueprintLayout.sections.every(
+          (section) => section.left >= 0 && section.right <= width + 1,
+        ),
+        "Blueprint sections exceed viewport",
+      );
+      if (width < 640) {
+        assert(
+          blueprintLayout.heading.width >= blueprintLayout.hero.width - 44,
+          "Mobile Blueprint title must retain the card's full readable width",
+        );
+        assert(
+          blueprintLayout.actions.top >= blueprintLayout.copy.bottom + 12,
+          "Mobile export actions must stack below the Blueprint introduction",
+        );
+        assert(
+          blueprintLayout.heading.height <= blueprintLayout.headingLineHeight * 3 + 1,
+          "Mobile Blueprint heading wraps into too many lines",
+        );
+        assert(
+          blueprintLayout.routeLabel.height <= 20,
+          "Compact route label must not wrap into narrow fragments",
+        );
+      }
+      await page.screenshot({ path: `${out}/${width}-blueprint.png` });
+      voice.blueprintLayout = blueprintLayout;
+      voice.specialistGeometry = specialistGeometry;
       // Browser-level viewport shrink emulates keyboard geometry only; no physical keyboard claim.
       if (width < 640) {
         await page.setViewportSize({ width, height: Math.round(height * 0.6) });
@@ -395,6 +555,13 @@ async function fixture(page) {
       JSON.stringify(results, null, 2),
     );
     console.log(JSON.stringify(results, null, 2));
+  } catch (error) {
+    if (activePage && !activePage.isClosed()) {
+      await activePage.screenshot({ path: `${out}/${activeWidth}-failure.png` }).catch(() => {});
+      const body = await activePage.locator('body').innerText().catch(() => 'Body unavailable');
+      fs.writeFileSync(`${out}/failure.json`, JSON.stringify({ width: activeWidth, error: String(error), pageErrors: activeErrors, consoleErrors: activeConsoleErrors, body: body.slice(0, 4000) }, null, 2));
+    }
+    throw error;
   } finally {
     await browser.close();
   }

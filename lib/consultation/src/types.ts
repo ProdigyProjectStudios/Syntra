@@ -1,3 +1,4 @@
+import type { Blueprint, BlueprintContribution, BlueprintMutation, BlueprintUpdateInput } from "./blueprint.ts";
 export type Depth = "concise" | "detailed" | "deep_dive";
 export type SpecialistId = "syntra" | "technical" | "automation";
 export const BRIEF_KEYS = ["objective", "service", "proposedSolution", "requirements", "integrations", "budget", "timeline", "nextStep"] as const;
@@ -34,6 +35,7 @@ export interface SessionSummary {
 export interface Conversation extends Omit<SessionSummary, "messageCount"> {
   messages: Message[];
   brief: Brief;
+  blueprint?: Blueprint;
 }
 export interface BriefChange {
   value: string | null;
@@ -46,10 +48,12 @@ export interface AdvisorResult {
   changes: Partial<Record<BriefKey, BriefChange>>;
   suggestedNextSteps: string[];
   title?: string;
+  blueprintChanges?: BlueprintContribution[];
 }
 export interface AdvisorInput {
   history: Pick<Message, "role" | "content">[];
   currentBrief: Brief;
+  currentBlueprint?: Blueprint;
   depth: Depth;
   isFirstMessage: boolean;
   specialist?: SpecialistId;
@@ -62,6 +66,7 @@ export interface TurnReply {
   visitorMessage: Message;
   message: Message;
   brief: Brief;
+  blueprint?: Blueprint;
   suggestedNextSteps: string[];
   /** Missing on historical receipts, where the specialist is Syntra. */
   specialist?: SpecialistId;
@@ -132,6 +137,11 @@ export interface ConsultationRuntime {
   briefs: {
     get(id: number, signal?: AbortSignal): Promise<Brief>;
     update(id: number, changes: Partial<BriefFields>, revision: number): Promise<Brief>;
+  };
+  blueprints?: {
+    get(id: number, signal?: AbortSignal): Promise<Blueprint>;
+    regenerate(id: number, input: BlueprintMutation): Promise<Blueprint>;
+    update(id: number, input: BlueprintUpdateInput): Promise<Blueprint>;
   };
   services(): Promise<ServiceArea[]>;
   voice: VoiceAdapter;

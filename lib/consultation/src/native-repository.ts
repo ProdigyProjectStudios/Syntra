@@ -11,6 +11,8 @@ import type {
 import { BRIEF_KEYS, EMPTY_FIELDS } from './types.ts';
 import { ConsultationError, manualBrief, mergeBrief } from './engine.ts';
 import { isSpecialistId, normalizeSpecialist } from './specialists.ts';
+import { evolveBlueprint, parseBlueprintContributions, type Blueprint, type BlueprintContribution, type BlueprintMutation, type BlueprintUpdateInput } from './blueprint.ts';
+import { readBlueprintStore, mutateBlueprintStore, type BlueprintStore } from './blueprint-storage.ts';
 
 const RECORD_PATH = 'private/syntra-consultation.json';
 const MAX_TURNS = 120;
@@ -24,6 +26,7 @@ interface PendingTurn {
   responseId?: string;
   createdAt: string;
   baseBrief: Brief;
+  blueprintChanges?: BlueprintContribution[];
 }
 
 interface SavedTurn {
@@ -51,12 +54,13 @@ interface SyntraRecord {
   depth: Depth;
   title: string;
   brief: Brief;
+  blueprint?: BlueprintStore;
   turns: SavedTurn[];
   pendingTurns: Record<string, PendingTurn>;
   voiceTurnIds: string[];
   voiceMessages: string[];
   voiceContexts?: SavedVoiceContext[];
-  pendingVoice?: Record<string, { content: string; depth?: Depth; createdAt?: string; changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>; baseBrief: Brief }>;
+  pendingVoice?: Record<string, { content: string; depth?: Depth; createdAt?: string; changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>; baseBrief: Brief; blueprintChanges?: BlueprintContribution[] }>;
 }
 
 export interface SessionSnapshot {
@@ -67,6 +71,7 @@ export interface SessionSnapshot {
   updatedAt: string;
   messageCount: number;
   brief: Brief;
+  blueprint: Blueprint;
   turns: Array<{ requestId: string; responseId: string; depth: Depth; createdAt: string; specialist?: SpecialistId }>;
 }
 
@@ -180,6 +185,7 @@ export class SyntraConsultationRepository {
       if (!isRecord(parsed)) throw new Error('Invalid Syntra consultation record.');
       return {
         ...parsed,
+        blueprint: readBlueprintStore(parsed.blueprint),
         voiceMessages: Array.isArray(parsed.voiceMessages)
           ? parsed.voiceMessages.filter((text): text is string => typeof text === 'string').slice(-MAX_TURNS)
           : [],
@@ -324,6 +330,7 @@ export class SyntraConsultationRepository {
   async stageBriefChanges(
     requestId: string,
     changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>,
+    blueprintChanges?: BlueprintContribution[],
   ) {
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
@@ -349,8 +356,9 @@ export class SyntraConsultationRepository {
         }
       }
       pending.changes = { ...pending.changes, ...staged };
+      if (blueprintChanges !== undefined) pending.blueprintChanges = parseBlueprintContributions(blueprintChanges);
       await this.#save(record);
-      return { brief: candidate, stagedFields: Object.keys(staged), depth: pending.depth, specialist: normalizeSpecialist(pending.specialist) };
+      return { blueprint: readBlueprintStore(record.blueprint).document, brief: candidate, stagedFields: Object.keys(staged), depth: pending.depth, specialist: normalizeSpecialist(pending.specialist) };
     });
   }
 
@@ -388,6 +396,10 @@ export class SyntraConsultationRepository {
         visitorHistory,
         pending.content,
       );
+      record.blueprint = readBlueprintStore(record.blueprint);
+      record.blueprint.document = evolveBlueprint(record.blueprint.document, record.brief, pending.blueprintChanges ?? [], {
+        visitorHistory, latest: pending.content, specialist: normalizeSpecialist(pending.specialist), source: 'specialist',
+      });
       record.turns.push({
         requestId,
         responseId,
@@ -406,7 +418,7 @@ export class SyntraConsultationRepository {
   }
 
   /** Called by the native tool; a canceled/failed voice response must not commit this draft. */
-  async stageNativeVoiceChanges(turnId: string, content: string, changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>) {
+  async stageNativeVoiceChanges(turnId: string, content: string, changes: Partial<Record<(typeof BRIEF_KEYS)[number], BriefChange>>, blueprintChanges?: BlueprintContribution[]) {
     if (!turnId || !content.trim() || content.length > 12000) throw new ConsultationError(400, 'A stable native voice turn and final visitor transcript are required.');
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
@@ -415,7 +427,7 @@ export class SyntraConsultationRepository {
         if (record.voiceMessages[completedIndex]?.trim() !== content.trim()) {
           throw new ConsultationError(409, 'This voice turn was already completed with another transcript.');
         }
-        return { brief: record.brief, depth: record.voiceContexts?.find(turn => turn.turnId === turnId)?.depth ?? record.depth };
+        return { blueprint: readBlueprintStore(record.blueprint).document, brief: record.brief, depth: record.voiceContexts?.find(turn => turn.turnId === turnId)?.depth ?? record.depth };
       }
       const prior = record.pendingVoice?.[turnId];
       if (prior && prior.content !== content) throw new ConsultationError(409, 'This voice turn is already bound to another transcript.');
@@ -439,9 +451,10 @@ export class SyntraConsultationRepository {
         content, depth: prior?.depth ?? record.depth, createdAt: prior?.createdAt ?? new Date().toISOString(),
         changes: { ...prior?.changes, ...changes },
         baseBrief: prior?.baseBrief ?? structuredClone(record.brief),
+        blueprintChanges: blueprintChanges === undefined ? prior?.blueprintChanges : parseBlueprintContributions(blueprintChanges),
       };
       await this.#save(record);
-      return { brief: record.brief, depth: record.pendingVoice[turnId].depth! };
+      return { blueprint: readBlueprintStore(record.blueprint).document, brief: record.brief, depth: record.pendingVoice[turnId].depth! };
     });
   }
 
@@ -470,6 +483,11 @@ export class SyntraConsultationRepository {
       }
       record.brief = mergeBrief(record.brief, { reply: '', changes, suggestedNextSteps: [] },
         [...record.turns.map(t => t.content), ...record.voiceMessages, pending.content], pending.content);
+      record.blueprint = readBlueprintStore(record.blueprint);
+      record.blueprint.document = evolveBlueprint(record.blueprint.document, record.brief, pending.blueprintChanges ?? [], {
+        visitorHistory: [...record.turns.map(t => t.content), ...record.voiceMessages, pending.content],
+        latest: pending.content, specialist: 'syntra', source: 'specialist',
+      });
       record.voiceTurnIds.push(turnId);
       record.voiceMessages.push(pending.content);
       record.voiceContexts ??= [];
@@ -498,8 +516,25 @@ export class SyntraConsultationRepository {
     return this.#gate(this.#sessionKey, async () => {
       const record = await this.#load();
       record.brief = manualBrief(record.brief, changes, revision);
+      record.blueprint = readBlueprintStore(record.blueprint);
+      record.blueprint.document = evolveBlueprint(record.blueprint.document, record.brief, [], { visitorHistory: [], latest: '', source: 'brief' });
       await this.#save(record);
       return record.brief;
+    });
+  }
+
+  async getBlueprint(id: number): Promise<Blueprint> {
+    assertConversationId(id);
+    return this.#gate(this.#sessionKey, async () => readBlueprintStore((await this.#load()).blueprint).document);
+  }
+
+  async mutateBlueprint(id: number, input: BlueprintMutation | BlueprintUpdateInput, kind: 'update' | 'regenerate'): Promise<Blueprint> {
+    assertConversationId(id);
+    return this.#gate(this.#sessionKey, async () => {
+      const record = await this.#load();
+      record.blueprint = await mutateBlueprintStore(readBlueprintStore(record.blueprint), input, kind, record.brief);
+      await this.#save(record);
+      return record.blueprint.document;
     });
   }
 
@@ -512,6 +547,7 @@ export class SyntraConsultationRepository {
       updatedAt: record.updatedAt,
       messageCount: (record.turns.length + record.voiceTurnIds.length) * 2,
       brief: record.brief,
+      blueprint: readBlueprintStore(record.blueprint).document,
       turns: [
         ...record.turns.map(({ requestId, responseId, depth, createdAt, specialist }) => ({ requestId, responseId, depth, createdAt, specialist: normalizeSpecialist(specialist) })),
         ...(record.voiceContexts ?? []).flatMap(turn => turn.responseId ? [{ requestId: turn.turnId,

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Conversation, Depth, TurnInput } from '@workspace/consultation';
+import { isSpecialistId, type Conversation, type Depth, type TurnInput, type SpecialistId } from '@workspace/consultation';
 import { errorMessage } from './errors';
 import { useRuntime, useRuntimeKeys } from './runtime-context';
 import { createPendingTextTurnStore, TextTurnRecoveryError } from './pending-text-turn';
@@ -13,6 +13,7 @@ type Ctx = {
   conversationId: number | null;
   setConversationId: (id: number | null) => void;
   depth: Depth; setDepth: (depth: Depth) => void;
+  specialist: SpecialistId; setSpecialist: (specialist: SpecialistId) => boolean; specialistLocked: boolean;
   send: (content: string) => void; sending: boolean; pendingText: string | null;
   error: string | null; retry: () => void; steps: string[];
   conversation: Conversation | undefined; loadingConversation: boolean;
@@ -22,7 +23,7 @@ type Ctx = {
 const AdvisorCtx = createContext<Ctx | null>(null);
 export function AdvisorProvider({ children }: { children: ReactNode }) {
   const { runtime, scope, initialConversationId, native } = useRuntime();
-  const { getGetConversationQueryKey, getListConversationsQueryKey, getGetBriefQueryKey } = useRuntimeKeys();
+  const { getGetConversationQueryKey, getListConversationsQueryKey, getGetBriefQueryKey, getGetBlueprintQueryKey } = useRuntimeKeys();
   const sessionKey = scope === 'replit' ? KEY : `${KEY}:${scope}`;
   const depthKey = scope === 'replit' ? DEPTH_KEY : `${DEPTH_KEY}:${scope}`;
   const saveSession = useCallback((id: number | null) => {
@@ -32,6 +33,9 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
   const recovery = useMemo(() => createPendingTextTurnStore(scope), [scope]);
   const [conversationId, setId] = useState<number | null>(() => initialConversationId ?? (Number(read(sessionKey)) > 0 ? Number(read(sessionKey)) : null));
   const [depth, updateDepth] = useState<Depth>(() => { const d = read(depthKey); return d === 'concise' || d === 'deep_dive' ? d : 'detailed'; });
+  const specialistKey = useCallback((id: number | null) => `syntra.specialist.v1:${encodeURIComponent(scope)}:${id ?? 'new'}`, [scope]);
+  const [specialist, updateSpecialist] = useState<SpecialistId>(() => { const value = read(specialistKey(conversationId)); return isSpecialistId(value) ? value : 'syntra'; });
+  const specialistRef = useRef(specialist); specialistRef.current = specialist;
   const [pending, setPending] = useState<Attempt | null>(null);
   const [failure, setFailure] = useState<{ id: number | null; message: string } | null>(null);
   const [steps, setSteps] = useState<{ id: number; values: string[] } | null>(null);
@@ -65,6 +69,12 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       setFailure({ id: conversationId, message: error instanceof Error ? error.message : 'The original request could not be recovered.' });
     }
   }, [convQ.data, convQ.isFetchedAfterMount, convQ.isFetching, convQ.isError, conversationId, recovery]);
+  const setSpecialist = useCallback((value: SpecialistId): boolean => {
+    if (busy.current || (lastAttempt.current && lastAttempt.current.id === active.current)) return false;
+    specialistRef.current = value; updateSpecialist(value);
+    try { localStorage.setItem(specialistKey(active.current), value); } catch { /* in-memory perspective */ }
+    return true;
+  }, [specialistKey]);
   const setDepth = useCallback((d: Depth) => {
     depthTouched.current = true;
     updateDepth(d); depthRef.current = d;
@@ -92,8 +102,10 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       return;
     }
     depthSaveGeneration.current++;
+    const savedSpecialist = read(specialistKey(id));
+    specialistRef.current = isSpecialistId(savedSpecialist) ? savedSpecialist : 'syntra'; updateSpecialist(specialistRef.current);
     active.current = id; recoveryChecked.current = null; setId(id); setFailure(null); setSteps(null); lastAttempt.current = null; saveSession(id);
-  }, [native, saveSession]);
+  }, [native, saveSession, specialistKey]);
   // Old numeric localStorage IDs are not authority. Never claim unowned legacy records.
   useEffect(() => {
     if (convQ.error && 'status' in convQ.error && convQ.error.status === 404 && !busy.current) {
@@ -109,11 +121,12 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       qc.setQueryData(getGetConversationQueryKey(conv.id), conv);
       qc.setQueryData(getGetBriefQueryKey(conv.id), conv.brief);
       active.current = conv.id; setId(conv.id); saveSession(conv.id);
+      try { localStorage.setItem(specialistKey(conv.id), specialistRef.current); } catch { /* in-memory perspective */ }
       void qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
       return conv.id;
     })();
     try { return await creating.current; } finally { creating.current = null; }
-  }, [qc, runtime, saveSession, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
+  }, [qc, runtime, saveSession, specialistKey, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
   const ensureVoiceConversation = useCallback(async (): Promise<number> => {
     const id = await ensureConversation();
     if (busy.current || lastAttempt.current?.id === id || recovery.load(id)) {
@@ -141,6 +154,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
         return { ...prev, depth: attempt.depth, brief: reply.brief, messages: [...prev.messages, ...[reply.visitorMessage, reply.message].filter(m => !ids.has(m.id))] };
       });
       qc.setQueryData(getGetBriefQueryKey(id), reply.brief);
+      void qc.invalidateQueries({ queryKey: getGetBlueprintQueryKey(id) });
       recovery.clear(id, attempt.requestId);
       setSteps({ id, values: reply.suggestedNextSteps }); lastAttempt.current = null;
       void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(id) });
@@ -149,7 +163,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       lastAttempt.current = attempt;
       setFailure({ id: attempt.id, message: errorMessage(error, error instanceof TextTurnRecoveryError ? error.message : 'The advisor could not reply. Your message is kept here; retry when ready.') });
     } finally { busy.current = false; setPending(null); }
-  }, [ensureConversation, qc, runtime, recovery, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
+  }, [ensureConversation, qc, runtime, recovery, getGetConversationQueryKey, getGetBriefQueryKey, getGetBlueprintQueryKey, getListConversationsQueryKey]);
   const send = useCallback((content: string) => {
     if (!content.trim() || busy.current) return;
     if (lastAttempt.current?.id === active.current) {
@@ -170,7 +184,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
         return;
       }
     }
-    void perform({ id: active.current, content: content.trim(), depth: depthRef.current, requestId: crypto.randomUUID() });
+    void perform({ id: active.current, content: content.trim(), depth: depthRef.current, specialist: specialistRef.current, requestId: crypto.randomUUID() });
   }, [perform, recovery, convQ.data, convQ.isFetchedAfterMount, convQ.isError]);
   const retry = useCallback(() => {
     if (lastAttempt.current) {
@@ -199,7 +213,8 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     (visibleAttempt.id === null || visibleAttempt.id === conversationId) ? visibleAttempt.content : null;
   return (
     <AdvisorCtx.Provider value={{
-      conversationId, setConversationId, depth, setDepth, send, retry,
+      conversationId, setConversationId, depth, setDepth, specialist, setSpecialist,
+      specialistLocked: pending !== null || Boolean(failure && lastAttempt.current?.id === conversationId), send, retry,
       sending: pending !== null, pendingText,
       error: failure?.message ?? (convQ.isError ? 'This conversation could not load. Retry without starting over.' : null),
       steps: steps?.id === conversationId ? steps.values : [],

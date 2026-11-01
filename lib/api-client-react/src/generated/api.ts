@@ -21,6 +21,9 @@ import type {
 
 import type {
   AdvisorReply,
+  Blueprint,
+  BlueprintRegenerate,
+  BlueprintUpdate,
   Brief,
   BriefUpdate,
   ContactOption,
@@ -796,6 +799,262 @@ export const useUpdateBrief = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getUpdateBriefMutationOptions(options));
+    }
+
+export const getGetBlueprintUrl = (id: number,) => {
+
+
+
+
+  return `/api/conversations/${id}/blueprint`
+}
+
+/**
+ * @summary Read the session's solution blueprint
+ */
+export const getBlueprint = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Blueprint> => {
+
+  return customFetch<Blueprint>(getGetBlueprintUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBlueprintQueryKey = (id: number,) => {
+    return [
+    `/api/conversations/${id}/blueprint`
+    ] as const;
+    }
+
+
+export const getGetBlueprintQueryOptions = <TData = Awaited<ReturnType<typeof getBlueprint>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBlueprint>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBlueprintQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBlueprint>>> = ({ signal }) => getBlueprint(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBlueprint>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBlueprintQueryResult = NonNullable<Awaited<ReturnType<typeof getBlueprint>>>
+export type GetBlueprintQueryError = ErrorType<void>
+
+
+/**
+ * @summary Read the session's solution blueprint
+ */
+
+export function useGetBlueprint<TData = Awaited<ReturnType<typeof getBlueprint>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBlueprint>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBlueprintQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateBlueprintUrl = (id: number,) => {
+
+
+
+
+  return `/api/conversations/${id}/blueprint`
+}
+
+/**
+ * @summary Save a version-checked visitor correction
+ */
+export const updateBlueprint = async (id: number,
+    blueprintUpdate: BlueprintUpdate, options?: Parameters<typeof customFetch>[1]): Promise<Blueprint> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Blueprint>(getUpdateBlueprintUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(blueprintUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateBlueprintMutationKey = () => ['updateBlueprint'] as const;
+
+export const getUpdateBlueprintMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBlueprint>>, TError,UpdateBlueprintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateBlueprint>>, TError,UpdateBlueprintMutationVariables, TContext> => {
+
+const mutationKey = getUpdateBlueprintMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateBlueprint>>, UpdateBlueprintMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateBlueprint(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateBlueprintMutationResult = NonNullable<Awaited<ReturnType<typeof updateBlueprint>>>
+    export type UpdateBlueprintMutationBody = BodyType<BlueprintUpdate>
+    export type UpdateBlueprintMutationError = ErrorType<void>
+    export type UpdateBlueprintMutationVariables = {id: number;data: BodyType<BlueprintUpdate>}
+
+    /**
+ * @summary Save a version-checked visitor correction
+ */
+export const useUpdateBlueprint = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBlueprint>>, TError,UpdateBlueprintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateBlueprint>>,
+        TError,
+        UpdateBlueprintMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateBlueprintMutationOptions(options));
+    }
+
+export const getRegenerateBlueprintUrl = (id: number,) => {
+
+
+
+
+  return `/api/conversations/${id}/blueprint/regenerate`
+}
+
+/**
+ * Synchronizes brief-derived content and preserves visitor edits and specialist contributions. It does not invoke another model or provision integrations.
+ * @summary Update blueprint from the canonical brief
+ */
+export const regenerateBlueprint = async (id: number,
+    blueprintRegenerate: BlueprintRegenerate, options?: Parameters<typeof customFetch>[1]): Promise<Blueprint> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<Blueprint>(getRegenerateBlueprintUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(blueprintRegenerate)
+  }
+);}
+
+
+
+
+
+export const getRegenerateBlueprintMutationKey = () => ['regenerateBlueprint'] as const;
+
+export const getRegenerateBlueprintMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBlueprint>>, TError,RegenerateBlueprintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof regenerateBlueprint>>, TError,RegenerateBlueprintMutationVariables, TContext> => {
+
+const mutationKey = getRegenerateBlueprintMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof regenerateBlueprint>>, RegenerateBlueprintMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  regenerateBlueprint(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegenerateBlueprintMutationResult = NonNullable<Awaited<ReturnType<typeof regenerateBlueprint>>>
+    export type RegenerateBlueprintMutationBody = BodyType<BlueprintRegenerate>
+    export type RegenerateBlueprintMutationError = ErrorType<void>
+    export type RegenerateBlueprintMutationVariables = {id: number;data: BodyType<BlueprintRegenerate>}
+
+    /**
+ * @summary Update blueprint from the canonical brief
+ */
+export const useRegenerateBlueprint = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof regenerateBlueprint>>, TError,RegenerateBlueprintMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof regenerateBlueprint>>,
+        TError,
+        RegenerateBlueprintMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRegenerateBlueprintMutationOptions(options));
     }
 
 export const getCreateVoiceSessionUrl = () => {

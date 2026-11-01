@@ -65,8 +65,7 @@ be determined without billing access. No service or paid tier was introduced.
 The lead integrated shared changes. Cross-review covered voice preparation and
 runtime ownership, native response identity, transcript/depth persistence,
 database transaction completion, handoff consent/snapshots, and browser evidence.
-Azure remains excluded from the generated AgentPlace transfer. Syntra, Caelis and
-Veyra retain shared conversation, depth and brief context; distinct native profiles
+Azure remains excluded from the generated AgentPlace transfer. Syntra and the technical and automation perspectives retain shared conversation, depth and brief context; distinct native profiles
 are exposed only if the actual host supplies them.
 
 ## Completed validation

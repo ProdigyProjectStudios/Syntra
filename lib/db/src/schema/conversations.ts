@@ -1,10 +1,11 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 export const conversationsTable = pgTable("conversations", {
   id: serial("id").primaryKey(),
   ownerHash: text("owner_hash"),
+  blueprint: jsonb("blueprint").$type<unknown>(),
   title: text("title").notNull().default("New conversation"),
   depth: text("depth").notNull().default("detailed"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

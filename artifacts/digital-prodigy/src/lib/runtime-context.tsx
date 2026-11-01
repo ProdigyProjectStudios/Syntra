@@ -22,6 +22,7 @@ export function useRuntimeKeys() {
   return useMemo(() => ({
     getGetConversationQueryKey: (id: number) => ['syntra', scope, 'conversation', id] as const,
     getGetBriefQueryKey: (id: number) => ['syntra', scope, 'brief', id] as const,
+    getGetBlueprintQueryKey: (id: number) => ['syntra', scope, 'blueprint', id] as const,
     getListConversationsQueryKey: () => ['syntra', scope, 'sessions'] as const,
     getListServicesQueryKey: () => ['syntra', scope, 'services'] as const,
     getListContactOptionsQueryKey: () => ['syntra', scope, 'contacts'] as const,

@@ -5,11 +5,13 @@ on:
     branches:
       - feature/assessment-conversion
       - feature/syntra-assessment-voice
+      - feature/syntra-solution-blueprint
       - 'release/**'
   pull_request:
     branches:
       - feature/assessment-conversion
       - feature/syntra-assessment-voice
+      - 'release/**'
       - main
   workflow_dispatch:
 

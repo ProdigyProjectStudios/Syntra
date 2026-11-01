@@ -7,6 +7,7 @@ import { SyntraConsultationRepository } from '../../bl/syntra/consultation-repos
 import { verifyNativeCompletion, type NativeCompletion } from '../../bl/syntra/shared/native-completion.ts';
 import type { NativeSessionGate } from '../../bl/syntra/shared/native-repository.ts';
 import { CONTACT_OPTIONS } from '../../bl/syntra/shared/business.ts';
+import type { BlueprintUpdateInput } from '../../bl/syntra/shared/blueprint.ts';
 
 const idSchema = z.number().int().positive();
 const depthSchema = z.enum(['concise', 'detailed', 'deep_dive']);
@@ -20,6 +21,8 @@ const briefChangesSchema = z.object({
   timeline: z.string().max(4000).nullable().optional(),
   nextStep: z.string().max(4000).nullable().optional(),
 }).strict();
+
+const blueprintMutationSchema = z.object({ id: idSchema, version: z.number().int().nonnegative(), requestId: z.string().regex(/^[\w-]{8,100}$/) });
 
 function handleError(operation: string, error: unknown): never {
   if (error instanceof ConsultationError) {
@@ -153,6 +156,20 @@ export function createSyntraRouter(storageFactory: AgentStorageFactoryService, n
       }
     }),
 
+    getBlueprint: publicProcedure.input(z.object({ id: idSchema })).query(async ({ ctx, input }) => {
+      try { return await repository(ctx.sessionKey).getBlueprint(input.id); }
+      catch (error) { return handleError('get-blueprint', error); }
+    }),
+    // Shared validation runs under the session lock after receipt lookup. That
+    // distinguishes a correctable rejected draft from an uncertain old retry.
+    updateBlueprint: publicProcedure.input(blueprintMutationSchema.extend({ edit: z.unknown() }).strict()).mutation(async ({ ctx, input }) => {
+      try { return await repository(ctx.sessionKey).mutateBlueprint(input.id, { version: input.version, requestId: input.requestId, edit: input.edit as BlueprintUpdateInput['edit'] }, 'update'); }
+      catch (error) { return handleError('update-blueprint', error); }
+    }),
+    regenerateBlueprint: publicProcedure.input(blueprintMutationSchema.strict()).mutation(async ({ ctx, input }) => {
+      try { return await repository(ctx.sessionKey).mutateBlueprint(input.id, { version: input.version, requestId: input.requestId }, 'regenerate'); }
+      catch (error) { return handleError('regenerate-blueprint', error); }
+    }),
     contacts: publicProcedure.query(() => CONTACT_OPTIONS),
   });
 }

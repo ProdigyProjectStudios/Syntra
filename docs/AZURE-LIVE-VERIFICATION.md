@@ -104,7 +104,7 @@ turns, specialist-specific model replies and barge-in were **not** verified.
 - Unmute restored Listening with an enabled live clone and a fresh socket.
 - Close ended the app-owned clone tracks. Fixture streams, push stream and
   contexts were explicitly closed, and original browser APIs restored.
-- With no pending turn, the rail switched Syntra, Caelis and Veyra while
+- With no pending turn, the rail switched Syntra, technical and automation perspectives while
   remaining Listening. This does not prove three app-generated spoken replies.
 - The 375×812 voice layout showed its rail, active identity, guidance and
   controls without obvious overlap. The mobile Discover screenshot also loaded

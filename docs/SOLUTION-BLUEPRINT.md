@@ -3,6 +3,8 @@
 This milestone extends the existing eight-field brief; it does not replace the
 consultation, Azure development voice, native AgentPlace adapter or visual design.
 The feature starts from release commit `59fca7f85e3d7ce6bc4032c885e9754311f5e9fa`.
+Validated implementation: [`3e15273b8b2b86132badfd58f0a220e9978b4943`](https://github.com/ProdigyProjectStudios/Syntra/commit/3e15273b8b2b86132badfd58f0a220e9978b4943)
+on `feature/syntra-solution-blueprint`, reviewed 1 November 2026.
 See [the proof register](PROOF-REGISTER.md) before making public capability claims.
 
 ## Shared deliverable and specialist responsibilities
@@ -81,6 +83,12 @@ integration scopes are still unknown.
 8. Review the brief and use the existing approved external enquiry route. Exporting
    does not send data; opening the route does not submit or reserve an appointment.
 
+The [exported synthetic example](examples/solution-blueprint-example.md) is a
+reviewable result from this browser journey. It includes the preserved reviewer
+correction, removal history and a capacity scenario from 100 monthly cases,
+30 supplied minutes per case, and an explicitly assumed 10-minute pilot target.
+Its visitor details and model replies are fixtures, clearly labelled in the file.
+
 ## Validation and operational boundaries
 
 Run the existing domain/voice, TypeScript/build, real local PostgreSQL, deterministic
@@ -109,7 +117,7 @@ Use the pinned package manager (`pnpm@10.16.1`) and Node 22.6 or later:
 pnpm test
 pnpm test:voice
 pnpm typecheck
-pnpm build
+PORT=5173 BASE_PATH=/ VITE_SYNTRA_VOICE_PROVIDER=azure pnpm build
 pnpm test:agentplace
 SYNTRA_TEST_DATABASE_URL=postgres://postgres@127.0.0.1:55432/postgres pnpm test:postgres
 SYNTRA_CHECK_URL=http://127.0.0.1:5173 pnpm test:layout
@@ -117,12 +125,71 @@ SYNTRA_CHECK_URL=http://127.0.0.1:5173 pnpm test:browser
 ```
 
 The PostgreSQL runner accepts only a loopback test database and creates/drops an
-isolated synthetic schema. Start a local production preview before the browser
-commands. Both browser runners reject nonlocal test targets; the workflow runner
+isolated synthetic schema. Start a local production preview in a separate terminal
+before the browser commands:
+
+```sh
+PORT=5173 BASE_PATH=/ pnpm --filter @workspace/digital-prodigy serve
+```
+
+Both browser runners reject nonlocal test targets; the workflow runner
 also blocks external requests. Playwright can be provided through `SYNTRA_PLAYWRIGHT_MODULE` and an
 installed Chromium through `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`; CI installs its
 pinned isolated runner. Results and screenshots go under
 `generated-artifacts/frontend-hardening` and `generated-artifacts/browser-workflows`.
+
+## Verified milestone results
+
+At implementation commit `3e15273b`, all of the following passed locally:
+
+| Check | Result and evidence boundary |
+| --- | --- |
+| Consultation/native/handoff/controller tests | 148 deterministic tests |
+| Frontend/audio/API/retry tests | 104 deterministic tests, including eight pending-Blueprint recovery tests |
+| PostgreSQL integration | Eight tests on disposable local PostgreSQL 16: concurrency, corrections during model work, replay, rollback, isolation and bounded queries |
+| TypeScript and production builds | Full workspace checks passed; these do not certify the real AgentPlace SDK |
+| Native transfer | 141 checksums, 137 TS/TSX syntax files, scoped CSS compilation and 45 exported tests; exported cases overlap source tests |
+| Browser layout | 320, 375, 390, 768 and 1440 pixels; zero page errors or horizontal overflow, with mobile introduction and control geometry assertions |
+| Browser workflow | Nine passing scenarios, zero page errors: guided specialists, depth, correction/rejection/retry, removal, history, export, reload, isolation and Android-style touch interaction |
+
+The workflow browser runs the real UI and shared Blueprint transformations, with
+synthetic model replies and local test storage. Android-style coverage uses a
+mobile viewport, Android/Chrome user agent, touch emulation and tap events in
+desktop Chromium. Its voice selector is a fixture; it provides no new microphone,
+audio, acoustic-interruption or physical-device evidence. Prior real cloud voice
+evidence remains separately scoped in the proof register.
+
+Measured initial JavaScript changed from **567,889 raw / 184,717 gzip / 158,790
+Brotli bytes** at `59fca7f` to **584,118 / 189,939 / 163,112 bytes** at `3e15273b`
+using the same build configuration. The feature costs **+2.86% raw, +2.83% gzip
+and +2.72% Brotli**. Its initial entry is `index-Ch1Dq57d.js`; Vite reports the
+deferred Brief route at approximately 38.82 kB raw / 11.68 kB gzip. These are
+bundle-size measurements, not a production or physical-phone latency improvement.
+
+Four engineering responsibilities were integrated and cross-reviewed: conversation
+and Blueprint rules; PostgreSQL/native runtime persistence; responsive specialist
+and Blueprint UI; and QA/evidence. Review led to stricter numeric evidence,
+preserved manual constraints, a final serialized-size guard, safe distinction
+between rejected and uncertain edits, and improved narrow-screen composition.
+
+## Remaining live release gates
+
+- **New model behavior:** no configured live model target ran the candidate's new
+  specialist instructions or Blueprint deltas. Validate their answer quality and
+  structured contributions in a connected development preview before claiming
+  real-model success. Scripted replies do not establish that result.
+- **Physical Android:** no physical phone, microphone/speaker or OS keyboard was
+  available for this run. Complete the human spoken-turn, interruption and device
+  lifecycle checks separately; touch emulation is not that verification.
+- **Native AgentPlace:** an authenticated running free-Luna host and current SDK
+  integration are still required for native persistence, voice, admission and
+  publication verification. The deterministic transfer preserves these boundaries
+  but does not certify them through fixtures.
+- **Deployment:** the user excluded production deployment, production migrations
+  and assessment publication from this milestone. Apply the reviewed additive
+  migration only through the real deployment process before promoting API code.
+  No production resource, Azure infrastructure or paid service was introduced or
+  modified during this feature run.
 
 A source change does not prove production behavior. Keep physical Android voice,
 actual native Luna/voice, deployment configuration and public assessment publication

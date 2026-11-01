@@ -22,11 +22,44 @@ deploy, promise delivery dates or infer a provider receipt.
 
 ## Solution Blueprint milestone
 
-The current feature branch is based on `59fca7f85e3d7ce6bc4032c885e9754311f5e9fa`.
-Its implementation and validation references will be recorded here after the
-integrated source, real PostgreSQL tests, transfer and browser journey pass. Until
-then, Blueprint functionality is a candidate implementation rather than an
-approved production claim.
+Implementation commit: [`3e15273b8b2b86132badfd58f0a220e9978b4943`](https://github.com/ProdigyProjectStudios/Syntra/commit/3e15273b8b2b86132badfd58f0a220e9978b4943),
+branch `feature/syntra-solution-blueprint`, based on release `59fca7f`.
+All evidence below was collected on 2026-11-01 against that implementation.
+These claims describe tested source and local browser behavior, not a production
+deployment or real AgentPlace execution.
+
+| ID | Approved statement | Proof | Commit reference | Verification limit |
+| --- | --- | --- | --- | --- |
+| P11 | A shared ten-section Blueprint evolves from the eight-field brief and bounded specialist contributions, with fact/recommendation/assumption/manual status. | [25 Blueprint domain tests](../lib/consultation/src/blueprint.test.ts), [guided journey](SOLUTION-BLUEPRINT.md), [synthetic exported example](examples/solution-blueprint-example.md). | 3e15273b | Candidate source. The new specialist instructions and structured deltas were not exercised against a live model in this milestone. |
+| P12 | Versioned corrections, removals and original mutation identities survive regeneration, receipt replay and concurrent model completion. Definitive rejection preserves the unsaved draft; uncertain acknowledgement preserves the original retry. | [Real PostgreSQL integration tests](../artifacts/api-server/tests/postgres-admission.integration.ts), [native storage regressions](../lib/consultation/src/blueprint-persistence.test.ts), [eight tab-recovery regressions](../artifacts/digital-prodigy/tests/pending-blueprint-operation.test.ts). | 3e15273b | Eight PostgreSQL tests used a disposable local PostgreSQL 16 database. Native storage/provider objects were fixtures. No production migration or native-host concurrency certification. |
+| P13 | Supported source behavior includes the guided Syntra → Kryon → Nyx journey, all three response depths, editing, removal, reload, version review, Markdown export and isolated sessions. | [Nine Chromium workflow scenarios](../scripts/browser-workflow-check.mjs), [reviewable exported example](examples/solution-blueprint-example.md). All nine passed with zero page errors. | 3e15273b | Actual rendered UI and portable Blueprint transformations with synthetic model/transport/storage. No real client data, model answer quality, cloud persistence or enquiry delivery is certified by this test. |
+| P14 | The Blueprint and specialist controls render without horizontal overflow at 320, 375, 390, 768 and 1440 pixels; the narrow mobile introduction and controls stay usable. | [Five-width layout checks](../scripts/frontend-layout-check.mjs). All five passed with zero page errors; modal focus, depth controls, covered-canvas pause and keyboard geometry checks also passed. | 3e15273b | Desktop Chromium. The ninth workflow additionally used Android/Chrome user agent, mobile viewport, touch emulation and real tap events. It did not use a physical Android keyboard, microphone or speaker; its voice connection was a fixture. |
+| P15 | Optional value scenarios derive arithmetic from explicitly supported quantities or labelled assumptions; supplied figures must match their unit and monthly period. Unprovenanced legacy facts stay assumptions requiring review. | [Domain evidence/arithmetic regressions](../lib/consultation/src/blueprint.test.ts), [shared transformation](../lib/consultation/src/blueprint.ts). | 3e15273b | Conservative quote validation is not independent verification of a customer's figures. Capacity scenarios are not guaranteed savings, ROI, studio prices or commitments. |
+| P16 | The reproducible native transfer includes Blueprint persistence, specialist guidance and UI while retaining native model/session/voice ownership. | [Transfer guide](AGENTPLACE-HANDOFF.md), [validator](../integrations/agentplace/validate.mjs): 141 checksums, 137 TS/TSX syntax files, scoped CSS compilation and 45 exported tests passed. | 3e15273b | Generated transfer and fixture evidence only. Native voice contributions remain Syntra-attributed because the current trusted hook lacks verified specialist metadata. Free Luna, actual SDK compatibility and realtime host voice still require live verification. |
+| P17 | The feature adds a measured, bounded initial JavaScript cost; the Brief/Blueprint route remains deferred. | Same-config local builds: release `59fca7f` **567,889 / 184,717 / 158,790** bytes versus feature **584,118 / 189,939 / 163,112** bytes, respectively raw/gzip/Brotli. Feature entry: `index-Ch1Dq57d.js`. | 59fca7f → 3e15273b | Initial cost is **+2.86% / +2.83% / +2.72%**, respectively. Vite reports the deferred Brief route at approximately 38.82 kB raw and 11.68 kB gzip. This is bundle-size evidence, not a latency, frame-rate, physical-phone or deployed performance improvement. |
+
+The complete local verification at this commit passed **252 deterministic tests**
+(148 consultation/native/handoff/controller and 104 frontend/audio/API/retry),
+**8 real PostgreSQL tests**, full workspace TypeScript and production builds,
+**45 exported native tests**, the transfer checks above, **5 layout widths** and
+**9 browser workflows**. Exported tests overlap the source tests; these totals
+must not be added together as a count of unique test cases. CI status is recorded
+on the review PR separately from these local results.
+
+The four engineering responsibilities produced coordinated results:
+
+- **Conversation and Blueprint:** bounded project-specific contributions, evidence
+  checks, safe arithmetic, manual constraint context and readable version history.
+- **Runtime and persistence:** existing PostgreSQL/native ownership, atomic updates,
+  latest-document replay, bounded receipts and distinct terminal/uncertain failures.
+- **Frontend:** adaptive shared perspectives and a responsive Blueprint within the
+  existing Brief view, with accessible disclosure, corrections and portable export.
+- **QA and integration:** realistic synthetic browser journey, touch emulation,
+  database races/rollback/isolation, recovery regressions and explicit proof limits.
+
+Cross-review corrected numeric evidence binding, unprovenanced legacy fact labels,
+serialized-document limits, definite-rejection recovery and the mobile Blueprint
+introduction before final validation.
 
 Current specialist branding is **Syntra**, **Kryon — Technical Architect**, and
 **Nyx — Automation & Workflow Specialist**. Persisted role IDs remain `syntra`,
@@ -43,6 +76,9 @@ must never be rewritten as part of a display-name update.
   of the public assessment publication requirement.
 - Deployment of this feature branch, a production database migration, changes to
   Azure resources, or a measured provider-latency reduction in this milestone.
+- Live generation quality from the new specialist instructions and Blueprint model
+  deltas. The candidate has no configured live model target in this environment;
+  production still runs the prior implementation and was not deployed as a test.
 - Guaranteed integration compatibility, implementation cost, business savings,
   delivery schedule, appointment availability or successful external submission.
 - Provider delivery from a test fixture, or an authenticated runtime from animated

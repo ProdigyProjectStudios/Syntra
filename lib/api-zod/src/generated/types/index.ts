@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adjacentMarket';
 export * from './advisorReply';
 export * from './brief';
 export * from './briefUpdate';
@@ -18,6 +19,11 @@ export * from './healthStatus';
 export * from './message';
 export * from './messageInput';
 export * from './messageRole';
+export * from './opportunityAnalysis';
+export * from './opportunityAnalysisConfidence';
+export * from './opportunityInput';
+export * from './opportunityRoute';
+export * from './opportunityRouteEffort';
 export * from './responseDepth';
 export * from './serviceArea';
 export * from './voiceSession';

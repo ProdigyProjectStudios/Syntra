@@ -29,6 +29,8 @@ import type {
   ConversationSummary,
   HealthStatus,
   MessageInput,
+  OpportunityAnalysis,
+  OpportunityInput,
   ServiceArea,
   VoiceSession,
   VoiceSessionInput
@@ -138,6 +140,95 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
+
+export const getAnalyzeOpportunityUrl = () => {
+
+
+
+
+  return `/api/opportunity/analyze`
+}
+
+/**
+ * Returns a structured decision canvas. Inputs and outputs are not stored by this endpoint.
+ * @summary Compare three approaches to a described opportunity
+ */
+export const analyzeOpportunity = async (opportunityInput: OpportunityInput, options?: Parameters<typeof customFetch>[1]): Promise<OpportunityAnalysis> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<OpportunityAnalysis>(getAnalyzeOpportunityUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(opportunityInput)
+  }
+);}
+
+
+
+
+
+export const getAnalyzeOpportunityMutationKey = () => ['analyzeOpportunity'] as const;
+
+export const getAnalyzeOpportunityMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeOpportunity>>, TError,AnalyzeOpportunityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof analyzeOpportunity>>, TError,AnalyzeOpportunityMutationVariables, TContext> => {
+
+const mutationKey = getAnalyzeOpportunityMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof analyzeOpportunity>>, AnalyzeOpportunityMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  analyzeOpportunity(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnalyzeOpportunityMutationResult = NonNullable<Awaited<ReturnType<typeof analyzeOpportunity>>>
+    export type AnalyzeOpportunityMutationBody = BodyType<OpportunityInput>
+    export type AnalyzeOpportunityMutationError = ErrorType<void>
+    export type AnalyzeOpportunityMutationVariables = {data: BodyType<OpportunityInput>}
+
+    /**
+ * @summary Compare three approaches to a described opportunity
+ */
+export const useAnalyzeOpportunity = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof analyzeOpportunity>>, TError,AnalyzeOpportunityMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof analyzeOpportunity>>,
+        TError,
+        AnalyzeOpportunityMutationVariables,
+        TContext
+      > => {
+      return useMutation(getAnalyzeOpportunityMutationOptions(options));
+    }
 
 export const getListServicesUrl = () => {
 

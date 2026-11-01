@@ -5,6 +5,81 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface OpportunityInput {
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  market: string;
+  /**
+     * @minLength 40
+     * @maxLength 3000
+     */
+  challenge: string;
+  /** @maxLength 1000 */
+  constraints?: string;
+}
+
+export type OpportunityRouteEffort = typeof OpportunityRouteEffort[keyof typeof OpportunityRouteEffort];
+
+
+export const OpportunityRouteEffort = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+
+export interface OpportunityRoute {
+  name: string;
+  approach: string;
+  firstRelease: string;
+  effort: OpportunityRouteEffort;
+  mainRisk: string;
+  tradeoff: string;
+}
+
+export interface AdjacentMarket {
+  market: string;
+  transfer: string;
+}
+
+export type OpportunityAnalysisConfidence = typeof OpportunityAnalysisConfidence[keyof typeof OpportunityAnalysisConfidence];
+
+
+export const OpportunityAnalysisConfidence = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+
+export interface OpportunityAnalysis {
+  headline: string;
+  diagnosis: string;
+  valueAtStake: string;
+  /**
+     * @minItems 3
+     * @maxItems 3
+     */
+  routes: OpportunityRoute[];
+  /**
+     * @minimum 0
+     * @maximum 2
+     */
+  recommendedRoute: number;
+  recommendationReason: string;
+  firstExperiment: string;
+  successSignal: string;
+  assumptions: string[];
+  questions: string[];
+  /**
+     * @minItems 2
+     * @maxItems 2
+     */
+  adjacentMarkets: AdjacentMarket[];
+  confidence: OpportunityAnalysisConfidence;
+  confidenceReason: string;
+}
+
 export interface HealthStatus {
   status: string;
 }

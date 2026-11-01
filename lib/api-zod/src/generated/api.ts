@@ -18,6 +18,64 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * Returns a structured decision canvas. Inputs and outputs are not stored by this endpoint.
+ * @summary Compare three approaches to a described opportunity
+ */
+export const analyzeOpportunityBodyMarketMin = 2;
+export const analyzeOpportunityBodyMarketMax = 80;
+
+export const analyzeOpportunityBodyChallengeMin = 40;
+export const analyzeOpportunityBodyChallengeMax = 3000;
+
+export const analyzeOpportunityBodyConstraintsMax = 1000;
+
+
+
+export const AnalyzeOpportunityBody = zod.object({
+  "market": zod.string().min(analyzeOpportunityBodyMarketMin).max(analyzeOpportunityBodyMarketMax),
+  "challenge": zod.string().min(analyzeOpportunityBodyChallengeMin).max(analyzeOpportunityBodyChallengeMax),
+  "constraints": zod.string().max(analyzeOpportunityBodyConstraintsMax).optional()
+})
+
+export const analyzeOpportunityResponseRoutesMin = 3;
+export const analyzeOpportunityResponseRoutesMax = 3;
+
+export const analyzeOpportunityResponseRecommendedRouteMin = 0;
+export const analyzeOpportunityResponseRecommendedRouteMax = 2;
+
+export const analyzeOpportunityResponseAdjacentMarketsMin = 2;
+export const analyzeOpportunityResponseAdjacentMarketsMax = 2;
+
+
+
+export const AnalyzeOpportunityResponse = zod.object({
+  "headline": zod.string(),
+  "diagnosis": zod.string(),
+  "valueAtStake": zod.string(),
+  "routes": zod.array(zod.object({
+  "name": zod.string(),
+  "approach": zod.string(),
+  "firstRelease": zod.string(),
+  "effort": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "mainRisk": zod.string(),
+  "tradeoff": zod.string()
+})).min(analyzeOpportunityResponseRoutesMin).max(analyzeOpportunityResponseRoutesMax),
+  "recommendedRoute": zod.number().int().min(analyzeOpportunityResponseRecommendedRouteMin).max(analyzeOpportunityResponseRecommendedRouteMax),
+  "recommendationReason": zod.string(),
+  "firstExperiment": zod.string(),
+  "successSignal": zod.string(),
+  "assumptions": zod.array(zod.string()),
+  "questions": zod.array(zod.string()),
+  "adjacentMarkets": zod.array(zod.object({
+  "market": zod.string(),
+  "transfer": zod.string()
+})).min(analyzeOpportunityResponseAdjacentMarketsMin).max(analyzeOpportunityResponseAdjacentMarketsMax),
+  "confidence": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "confidenceReason": zod.string()
+})
+
+
+/**
  * Returns Digital Prodigy's four service areas for the Solutions experience
  * @summary List service areas
  */

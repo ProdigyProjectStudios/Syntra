@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Compass, Boxes, FileText, CalendarClock, History, Plus, X } from 'lucide-react';
+import { Compass, Boxes, FileText, CalendarClock, History, Plus, X, Sparkles } from 'lucide-react';
 import { useAdvisor } from '@/lib/advisor';
 import { AdvisorOrb, Composer, DepthSwitch, HistoryList, Stream } from '@/components/advisor-ui';
 import { VoiceConsole, OPEN_VOICE_EVENT } from '@/components/voice';
@@ -13,9 +13,10 @@ import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/', label: 'Discover', icon: Compass, code: '01' },
-  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '02' },
-  { href: '/brief', label: 'Project Brief', icon: FileText, code: '03' },
-  { href: '/book', label: 'Book', icon: CalendarClock, code: '04' },
+  { href: '/lab', label: 'Decision Lab', icon: Sparkles, code: '02' },
+  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '03' },
+  { href: '/brief', label: 'Project Brief', icon: FileText, code: '04' },
+  { href: '/book', label: 'Book', icon: CalendarClock, code: '05' },
 ];
 
 export function Shell({ children }: { children: (location: string) => ReactNode }) {
@@ -125,7 +126,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
             </AnimatePresence>
           </main>
           <AnimatePresence>
-            {!onDiscover && (
+            {!onDiscover && location !== '/lab' && (
               <motion.aside initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="edge-light hidden w-[340px] shrink-0 flex-col overflow-hidden rounded-[28px] glass xl:flex" aria-label="Conversation">
                 <div className="flex items-center gap-3 px-5 py-4">
                   <AdvisorOrb size={30} thinking={sending} />
@@ -143,9 +144,9 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
           </AnimatePresence>
         </div>
 
-        <div className="px-4 pb-4 sm:px-6 sm:pb-6">
+        {location !== '/lab' && <div className="px-4 pb-4 sm:px-6 sm:pb-6">
           <div className="mx-auto max-w-3xl"><Composer onSpeak={() => setVoice(true)} /></div>
-        </div>
+        </div>}
       </div>
 
       {/* Sessions drawer */}

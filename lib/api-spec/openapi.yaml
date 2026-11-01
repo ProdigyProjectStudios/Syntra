@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: advisor
     description: AI build advisor operations
+  - name: intelligence
+    description: Stateless cross-market decision intelligence
 paths:
   /healthz:
     get:
@@ -26,6 +28,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /opportunity/analyze:
+    post:
+      operationId: analyzeOpportunity
+      tags: [intelligence]
+      summary: Compare three approaches to a described opportunity
+      description: Returns a structured decision canvas. Inputs and outputs are not stored by this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "200":
+          description: Decision canvas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityAnalysis"
+        "400":
+          description: Invalid input
+        "429":
+          description: Rate limit reached
+        "502":
+          description: Analysis unavailable
+        "503":
+          description: Pilot capacity reached
 
   /services:
     get:
@@ -213,6 +243,95 @@ paths:
 
 components:
   schemas:
+    OpportunityInput:
+      type: object
+      properties:
+        market:
+          type: string
+          minLength: 2
+          maxLength: 80
+        challenge:
+          type: string
+          minLength: 40
+          maxLength: 3000
+        constraints:
+          type: string
+          maxLength: 1000
+      required: [market, challenge]
+
+    OpportunityRoute:
+      type: object
+      properties:
+        name:
+          type: string
+        approach:
+          type: string
+        firstRelease:
+          type: string
+        effort:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        mainRisk:
+          type: string
+        tradeoff:
+          type: string
+      required: [name, approach, firstRelease, effort, mainRisk, tradeoff]
+
+    AdjacentMarket:
+      type: object
+      properties:
+        market:
+          type: string
+        transfer:
+          type: string
+      required: [market, transfer]
+
+    OpportunityAnalysis:
+      type: object
+      properties:
+        headline:
+          type: string
+        diagnosis:
+          type: string
+        valueAtStake:
+          type: string
+        routes:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/OpportunityRoute"
+        recommendedRoute:
+          type: integer
+          minimum: 0
+          maximum: 2
+        recommendationReason:
+          type: string
+        firstExperiment:
+          type: string
+        successSignal:
+          type: string
+        assumptions:
+          type: array
+          items:
+            type: string
+        questions:
+          type: array
+          items:
+            type: string
+        adjacentMarkets:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: "#/components/schemas/AdjacentMarket"
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        confidenceReason:
+          type: string
+      required: [headline, diagnosis, valueAtStake, routes, recommendedRoute, recommendationReason, firstExperiment, successSignal, assumptions, questions, adjacentMarkets, confidence, confidenceReason]
+
     HealthStatus:
       type: object
       properties:

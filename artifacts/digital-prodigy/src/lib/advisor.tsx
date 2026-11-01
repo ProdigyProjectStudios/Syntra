@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useCreateConversation,
@@ -54,6 +54,13 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
   const convQ = useGetConversation(conversationId ?? 0, {
     query: { enabled: !!conversationId, queryKey: getGetConversationQueryKey(conversationId ?? 0), retry: 1 },
   });
+
+  useEffect(() => {
+    if (conversationId && convQ.isError && (convQ.error as { status?: number })?.status === 404) {
+      setId(null);
+      localStorage.removeItem(KEY);
+    }
+  }, [conversationId, convQ.isError, convQ.error]);
 
   const setConversationId = useCallback((id: number | null) => {
     setId(id);

@@ -32,7 +32,7 @@ export default function BriefPage() {
     <div>
       <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
         <div>
-          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / Working brief</div>
+          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">04 / Working brief</div>
           <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">The brief, <span className="text-ember glow-text">as it forms.</span></h1>
           <p className="mt-3 max-w-xl text-foreground/65">Only what has been discussed or clearly marked as a direction. Click any field to correct it.</p>
         </div>

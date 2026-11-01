@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, desc, sql } from "drizzle-orm";
+import { and, eq, desc, sql } from "drizzle-orm";
 import { db, conversationsTable, messagesTable, briefsTable } from "@workspace/db";
 import {
   ListServicesResponse,
@@ -55,11 +55,11 @@ function briefToFields(brief: BriefRowShape | undefined): BriefFields {
   };
 }
 
-async function loadConversation(id: number) {
+async function loadConversation(id: number, ownerSessionHash: string) {
   const [conversation] = await db
     .select()
     .from(conversationsTable)
-    .where(eq(conversationsTable.id, id));
+    .where(and(eq(conversationsTable.id, id), eq(conversationsTable.ownerSessionHash, ownerSessionHash)));
   if (!conversation) return null;
 
   const messages = await db
@@ -95,6 +95,7 @@ router.get("/conversations", async (_req, res): Promise<void> => {
       messageCount: sql<number>`(select count(*)::int from ${messagesTable} where ${messagesTable.conversationId} = ${conversationsTable.id})`,
     })
     .from(conversationsTable)
+    .where(eq(conversationsTable.ownerSessionHash, res.locals.visitorSessionHash as string))
     .orderBy(desc(conversationsTable.updatedAt));
 
   res.json(ListConversationsResponse.parse(rows));
@@ -109,7 +110,7 @@ router.post("/conversations", async (req, res): Promise<void> => {
 
   const [conversation] = await db
     .insert(conversationsTable)
-    .values({ depth: parsed.data.depth })
+    .values({ depth: parsed.data.depth, ownerSessionHash: res.locals.visitorSessionHash as string })
     .returning();
 
   await db.insert(briefsTable).values({ conversationId: conversation.id });
@@ -140,7 +141,7 @@ router.get("/conversations/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const loaded = await loadConversation(params.data.id);
+  const loaded = await loadConversation(params.data.id, res.locals.visitorSessionHash as string);
   if (!loaded) {
     res.status(404).json({ error: "Conversation not found" });
     return;
@@ -167,7 +168,7 @@ router.post("/conversations/:id/messages", async (req, res): Promise<void> => {
     return;
   }
 
-  const loaded = await loadConversation(params.data.id);
+  const loaded = await loadConversation(params.data.id, res.locals.visitorSessionHash as string);
   if (!loaded) {
     res.status(404).json({ error: "Conversation not found" });
     return;
@@ -241,17 +242,13 @@ router.get("/conversations/:id/brief", async (req, res): Promise<void> => {
     return;
   }
 
-  const [brief] = await db
-    .select()
-    .from(briefsTable)
-    .where(eq(briefsTable.conversationId, params.data.id));
-
-  if (!brief) {
+  const loaded = await loadConversation(params.data.id, res.locals.visitorSessionHash as string);
+  if (!loaded || !loaded.brief) {
     res.status(404).json({ error: "Conversation not found" });
     return;
   }
 
-  res.json(GetBriefResponse.parse(briefToFields(brief)));
+  res.json(GetBriefResponse.parse(briefToFields(loaded.brief)));
 });
 
 router.patch("/conversations/:id/brief", async (req, res): Promise<void> => {
@@ -269,6 +266,12 @@ router.patch("/conversations/:id/brief", async (req, res): Promise<void> => {
   const updates = Object.fromEntries(
     Object.entries(parsed.data).filter(([, v]) => v !== undefined),
   );
+
+  const loaded = await loadConversation(params.data.id, res.locals.visitorSessionHash as string);
+  if (!loaded) {
+    res.status(404).json({ error: "Conversation not found" });
+    return;
+  }
 
   const [updated] = await db
     .update(briefsTable)
@@ -294,7 +297,7 @@ router.post("/voice/sessions", async (req, res): Promise<void> => {
   const [conversation] = await db
     .select()
     .from(conversationsTable)
-    .where(eq(conversationsTable.id, parsed.data.conversationId));
+    .where(and(eq(conversationsTable.id, parsed.data.conversationId), eq(conversationsTable.ownerSessionHash, res.locals.visitorSessionHash as string)));
 
   if (!conversation) {
     res.status(404).json({ error: "Conversation not found" });

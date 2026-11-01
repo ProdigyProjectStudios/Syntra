@@ -480,6 +480,17 @@ async function fixture(page) {
         "Specialist controls overflow",
       );
       await page.getByTestId("button-depth-toggle").click();
+      if (width >= 640) {
+        await page.waitForTimeout(350);
+        const triggerBox = await page.getByTestId("button-depth-toggle").boundingBox();
+        const choicesBox = await page.getByRole("radiogroup", { name: "Response depth" }).boundingBox();
+        // Move slowly through the visible gap, not directly onto a choice.
+        await page.mouse.move((choicesBox.x + choicesBox.width + triggerBox.x) / 2,
+          triggerBox.y + triggerBox.height / 2, { steps: 8 });
+        await page.waitForTimeout(350);
+        assert.equal(await page.getByTestId("button-depth-toggle").getAttribute("aria-expanded"), "true",
+          "Crossing the gap must not close the depth selector");
+      }
       await page.getByTestId("button-depth-deep_dive").click();
       await page
         .getByTestId(width >= 1024 ? "link-project-brief" : "link-m-03")

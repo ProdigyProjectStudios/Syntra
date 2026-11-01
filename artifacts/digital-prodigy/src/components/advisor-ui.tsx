@@ -93,7 +93,7 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
           animate={open ? { opacity: 1, x: 0, scaleX: 1 } : { opacity: 0, x: reduce ? 0 : 12, scaleX: reduce ? 1 : 0.55 }}
           transition={reduce ? { duration: 0 } : { duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
           style={{ transformOrigin: 'right center' }}
-          className={cn('absolute right-full top-1/2 z-50 mr-1.5 flex -translate-y-1/2 rounded-full glass p-1 shadow-[0_12px_40px_-12px_hsl(210_95%_55%/.5)]', !open && 'pointer-events-none')}
+          className={cn('absolute right-full top-1/2 z-50 mr-1.5 flex -translate-y-1/2 rounded-full glass p-1 shadow-[0_12px_40px_-12px_hsl(210_95%_55%/.5)] after:absolute after:inset-y-0 after:-right-2 after:w-2 after:content-[\'\']', !open && 'pointer-events-none')}
         >
           {DEPTHS.map((d, i) => {
             const active = depth === d.id;

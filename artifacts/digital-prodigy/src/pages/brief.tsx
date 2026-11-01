@@ -65,7 +65,7 @@ function BriefWorkspace() {
     <div>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4 sm:mb-8 sm:gap-6">
         <div>
-          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / {view === 'blueprint' ? 'Solution Blueprint' : 'Working brief'}</div>
+          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">06 / {view === 'blueprint' ? 'Solution Blueprint' : 'Working brief'}</div>
           <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">{view === 'blueprint' ? 'A clear path, ' : 'The brief, '}<span className="text-ember glow-text">{view === 'blueprint' ? 'ready to explore.' : 'as it forms.'}</span></h1>
           <p className="mt-3 max-w-xl text-foreground/65">{view === 'blueprint' ? 'Business context, system thinking and a phased plan. One living document, with the evidence and open questions visible.' : 'Only what has been discussed or clearly marked as a direction. Click any field to correct it.'}</p>
         </div>

@@ -17,3 +17,16 @@ run with the extra nullable column; do not drop it to roll back application code
 Dropping it would destroy saved Blueprints.
 
 No production database or migration was accessed during this engineering run.
+
+## Intelligence release additions
+
+The reviewed SQL for the owner-session column/index is
+`docs/migrations/2026-11-01-conversation-session-scope.sql`; shared admission
+counters are in `docs/migrations/2026-11-01-shared-ai-usage.sql`.
+Both are additive. Do not assign historical unowned rows to a new visitor,
+drop existing ownership columns, or run DDL during API startup/build.
+
+These additions were verified in the development database with existing
+conversations preserved. For the managed Replit production database, review
+the corresponding additive schema diff in Publish and apply it before serving
+the new API. Development SQL execution does not update production.

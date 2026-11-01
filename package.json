@@ -8,6 +8,7 @@
     "test": "pnpm --filter @workspace/consultation test",
     "test:agentplace": "node integrations/agentplace/validate.mjs",
     "test:voice": "node --experimental-strip-types --test artifacts/digital-prodigy/tests/*.test.ts artifacts/api-server/tests/*.test.ts",
+    "test:intelligence": "node scripts/test-intelligence.mjs",
     "test:layout": "node scripts/frontend-layout-check.mjs",
     "test:browser": "node scripts/browser-workflow-check.mjs",
     "test:postgres": "node scripts/test-postgres.mjs",

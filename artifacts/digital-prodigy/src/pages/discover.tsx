@@ -4,6 +4,8 @@ import { AdvisorOrb, StepChips, Stream } from '@/components/advisor-ui';
 import { OPEN_VOICE_EVENT } from '@/components/voice';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { TextSpecialistSwitch, BlueprintNextStep } from '@/components/text-specialist-switch';
+import { Link } from 'wouter';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 export default function Discover() {
   const { conversation, sending, pendingText, loadingConversation } = useAdvisor();
@@ -52,6 +54,9 @@ export default function Discover() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="intro-suggestions mt-4 sm:mt-8">
         <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground sm:mb-3">Suggested next steps</div>
         <StepChips steps={OPENING_STEPS} />
+      </motion.div>
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="mt-8">
+        <Link href="/lab" className="inline-flex items-center gap-2 rounded-full border border-primary/35 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20" data-testid="link-decision-lab-hero"><Sparkles className="h-4 w-4" /> Compare three paths in Decision Lab <ArrowUpRight className="h-4 w-4" /></Link>
       </motion.div>
     </div>
   );

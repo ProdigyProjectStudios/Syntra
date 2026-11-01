@@ -11,7 +11,6 @@ import { replitAI } from "../lib/advisor-ai";
 import { repository, repositoryForTransaction, withConsultationTransaction, type ConsultationTransaction } from "../lib/consultation-repository";
 import { pool, type DatabaseClient } from "@workspace/db";
 import { createPostgresConversationAdmissionGate } from "../lib/postgres-admission";
-import { privateSession } from "../middlewares/privacy";
 import { issueSpeechToken, speechConfiguration } from "../lib/speech-provider";
 
 const router: IRouter = Router();
@@ -21,7 +20,6 @@ router.get("/voice/config", (_req, res) => {
   res.setHeader("Cache-Control", "no-store");
   res.json(speechConfiguration());
 });
-router.use(privateSession);
 router.get("/conversations", async (_req, res) => {
   res.json(ListConversationsResponse.parse(await repository.list(res.locals.owner)));
 });

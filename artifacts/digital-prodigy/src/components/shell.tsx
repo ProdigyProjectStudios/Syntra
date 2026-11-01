@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode, type KeyboardEvent } from 'react';
 import { Link, useLocation } from 'wouter';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Compass, Boxes, FileText, CalendarClock, History, Plus, X } from 'lucide-react';
+import { Compass, Boxes, FileText, CalendarClock, History, Plus, X, Sparkles, BookOpenCheck, FlaskConical } from 'lucide-react';
 import { useAdvisor } from '@/lib/advisor';
 import { AdvisorOrb, Composer, DepthSwitch, HistoryList, Stream } from '@/components/advisor-ui';
 import { VoiceConsole, OPEN_VOICE_EVENT } from '@/components/voice';
@@ -18,9 +18,12 @@ import { useRuntime } from '@/lib/runtime-context';
 
 const NAV = [
   { href: '/', label: 'Discover', icon: Compass, code: '01' },
-  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '02' },
-  { href: '/brief', label: 'Project Brief', icon: FileText, code: '03' },
-  { href: '/book', label: 'Book', icon: CalendarClock, code: '04' },
+  { href: '/lab', label: 'Decision Lab', icon: Sparkles, code: '02' },
+  { href: '/evidence', label: 'Evidence Room', icon: BookOpenCheck, code: '03' },
+  { href: '/action', label: 'Action Studio', icon: FlaskConical, code: '04' },
+  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '05' },
+  { href: '/brief', label: 'Project Brief', icon: FileText, code: '06' },
+  { href: '/book', label: 'Book', icon: CalendarClock, code: '07' },
 ];
 
 export function Shell({ children }: { children: (location: string) => ReactNode }) {
@@ -42,6 +45,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
   useVisualViewport(shell, !native);
   const mobile = useMediaQuery('(max-width: 639px)');
   const onDiscover = location === '/';
+  const onTool = ['/lab', '/evidence', '/action'].includes(location);
   const current = NAV.find((n) => n.href === location);
 
   const focusedElement = () => {
@@ -166,7 +170,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <DepthSwitch compact />
+            {!onTool && <DepthSwitch compact />}
             <button onClick={openHistory} data-testid="button-open-history" aria-label="Sessions" className="grid h-9 w-9 place-items-center rounded-full glass lg:hidden"><History className="h-4 w-4" /></button>
           </div>
         </header>
@@ -178,7 +182,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
               <Link key={n.href} href={n.href} aria-label={n.label} aria-current={active ? 'page' : undefined} data-testid={`link-m-${n.code}`} className={cn('relative flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[11px] font-medium transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground')}>
                 {active && <motion.span layoutId="m-nav" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,hsl(187_92%_70%),hsl(212_95%_62%))] halo" />}
                 <n.icon className="relative h-3.5 w-3.5" />
-                <span className="relative hidden min-[420px]:inline">{n.label.split(' ').pop()}</span>
+                <span className="relative hidden min-[700px]:inline">{n.label.split(' ').pop()}</span>
               </Link>
             );
           })}
@@ -207,7 +211,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
             </AnimatePresence>
           </main>
           <AnimatePresence>
-            {!onDiscover && (
+            {!onDiscover && !onTool && (
               <motion.aside initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="edge-light hidden w-[340px] shrink-0 flex-col overflow-hidden rounded-[28px] glass xl:flex" aria-label="Conversation">
                 <div className="flex items-center gap-3 px-5 py-4">
                   <AdvisorOrb size={30} thinking={sending} />
@@ -225,9 +229,9 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
           </AnimatePresence>
         </div>
 
-        <div className="px-4 pb-4 sm:px-6 sm:pb-6" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+        {!onTool && <div className="px-4 pb-4 sm:px-6 sm:pb-6" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
           <div className="mx-auto max-w-3xl"><Composer onSpeak={openVoice} voiceOpen={voice} /></div>
-        </div>
+        </div>}
       </div>
 
       </div>

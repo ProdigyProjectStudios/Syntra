@@ -28,7 +28,7 @@ app.use(
 );
 app.disable("x-powered-by");
 app.use(cookieParser());
-app.use(express.json({ limit: "32kb" }));
+app.use(express.json({ limit: "96kb" }));
 app.use(express.urlencoded({ extended: true, limit: "32kb" }));
 
 app.use("/api", router);

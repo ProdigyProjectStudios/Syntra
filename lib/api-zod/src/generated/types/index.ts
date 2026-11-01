@@ -6,6 +6,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './actionEvaluationCase';
+export * from './actionInput';
+export * from './actionMeasurement';
+export * from './actionMilestone';
+export * from './actionPlan';
+export * from './adjacentMarket';
 export * from './advisorReply';
 export * from './blueprint';
 export * from './blueprintCalculation';
@@ -34,10 +40,22 @@ export * from './conversationInput';
 export * from './conversationSummary';
 export * from './fieldProvenance';
 export * from './fieldProvenanceStatus';
+export * from './evidenceAnalysis';
+export * from './evidenceAnalysisStance';
+export * from './evidenceCitation';
+export * from './evidenceClaim';
+export * from './evidenceClaimAssessment';
+export * from './evidenceInput';
+export * from './evidenceSource';
 export * from './healthStatus';
 export * from './message';
 export * from './messageInput';
 export * from './messageRole';
+export * from './opportunityAnalysis';
+export * from './opportunityAnalysisConfidence';
+export * from './opportunityInput';
+export * from './opportunityRoute';
+export * from './opportunityRouteEffort';
 export * from './responseDepth';
 export * from './serviceArea';
 export * from './specialistId';

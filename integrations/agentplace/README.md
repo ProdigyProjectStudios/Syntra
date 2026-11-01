@@ -1,3 +1,23 @@
+# Intelligence-tool extension
+
+The current frontend additionally contains Decision Lab, Evidence Room and Action
+Studio. The exporter carries their current generated **contract types**, not the
+Replit API server, database, Azure credentials or model infrastructure.
+
+Register `window.__SYNTRA_INTELLIGENCE__` before rendering the native frontend.
+Its `SyntraIntelligenceAdapter` interface is exported from the transferred
+`frontend/lib/intelligence-client.ts`: `opportunity(input)`, `evidence(input)` and
+`action(input)` return their corresponding typed results. Connect those methods
+to host-owned, validated, admitted handlers. Unbound tools fail explicitly.
+The Replit development build retains its existing same-origin API transport.
+
+This extension does not change the native consultation runtime, Luna identity,
+voice events, transcript deduplication or host session ownership. Transfer
+validation checks syntax/contracts; live host registration still requires
+AgentPlace verification.
+
+---
+
 # Syntra: Replit ↔ AgentPlace reconciliation
 
 **Canonical frontend:** `artifacts/digital-prodigy/src`.  

@@ -179,7 +179,7 @@ function BookWorkspace() {
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[.33em] text-primary/80">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(103,232,249,.7)]" /> 04 / Human handoff
+            <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(103,232,249,.7)]" /> 07 / Human handoff
           </p>
           <h1 className="font-display text-[clamp(1.5rem,3.2vw,2.6rem)] font-light leading-[1.2] tracking-[-.055em]">
             From clarity <span className="text-ember">to action.</span>

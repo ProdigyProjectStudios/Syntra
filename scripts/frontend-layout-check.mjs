@@ -240,7 +240,7 @@ async function fixture(page) {
       );
       assert.deepEqual(
         entry.nav.map((item) => item.label),
-        ["Discover", "Solutions", "Project Brief", "Book"],
+        ["Discover", "Decision Lab", "Evidence Room", "Action Studio", "Solutions", "Project Brief", "Book"],
       );
       assert.equal(
         entry.nav.filter((item) => item.current === "page").length,
@@ -514,7 +514,7 @@ async function fixture(page) {
       }
       await page.getByTestId("button-depth-deep_dive").click();
       await page
-        .getByTestId(width >= 1024 ? "link-project-brief" : "link-m-03")
+        .getByTestId(width >= 1024 ? "link-project-brief" : "link-m-06")
         .click();
       await page.getByTestId("tab-solution-blueprint").click();
       await page.getByTestId("solution-blueprint").waitFor();

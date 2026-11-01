@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -8,9 +8,10 @@ export const conversationsTable = pgTable("conversations", {
   blueprint: jsonb("blueprint").$type<unknown>(),
   title: text("title").notNull().default("New conversation"),
   depth: text("depth").notNull().default("detailed"),
+  ownerSessionHash: text("owner_session_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+}, table => [index("conversations_owner_session_hash_idx").on(table.ownerSessionHash)]);
 
 export const insertConversationSchema = createInsertSchema(conversationsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertConversation = z.infer<typeof insertConversationSchema>;

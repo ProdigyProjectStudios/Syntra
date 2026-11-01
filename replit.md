@@ -3,6 +3,30 @@
 Keep `artifacts/digital-prodigy/src` and `lib/consultation/src` authoritative. Native-only bindings are under `integrations/agentplace`; historical frontend overlays there must not be applied to newer source. `pnpm test:agentplace` generates/checks a dedicated ignored transfer bundle. See its README and registration checklist before updating the native host.
 # Digital Prodigy — AI Build Advisor
 
+## Intelligence release
+
+Decision Lab (`/lab`), Evidence Room (`/evidence`) and Action Studio (`/action`)
+extend the current consultation runtime; do not restore the older PR's advisor
+backend/provider over the canonical runtime. All tools reuse `syntra.session`,
+the existing same-origin middleware and hashed ownership. Previously owned
+Replit conversations keep their verified `owner_hash`; new conversations also
+write `owner_session_hash`. Never assign unowned legacy rows to a visitor.
+
+PostgreSQL counters enforce distributed per-visitor/hour limits (6/4/4 for
+Lab/Evidence/Action) and shared daily model ceilings across these tools and the
+Replit consultation provider. Daily defaults: 200,000 conservatively reserved
+tokens and 100 provider attempts, UTC windows. Non-secret overrides:
+`SYNTRA_AI_DAILY_TOKEN_BUDGET` and `SYNTRA_AI_DAILY_REQUEST_BUDGET`.
+Every allowed retry is reserved before contacting the model, failures are not
+refunded, and unavailable accounting fails closed. Telemetry contains only
+model, timing, token counts and error type; never source text/prompts.
+These controls do not meter Azure speech or AgentPlace's native provider.
+
+Apply the additive development SQL in `docs/migrations/` before running the new
+API. Replit manages this project's production database: Publish must apply the
+reviewed schema diff before the new API serves traffic. Do not run startup DDL,
+custom production migrations, destructive resets, or overwrite production data.
+
 _A conversational AI advisor for Digital Prodigy (AI-first product studio): turns a visitor's vague idea into a scoped project brief across four experiences — Discover, Solutions, Project Brief, Book._
 
 ## Run & Operate

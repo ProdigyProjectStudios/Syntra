@@ -20,5 +20,6 @@ export const privateSession: RequestHandler = (req, res, next) => {
     res.cookie("syntra.session", token, { httpOnly: true, secure, sameSite: secure ? "none" : "lax", path: "/api", maxAge: 30 * 24 * 60 * 60 * 1000 });
   }
   res.locals.owner = createHash("sha256").update(token).digest("hex");
+  res.locals.visitorSessionHash = res.locals.owner;
   next();
 };

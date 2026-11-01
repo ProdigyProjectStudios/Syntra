@@ -10,3 +10,4 @@
 - [Route transition flash](route-transitions.md) — animated route containers must render a frozen location, or the outgoing page flashes the incoming content.
 - [Syntra portability](syntra-portability.md) — exact frontend moves from Replit to AgentPlace; preserve the native host AI, voice and session runtime.
 - [Pinned pnpm bootstrap](package-manager-bootstrap.md) — automatic installation can recurse; bootstrap the pinned version without removing the repository pin.
+- [GitHub connector limits](github-connector-limits.md) — connector proxy throttling is independent of GitHub's published API allowance.

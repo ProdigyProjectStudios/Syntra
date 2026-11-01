@@ -49,12 +49,14 @@ for (const file of await files(frontend)) {
   if (/\.(tsx?|css)$/.test(file)) {
     const imported = specifier => {
       const target = specifier.startsWith('@/') ? path.join(client, 'frontend', specifier.slice(2))
+        : specifier === '@workspace/api-client-react' ? path.join(client, 'compat/intelligence-contracts.ts')
         : path.join(client, 'shared/index.ts');
       const from = path.dirname(path.join(client, 'frontend', relative));
       const result = path.relative(from, target).replaceAll(path.sep, '/');
       return result.startsWith('.') ? result : './' + result;
     };
-    content = content.replace(/(['"])(@\/[^'"]+|@workspace\/consultation)\1/g, (_, quote, specifier) => quote + imported(specifier) + quote);
+    content = content.replace(/(['"])(@\/[^'"]+|@workspace\/consultation|@workspace\/api-client-react)\1/g, (_, quote, specifier) => quote + imported(specifier) + quote);
+    if (relative === 'lib/intelligence-client.ts') content = content.replace('const NATIVE_ONLY = false;', 'const NATIVE_ONLY = true;');
     content = content.replace(/import logo from ['"][^'"]*dp-logo\.png['"];?/, "const logo = '/syntra/assets/dp-logo.png';")
       .replaceAll('import.meta.env.BASE_URL', "'/'").replaceAll('import.meta.env.DEV', 'false');
     content = content.replace(/(['"])react-day-picker\1/g, '$1@syntra/react-day-picker$1')
@@ -78,6 +80,9 @@ for (const file of await files(path.join(root, 'lib/consultation/src'))) {
 }
 await emit('agent-dev-client/static/syntra/assets/dp-logo.png',
   await fs.readFile(path.join(frontend, 'assets/dp-logo.png')), 'artifacts/digital-prodigy/src/assets/dp-logo.png');
+await emit(path.join(client, 'compat/intelligence-contracts.ts'),
+  await fs.readFile(path.join(root, 'lib/api-client-react/src/generated/api.schemas.ts')),
+  'lib/api-client-react/src/generated/api.schemas.ts');
 await fs.writeFile(path.join(out, 'syntra-transfer-manifest.json'), JSON.stringify({
   schemaVersion: 1, sourceOfTruth: 'artifacts/digital-prodigy/src + lib/consultation/src',
   upstreamAgentPlaceCommit: 'ddec385eef2b76b31974a0c16de57a498d5a22f3',

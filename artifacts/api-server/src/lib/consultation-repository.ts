@@ -50,7 +50,7 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
   },
   async create(owner, depth) {
     return database.transaction(async tx => {
-      const [s] = await tx.insert(sessions).values({ ownerHash: owner, depth }).returning();
+      const [s] = await tx.insert(sessions).values({ ownerHash: owner, ownerSessionHash: owner, depth }).returning();
       const [b] = await tx.insert(briefs).values({ conversationId: s.id }).returning();
       const [m] = await tx.insert(messages).values({ conversationId: s.id, role: "advisor", content: OPENING, depth }).returning();
       return { ...session(s), messages: [message(m)], brief: brief(b), blueprint: readBlueprintStore(s.blueprint).document };

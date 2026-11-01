@@ -1,11 +1,11 @@
-import { openai } from "@workspace/integrations-openai-ai-server";
+import { budgetedCompletion } from "./budgeted-openai";
 import { buildSystemPrompt, blueprintContext, DEPTH_GUIDANCE, parseAdvisorResult, type AIProvider } from "@workspace/consultation";
 import { SERVICE_AREAS } from "./advisor-data";
 
 /** Development provider only. AgentPlace supplies an AIProvider backed by its native GPT-6 Luna runtime. */
 export const replitAI: AIProvider = {
   async consult(input) {
-    const response = await openai.chat.completions.create({
+    const response = await budgetedCompletion({
       model: "gpt-5.6-terra",
       // Capacity for a valid structured brief + focused Blueprint deltas, not a
       // request to lengthen spoken replies or a claim of improved live latency.

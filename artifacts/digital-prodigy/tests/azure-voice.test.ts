@@ -95,6 +95,7 @@ function fixture() {
     finish() { this.ended = true; this.onended?.(); }
   }
   const contexts: AudioContextFake[] = [];
+  let audioResume: (() => Promise<void>) | undefined;
   class AudioContextFake {
     state = "running";
     destination = new AudioNode();
@@ -122,7 +123,7 @@ function fixture() {
         if (typeof listener === "function") listener(event); else listener.handleEvent(event);
       }
     }
-    async resume() { this.setState("running"); }
+    async resume() { if (audioResume) return audioResume(); this.setState("running"); }
     async close() { this.closes++; this.setState("closed"); }
   }
   const stream = new Stream();
@@ -227,6 +228,7 @@ function fixture() {
     setMedia: (implementation: typeof getMedia) => { getMedia = implementation; },
     setToken: (implementation: typeof fetchToken) => { fetchToken = implementation; },
     setSend: (implementation: typeof send) => { send = implementation; },
+    setAudioResume: (value: () => Promise<void>) => { audioResume = value; },
     setStartup: (value: typeof startup) => { startup = value; },
     setShutdown: (value: typeof shutdown) => { shutdown = value; },
     capture: (event: VoiceEvent) => { events.push(event); },
@@ -833,5 +835,85 @@ test("Azure model deadline preserves the original intent and discards late audio
   assert.deepEqual(f.sends, [original, original], "The retry must ask for the original receipt, not a new intent");
   assert.equal(f.syntheses.length, 1);
   assert.equal(f.storage.has("syntra.development.voice.pending.v1:1"), false);
+  await connection.close();
+});
+
+
+test("Azure adopts gesture-unlocked audio and releases it when closed", async t => {
+  const f = fixture(); t.after(f.restore);
+  const adapter = f.adapter();
+  const gesture = new AbortController();
+  adapter.prepare!(gesture.signal);
+  assert.equal(f.contexts.length, 1);
+  const connection = await adapter.connect(1, f.capture, new AbortController().signal);
+  assert.equal(f.contexts.length, 1, "Connection must reuse the gesture-owned context");
+  gesture.abort();
+  assert.equal(f.contexts[0].closes, 0, "Adoption transfers cleanup to the connection");
+  await connection.close();
+  assert.equal(f.contexts[0].closes, 1);
+});
+
+test("Azure audio activation timeout releases capture without announcing listening", async t => {
+  const f = fixture(); t.after(f.restore);
+  const resumed = deferred<void>();
+  f.setAudioResume(() => resumed.promise);
+  const opening = f.adapter().connect(1, f.capture, new AbortController().signal);
+  const rejected = assert.rejects(opening, /Audio needs a browser gesture/);
+  await settle();
+  assert.equal(f.contexts.length, 1);
+  f.advance(5_001);
+  await rejected;
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.contexts[0].closes, 1);
+  assert.equal(f.recognizers.length, 0);
+  assert.equal(f.events.some(e => e.type === "state" && e.state === "listening"), false);
+  assert.equal(f.pendingTimers(), 0);
+  resumed.resolve(); await settle();
+  assert.equal(f.recognizers.length, 0, "Late resume never resurrects a retired connection");
+});
+
+test("Azure rejected audio activation fails promptly and cleans up permission capture", async t => {
+  const f = fixture(); t.after(f.restore);
+  f.setAudioResume(async () => { throw new DOMException("Audio activation blocked", "NotAllowedError"); });
+  await assert.rejects(f.adapter().connect(1, f.capture, new AbortController().signal), /Audio could not start/);
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.contexts[0].closes, 1);
+  assert.equal(f.recognizers.length, 0);
+  assert.equal(f.pendingTimers(), 0);
+});
+
+test("Azure close during audio activation rejects promptly and ignores a late resume", async t => {
+  const f = fixture(); t.after(f.restore);
+  const resumed = deferred<void>();
+  f.setAudioResume(() => resumed.promise);
+  const abort = new AbortController();
+  const opening = f.adapter().connect(1, f.capture, abort.signal);
+  const rejected = assert.rejects(opening, error => error instanceof Error && error.name === "AbortError");
+  await settle();
+  abort.abort(); await rejected;
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.contexts[0].closes, 1);
+  assert.equal(f.pendingTimers(), 0);
+  resumed.resolve(); await settle();
+  assert.equal(f.recognizers.length, 0);
+  assert.equal(f.events.some(e => e.type === "state" && e.state === "listening"), false);
+});
+
+test("Azure resource-region repair retires the old recognizer instead of applying mismatched authorization", async t => {
+  const f = fixture(); t.after(f.restore);
+  let calls = 0;
+  f.setToken(async () => new Response(JSON.stringify({ token: `fake-token-${++calls}`, region: calls === 1 ? "uksouth" : "westeurope", expiresAt: Date.now() + 540_000 }), { status: 200 }));
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  const response = deferred<TurnReply>();
+  f.setSend(() => response.promise);
+  f.recognizers[0].final("region-repair", "A safe synthetic request");
+  f.advance(1000); await settle();
+  // Busy turns prevent idle close while token renewal reaches its real deadline.
+  f.advance(420_000); await settle();
+  assert.equal(calls, 2);
+  assert.equal(f.recognizers[0].authorizationToken, "", "Never send new-region authorization to the previous endpoint");
+  assert.equal(f.recognizers[0].closes, 1);
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.events.at(-1)?.type, "error");
   await connection.close();
 });

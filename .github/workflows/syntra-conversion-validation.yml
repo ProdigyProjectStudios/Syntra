@@ -5,9 +5,12 @@ on:
     branches:
       - feature/assessment-conversion
       - feature/syntra-assessment-voice
+      - 'release/**'
   pull_request:
     branches:
       - feature/assessment-conversion
+      - feature/syntra-assessment-voice
+      - main
   workflow_dispatch:
 
 permissions:
@@ -17,6 +20,19 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: syntra-ci-only
+          POSTGRES_DB: syntra_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d syntra_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -33,6 +49,10 @@ jobs:
         run: pnpm test
       - name: Development audio and authorization regressions
         run: pnpm test:voice
+      - name: Actual PostgreSQL cross-worker admission and receipt transactions
+        env:
+          SYNTRA_TEST_DATABASE_URL: 'postgres://postgres:syntra-ci-only@127.0.0.1:5432/syntra_test'
+        run: pnpm test:postgres
       - name: TypeScript
         run: pnpm run typecheck
       - name: AgentPlace transfer validation
@@ -41,4 +61,29 @@ jobs:
         env:
           PORT: '5173'
           BASE_PATH: '/'
+          VITE_SYNTRA_VOICE_PROVIDER: azure
         run: pnpm run build
+      - name: Install isolated browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/syntra-browser" --no-save --package-lock=false playwright@1.56.1
+          "$RUNNER_TEMP/syntra-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Browser layout and consultation workflows (synthetic runtime)
+        env:
+          SYNTRA_CHECK_URL: 'http://127.0.0.1:5173'
+        run: |
+          export SYNTRA_PLAYWRIGHT_MODULE="$RUNNER_TEMP/syntra-browser/node_modules/playwright/index.mjs"
+          PORT=5173 BASE_PATH=/ pnpm --filter @workspace/digital-prodigy serve > "$RUNNER_TEMP/syntra-preview.log" 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID"' EXIT
+          for attempt in $(seq 1 30); do curl --silent --fail http://127.0.0.1:5173/ > /dev/null && break; sleep 1; done
+          pnpm test:layout
+          pnpm test:browser
+      - name: Retain browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-validation
+          path: |
+            generated-artifacts/frontend-hardening
+            generated-artifacts/browser-workflows
+          if-no-files-found: ignore

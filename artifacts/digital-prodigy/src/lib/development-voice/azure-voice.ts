@@ -7,10 +7,15 @@ import { BargeInGate } from './barge-in-gate.ts';
 import { VoiceDiagnostics, type VoiceMetric } from './voice-diagnostics.ts';
 import { RecognitionIdentityTracker } from './recognition-identity.ts';
 import { observeSpeechConnection } from './speech-connection-diagnostics.ts';
+import { createAudioPreparation } from './audio-preparation.ts';
 
 type SpeechSdk = typeof import('microsoft-cognitiveservices-speech-sdk');
 interface SpeechToken { token: string; region: string; expiresAt: number }
-export interface AzureVoiceOptions { enabled?: boolean; loadSdk?: () => Promise<SpeechSdk> }
+export interface AzureVoiceOptions {
+  enabled?: boolean;
+  loadSdk?: () => Promise<SpeechSdk>;
+  audioPreparation?: ReturnType<typeof createAudioPreparation>;
+}
 const pendingKey = (id: number) => `syntra.development.voice.pending.v1:${id}`;
 const aborted = () => new DOMException('Voice closed.', 'AbortError');
 
@@ -97,7 +102,9 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
   let activeClose: (() => void) | undefined;
   let pendingCapture: Promise<MediaStream> | undefined;
   let pendingRetirement = Promise.resolve();
+  const audioPreparation = adapterOptions.audioPreparation ?? createAudioPreparation();
   return {
+    prepare: audioPreparation.prepare,
     available: adapterOptions.enabled ?? import.meta.env?.VITE_SYNTRA_VOICE_PROVIDER === 'azure',
     specialists: SPECIALISTS.map(profile => profile.id),
     async connect(id, onEvent, outerSignal, options) {
@@ -113,7 +120,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       let closed = false, muted = false, asrActive = false;
       let frame = 0, tokenTimer = 0, silenceTimer = 0, recognitionEpoch = 0;
       let microphone: MediaStream | undefined, recognitionInput: MediaStream | undefined;
-      let audio: AudioContext | undefined;
+      let audio: AudioContext | undefined = audioPreparation.take();
       let player: PcmPlayer | undefined;
       let inputNode: MediaStreamAudioSourceNode | undefined, inputMeter: AnalyserNode | undefined;
       let controller: ConversationVoiceController | undefined;
@@ -240,9 +247,26 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         if (!microphone.getAudioTracks().some(track => track.readyState === 'live')) throw new Error('No active microphone was available. Reconnect or continue in text.');
         diagnostics.event('capture.ready', { liveTracks: microphone.getAudioTracks().filter(track => track.readyState === 'live').length });
         microphone.getTracks().forEach(track => track.addEventListener('ended', microphoneEnded));
-        audio = new AudioContext();
+        audio ??= new window.AudioContext();
         audio.addEventListener('statechange', audioStateChanged);
-        release(() => audio!.resume());
+        diagnostics.event('audio.state', { state: audio.state });
+        // A suspended context must not masquerade as a listening/playable session.
+        // resume() can remain pending under autoplay policy, so bound it independently.
+        const audioDeadline = new AbortController();
+        const cancelAudio = () => audioDeadline.abort(aborted());
+        lifetime.signal.addEventListener('abort', cancelAudio, { once: true });
+        const audioTimer = window.setTimeout(() => audioDeadline.abort(new Error('Audio needs a browser gesture. Select Reconnect to enable your microphone and speaker.')), 5_000);
+        try {
+          await abortable(audio.resume(), audioDeadline.signal);
+          checkOpen();
+          if (audio.state !== 'running') throw new Error('Audio could not start. Select Reconnect to enable your microphone and speaker.');
+        } catch {
+          if (lifetime.signal.aborted) throw aborted();
+          if (audioDeadline.signal.aborted) throw audioDeadline.signal.reason;
+          throw new Error('Audio could not start. Select Reconnect to enable your microphone and speaker.');
+        } finally {
+          window.clearTimeout(audioTimer); lifetime.signal.removeEventListener('abort', cancelAudio);
+        }
         player = new PcmPlayer(audio);
         inputNode = audio.createMediaStreamSource(microphone);
         inputMeter = audio.createAnalyser(); inputMeter.fftSize = 512;
@@ -456,7 +480,9 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         diagnostics.event('connection.ready');
         const refreshToken = async () => {
           try {
-            token = await tokenFor(id, lifetime.signal); checkOpen();
+            const refreshed = await tokenFor(id, lifetime.signal); checkOpen();
+            if (refreshed.region !== token.region) throw new Error('Speech configuration changed. Reconnect to continue.');
+            token = refreshed;
             diagnostics.event('authorization.refresh');
             if (recognizer) recognizer.authorizationToken = token.token;
             tokenTimer = window.setTimeout(() => void refreshToken(), Math.max(10_000, token.expiresAt - Date.now() - 120_000));

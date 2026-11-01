@@ -110,3 +110,54 @@ test("speech global admission limit cannot be bypassed by cycling visitor identi
   await assert.rejects(broker("another-visitor"), { status: 429 });
   assert.equal(calls, 1);
 });
+
+test("speech configuration normalizes nonsecret deployment values and rejects blank keys", () => {
+  assert.deepEqual(speechConfiguration({ ...environment, SYNTRA_VOICE_PROVIDER: " Azure ", AZURE_SPEECH_REGION: " UKSouth " }),
+    { enabled: true, provider: "azure", region: "uksouth" });
+  assert.deepEqual(speechConfiguration({ ...environment, AZURE_SPEECH_KEY: "  " }),
+    { enabled: false, provider: "none", region: null });
+});
+
+test("resource changes isolate pending and cached tokens without mixing regions or keys", async () => {
+  const env = { ...environment };
+  const old = deferred<Response>();
+  let calls = 0;
+  const broker = createSpeechTokenBroker(env, async (_url, init) => {
+    calls++;
+    const key = new Headers(init?.headers).get("Ocp-Apim-Subscription-Key");
+    return key === environment.AZURE_SPEECH_KEY ? old.promise : new Response(`new-resource-${calls}`);
+  });
+  const original = broker("visitor-a");
+  env.AZURE_SPEECH_REGION = "eastus";
+  env.AZURE_SPEECH_KEY = "REPLACEMENT-FIXTURE-KEY";
+  const repaired = await broker("visitor-b");
+  assert.equal(repaired.region, "eastus");
+  assert.equal(repaired.token, "new-resource-2");
+  old.resolve(new Response("old-resource-token"));
+  const prior = await original;
+  assert.equal(prior.region, "uksouth");
+  assert.equal(prior.token, "old-resource-token");
+  assert.deepEqual(await broker("visitor-c"), repaired, "Late old authorization cannot replace the repaired resource cache");
+  env.AZURE_SPEECH_KEY = "SECOND-REPLACEMENT-FIXTURE";
+  assert.equal((await broker("visitor-d")).token, "new-resource-3", "Changing a key in the same region invalidates authorization too");
+  assert.equal(calls, 3);
+});
+
+test("network and credential-body failures stay private and release authorization for retry", async () => {
+  let calls = 0;
+  const broker = createSpeechTokenBroker(environment, async () => {
+    if (++calls === 1) throw new Error("private-proxy-url-and-credential");
+    if (calls === 2) return new Response(new ReadableStream({ start(controller) {
+      controller.error(new Error("private-body-failure"));
+    } }));
+    return new Response("recovered-token");
+  });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await assert.rejects(broker("visitor"), error => {
+      assert.equal((error as { status: number }).status, 503);
+      assert.equal((error as Error).message.includes("private"), false);
+      return true;
+    });
+  }
+  assert.equal((await broker("visitor")).token, "recovered-token");
+});

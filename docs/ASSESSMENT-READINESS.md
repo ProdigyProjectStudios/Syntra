@@ -1,4 +1,15 @@
-# Assessment readiness — 31 October 2026
+# Assessment readiness
+
+## Current release candidate — 1 November 2026
+
+See [Release hardening](RELEASE-HARDENING.md) for the five-agent implementation,
+200 passing deterministic tests, real PostgreSQL checks, five-width browser
+validation and current production voice evidence. The existing production path
+completed ten cloud replies with prerecorded capture; physical microphone/audio,
+the reported failing device, and native AgentPlace/free-Luna execution remain
+release gates. No final publication or production source deployment was performed.
+
+## Historical checkpoint — 31 October 2026
 
 Baseline: `feature/assessment-conversion` at `dd977aa9894da38234dca25b1cf74b5294990729`.
 

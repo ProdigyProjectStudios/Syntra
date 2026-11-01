@@ -115,6 +115,7 @@ function BookWorkspace() {
   const [feedback, setFeedback] = useState<Feedback>('idle');
   const enquiry = useHandoffEnquiry(id);
   const [consent, setConsent] = useState(enquiry.attempt?.input.consent ?? false);
+  const [consentRevision, setConsentRevision] = useState<number | null>(enquiry.attempt?.input.briefRevision ?? null);
   const [name, setName] = useState(enquiry.attempt?.input.name ?? '');
   const [email, setEmail] = useState(enquiry.attempt?.input.email ?? '');
   const [note, setNote] = useState(enquiry.attempt?.input.note ?? '');
@@ -133,7 +134,11 @@ function BookWorkspace() {
   const hasGateway = Boolean(runtime.booking.submitEnquiry);
   const canSubmit = Boolean(id && (brief?.objective?.trim() || enquiry.attempt) && hasGateway);
   const activeSubmit = enquiry.submitting;
+  const consentCurrent = consent && (enquiry.locked || consentRevision === brief?.revision);
   useEffect(() => setFeedback('idle'), [brief?.revision]);
+  useEffect(() => {
+    if (!enquiry.locked && consentRevision !== brief?.revision) setConsent(false);
+  }, [brief?.revision, consentRevision, enquiry.locked]);
 
   async function copyBrief() {
     if (!markdown) return;
@@ -152,7 +157,7 @@ function BookWorkspace() {
   }
 
   async function submitEnquiry() {
-    if (!brief || !id || !runtime.booking.submitEnquiry || activeSubmit) return;
+    if (!brief || !id || !runtime.booking.submitEnquiry || activeSubmit || !consentCurrent) return;
     const fields = HANDOFF_LABELS.reduce((acc, [key]) => {
       acc[key] = brief[key];
       return acc;
@@ -342,13 +347,14 @@ function BookWorkspace() {
                     data-testid="input-handoff-note" />
                 </label>
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/[.08] bg-black/15 px-3 py-3 text-[12px] leading-relaxed text-foreground/70">
-                  <input type="checkbox" checked={consent} disabled={enquiry.locked}
-                    onChange={event => setConsent(event.target.checked)} className="mt-0.5 h-4 w-4 accent-cyan-300" data-testid="checkbox-handoff-consent" />
+                  <input type="checkbox" checked={consentCurrent} disabled={enquiry.locked}
+                    onChange={event => { setConsent(event.target.checked); setConsentRevision(brief.revision); }} className="mt-0.5 h-4 w-4 accent-cyan-300" data-testid="checkbox-handoff-consent" />
                   I have reviewed my project brief and consent to sharing the brief and my contact details with Digital Prodigy for this enquiry.
                 </label>
+                {!enquiry.locked && consentRevision !== null && consentRevision !== brief.revision && <p role="status" className="text-xs leading-relaxed text-amber-200">Your brief changed after review. Check the updated details and give consent again before sending.</p>}
                 {enquiry.locked && !enquiry.confirmed && <p className="text-xs leading-relaxed text-foreground/65" data-testid="status-handoff-pending">Receipt is not yet confirmed. Retry keeps the original request ID and reviewed details. Your consented request is saved only in this browser tab for recovery.</p>}
                 {enquiry.attempt && brief.revision !== enquiry.attempt.input.briefRevision && <p role="status" className="text-xs text-amber-200">Your brief has changed. This attempt still uses the previously reviewed revision {enquiry.attempt.input.briefRevision}; it will not silently send your newer edits.</p>}
-                <button type="button" onClick={() => void submitEnquiry()} disabled={!consent || activeSubmit || enquiry.confirmed || enquiry.storageBlocked}
+                <button type="button" onClick={() => void submitEnquiry()} disabled={!consentCurrent || activeSubmit || enquiry.confirmed || enquiry.storageBlocked}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-cyan-300 to-blue-500 px-5 py-3 text-sm font-semibold text-[#040816] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
                   data-testid="button-submit-enquiry">
                   {activeSubmit ? 'Requesting confirmation…' : enquiry.confirmed ? 'Receipt confirmed' : enquiry.locked ? 'Retry reviewed enquiry' : 'Send reviewed enquiry'}

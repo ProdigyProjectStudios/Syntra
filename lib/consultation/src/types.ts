@@ -101,6 +101,8 @@ export interface VoiceAdapter {
   available: boolean;
   /** Omitted by native hosts that have not connected specialist personality and voice controls. */
   specialists?: readonly SpecialistId[];
+  /** Optional synchronous user-gesture preparation; abort releases any unadopted resources. */
+  prepare?: (signal: AbortSignal) => void;
   /** Host owns realtime transport, mic permissions, interruption and audio playback. */
   connect(conversationId: number, onEvent: (event: VoiceEvent) => void, signal: AbortSignal, options?: VoiceConnectOptions): Promise<VoiceConnection>;
 }

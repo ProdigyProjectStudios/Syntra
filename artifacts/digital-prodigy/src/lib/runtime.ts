@@ -3,7 +3,7 @@ import {
   listServices, listContactOptions,
 } from '@workspace/api-client-react';
 import type { ConsultationRuntime } from '@workspace/consultation';
-import { createAzureVoiceAdapter } from './development-voice/azure-voice';
+import { createLazyAzureVoiceAdapter } from './development-voice/lazy-adapter';
 
 /** Supply this before the React entry point to use native AgentPlace sessions, messages and voice. */
 declare global {
@@ -28,7 +28,7 @@ export const replitRuntime: ConsultationRuntime = {
     async connect() { throw new Error('Realtime voice is not connected here. AgentPlace must provide its native voice adapter.'); },
   },
 };
-replitRuntime.voice = createAzureVoiceAdapter(replitRuntime);
+replitRuntime.voice = createLazyAzureVoiceAdapter(replitRuntime);
 export const runtime: ConsultationRuntime = window.__SYNTRA_RUNTIME__ ?? replitRuntime;
 
 export function errorMessage(error: unknown, fallback: string): string {

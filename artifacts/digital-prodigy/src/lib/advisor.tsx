@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Conversation, Depth, TurnInput } from '@workspace/consultation';
 import { errorMessage } from './errors';
 import { useRuntime, useRuntimeKeys } from './runtime-context';
+import { createPendingTextTurnStore, TextTurnRecoveryError } from './pending-text-turn';
 
 const KEY = 'dp.activeConversation';
 const DEPTH_KEY = 'dp.depth';
@@ -16,6 +17,7 @@ type Ctx = {
   error: string | null; retry: () => void; steps: string[];
   conversation: Conversation | undefined; loadingConversation: boolean;
   ensureConversation: () => Promise<number>;
+  ensureVoiceConversation: () => Promise<number>;
 };
 const AdvisorCtx = createContext<Ctx | null>(null);
 export function AdvisorProvider({ children }: { children: ReactNode }) {
@@ -27,6 +29,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     try { if (id) localStorage.setItem(sessionKey, String(id)); else localStorage.removeItem(sessionKey); } catch { /* in-memory session */ }
   }, [sessionKey]);
   const qc = useQueryClient();
+  const recovery = useMemo(() => createPendingTextTurnStore(scope), [scope]);
   const [conversationId, setId] = useState<number | null>(() => initialConversationId ?? (Number(read(sessionKey)) > 0 ? Number(read(sessionKey)) : null));
   const [depth, updateDepth] = useState<Depth>(() => { const d = read(depthKey); return d === 'concise' || d === 'deep_dive' ? d : 'detailed'; });
   const [pending, setPending] = useState<Attempt | null>(null);
@@ -38,7 +41,9 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
   const busy = useRef(false);
   const depthTouched = useRef(false);
   const depthRestored = useRef(false);
+  const depthSaveGeneration = useRef(0);
   const creating = useRef<Promise<number> | null>(null);
+  const recoveryChecked = useRef<number | null>(null);
 
   const convQ = useQuery({
     queryKey: getGetConversationQueryKey(conversationId ?? 0),
@@ -46,12 +51,29 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     enabled: !!conversationId, retry: 1, refetchOnWindowFocus: true,
     refetchInterval: busy.current ? false : 15000,
   });
+  useEffect(() => {
+    // Never reveal tab-stored text until the owning runtime confirms this conversation.
+    if (!convQ.isFetchedAfterMount || convQ.isFetching || convQ.isError || !convQ.data || convQ.data.id !== conversationId || busy.current || recoveryChecked.current === conversationId) return;
+    recoveryChecked.current = conversationId;
+    try {
+      const restored = recovery.load(conversationId!);
+      if (restored && !lastAttempt.current) {
+        lastAttempt.current = restored;
+        setFailure({ id: conversationId, message: 'An earlier message may still be finishing. Retry to recover its original request without sending it twice.' });
+      }
+    } catch (error) {
+      setFailure({ id: conversationId, message: error instanceof Error ? error.message : 'The original request could not be recovered.' });
+    }
+  }, [convQ.data, convQ.isFetchedAfterMount, convQ.isFetching, convQ.isError, conversationId, recovery]);
   const setDepth = useCallback((d: Depth) => {
     depthTouched.current = true;
     updateDepth(d); depthRef.current = d;
     try { localStorage.setItem(depthKey, d); } catch { /* in-memory preference */ }
-    if (active.current && runtime.sessions.setDepth) void runtime.sessions.setDepth(active.current, d).catch(() => {
-      setFailure({ id: active.current, message: 'The native depth preference could not be saved. Retry before starting voice.' });
+    const id = active.current;
+    const generation = ++depthSaveGeneration.current;
+    if (id && runtime.sessions.setDepth) void runtime.sessions.setDepth(id, d).catch(() => {
+      if (active.current !== id || depthSaveGeneration.current !== generation) return;
+      setFailure({ id, message: 'The native depth preference could not be saved. Retry before starting voice.' });
     });
   }, [depthKey, runtime]);
   useEffect(() => {
@@ -69,7 +91,8 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       setFailure({ id: active.current, message: 'Use Agent controls to start a new native session. Your current transcript is preserved.' });
       return;
     }
-    active.current = id; setId(id); setFailure(null); setSteps(null); lastAttempt.current = null; saveSession(id);
+    depthSaveGeneration.current++;
+    active.current = id; recoveryChecked.current = null; setId(id); setFailure(null); setSteps(null); lastAttempt.current = null; saveSession(id);
   }, [native, saveSession]);
   // Old numeric localStorage IDs are not authority. Never claim unowned legacy records.
   useEffect(() => {
@@ -91,6 +114,13 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     })();
     try { return await creating.current; } finally { creating.current = null; }
   }, [qc, runtime, saveSession, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
+  const ensureVoiceConversation = useCallback(async (): Promise<number> => {
+    const id = await ensureConversation();
+    if (busy.current || lastAttempt.current?.id === id || recovery.load(id)) {
+      throw new Error('Recover the pending text message in Discover before starting voice. Its original request is preserved.');
+    }
+    return id;
+  }, [ensureConversation, recovery]);
   const perform = useCallback(async (attempt: Attempt) => {
     if (busy.current) return;
     busy.current = true; setPending(attempt); setFailure(null); setSteps(null);
@@ -100,30 +130,67 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
         qc.getQueryData<Conversation>(getGetConversationQueryKey(id))?.messages.map(message => message.id) ?? [] };
       lastAttempt.current = attempt; setPending(attempt);
       await qc.cancelQueries({ queryKey: getGetConversationQueryKey(id) });
-      const { content, depth, requestId } = attempt;
-      const reply = await runtime.messages.send(id, { content, depth, requestId });
+      // Save before admission, including original depth/specialist. A storage failure
+      // cannot silently turn a reload into a different model request.
+      recovery.save({ ...attempt, id, previousMessageIds: attempt.previousMessageIds ?? [] });
+      const { content, depth, requestId, specialist } = attempt;
+      const reply = await runtime.messages.send(id, { content, depth, requestId, ...(specialist ? { specialist } : {}) });
       qc.setQueryData<Conversation>(getGetConversationQueryKey(id), prev => {
         if (!prev) return prev;
         const ids = new Set(prev.messages.map(m => m.id));
         return { ...prev, depth: attempt.depth, brief: reply.brief, messages: [...prev.messages, ...[reply.visitorMessage, reply.message].filter(m => !ids.has(m.id))] };
       });
       qc.setQueryData(getGetBriefQueryKey(id), reply.brief);
+      recovery.clear(id, attempt.requestId);
       setSteps({ id, values: reply.suggestedNextSteps }); lastAttempt.current = null;
       void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(id) });
       void qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
     } catch (error) {
       lastAttempt.current = attempt;
-      setFailure({ id: attempt.id, message: errorMessage(error, 'The advisor could not reply. Your message is kept here; retry when ready.') });
+      setFailure({ id: attempt.id, message: errorMessage(error, error instanceof TextTurnRecoveryError ? error.message : 'The advisor could not reply. Your message is kept here; retry when ready.') });
     } finally { busy.current = false; setPending(null); }
-  }, [ensureConversation, qc, runtime, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
+  }, [ensureConversation, qc, runtime, recovery, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
   const send = useCallback((content: string) => {
     if (!content.trim() || busy.current) return;
+    if (lastAttempt.current?.id === active.current) {
+      setFailure({ id: active.current, message: 'Retry the earlier message first. Its original words and response depth are preserved.' });
+      return;
+    }
+    if (active.current) {
+      try {
+        const restored = recovery.load(active.current);
+        if (restored) {
+          // Keep the current view private until its ownership read has succeeded.
+          if (convQ.isFetchedAfterMount && !convQ.isError && convQ.data?.id === active.current) lastAttempt.current = restored;
+          setFailure({ id: active.current, message: 'An earlier request needs recovery. Retry after this consultation loads.' });
+          return;
+        }
+      } catch (error) {
+        setFailure({ id: active.current, message: error instanceof Error ? error.message : 'Safe retry storage is unavailable.' });
+        return;
+      }
+    }
     void perform({ id: active.current, content: content.trim(), depth: depthRef.current, requestId: crypto.randomUUID() });
-  }, [perform]);
+  }, [perform, recovery, convQ.data, convQ.isFetchedAfterMount, convQ.isError]);
   const retry = useCallback(() => {
-    if (lastAttempt.current) void perform(lastAttempt.current);
-    else void convQ.refetch();
-  }, [perform, convQ.refetch]);
+    if (lastAttempt.current) {
+      if (lastAttempt.current.id !== null && (lastAttempt.current.id !== active.current || convQ.isError)) {
+        void convQ.refetch(); return;
+      }
+      void perform(lastAttempt.current); return;
+    }
+    if (active.current && convQ.isFetchedAfterMount && !convQ.isError && convQ.data?.id === active.current) {
+      try {
+        const restored = recovery.load(active.current);
+        if (restored) { lastAttempt.current = restored; void perform(restored); return; }
+      } catch (error) {
+        setFailure({ id: active.current, message: error instanceof TextTurnRecoveryError ? error.message : 'Safe retry storage is unavailable.' });
+        return;
+      }
+    }
+    recoveryChecked.current = null;
+    void convQ.refetch();
+  }, [perform, recovery, convQ.refetch, convQ.data, convQ.isFetchedAfterMount, convQ.isError]);
   const visibleAttempt = pending ?? (failure && lastAttempt.current);
   const alreadyInTranscript = visibleAttempt && convQ.data?.messages.some(message =>
     message.role === 'visitor' && message.content === visibleAttempt.content &&
@@ -136,7 +203,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
       sending: pending !== null, pendingText,
       error: failure?.message ?? (convQ.isError ? 'This conversation could not load. Retry without starting over.' : null),
       steps: steps?.id === conversationId ? steps.values : [],
-      conversation: convQ.data, loadingConversation: !!conversationId && convQ.isLoading, ensureConversation,
+      conversation: convQ.data, loadingConversation: !!conversationId && convQ.isLoading, ensureConversation, ensureVoiceConversation,
     }}>{children}</AdvisorCtx.Provider>
   );
 }

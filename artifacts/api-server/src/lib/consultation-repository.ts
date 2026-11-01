@@ -1,5 +1,8 @@
 import { and, eq, desc, sql } from "drizzle-orm";
-import { db, conversationsTable as sessions, messagesTable as messages, briefsTable as briefs, turnsTable } from "@workspace/db";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import * as schema from "@workspace/db/schema";
+import { withPostgresQueryDeadline } from "./postgres-query-deadline.ts";
+import { db, type DatabaseClient, conversationsTable as sessions, messagesTable as messages, briefsTable as briefs, turnsTable } from "@workspace/db";
 import {
   BRIEF_KEYS, EMPTY_FIELDS, ConsultationError, manualBrief, mergeBrief, normalizeSpecialist,
   type Brief, type Conversation, type ConversationRepository, type Depth, type Message, type TurnReply,
@@ -18,16 +21,29 @@ function session(row: typeof sessions.$inferSelect) {
 }
 const OPENING = "Welcome to Digital Prodigy. I can help you shape a useful first build and keep a working brief as we talk. What are you hoping to make easier or possible?";
 
-export const repository: ConversationRepository = {
+type Database = NodePgDatabase<typeof schema>;
+export type ConsultationTransaction = Parameters<Parameters<Database['transaction']>[0]>[0];
+
+export function withConsultationTransaction<T>(client: DatabaseClient, work: (transaction: ConsultationTransaction) => Promise<T>): Promise<T> {
+  return drizzle(withPostgresQueryDeadline(client), { schema }).transaction(work);
+}
+
+/** Nested commitTurn operations become savepoints on the lock-owning transaction. */
+export function repositoryForTransaction(transaction: ConsultationTransaction): ConversationRepository {
+  return createRepository(transaction);
+}
+
+function createRepository(database: Pick<Database, 'select' | 'insert' | 'update' | 'transaction'>): ConversationRepository {
+  return {
   async list(owner) {
-    const rows = await db.select({
+    const rows = await database.select({
       id: sessions.id, title: sessions.title, depth: sessions.depth, createdAt: sessions.createdAt, updatedAt: sessions.updatedAt,
       messageCount: sql<number>`(select count(*)::int from ${messages} where ${messages.conversationId} = ${sessions.id})`,
     }).from(sessions).where(eq(sessions.ownerHash, owner)).orderBy(desc(sessions.updatedAt)).limit(100);
     return rows.map(r => ({ ...r, depth: r.depth as Depth, createdAt: iso(r.createdAt), updatedAt: iso(r.updatedAt) }));
   },
   async create(owner, depth) {
-    return db.transaction(async tx => {
+    return database.transaction(async tx => {
       const [s] = await tx.insert(sessions).values({ ownerHash: owner, depth }).returning();
       const [b] = await tx.insert(briefs).values({ conversationId: s.id }).returning();
       const [m] = await tx.insert(messages).values({ conversationId: s.id, role: "advisor", content: OPENING, depth }).returning();
@@ -35,23 +51,23 @@ export const repository: ConversationRepository = {
     });
   },
   async get(owner, id) {
-    const [s] = await db.select().from(sessions).where(owned(owner, id));
+    const [s] = await database.select().from(sessions).where(owned(owner, id));
     if (!s) return null;
-    const ms = await db.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.id);
-    const [b] = await db.select().from(briefs).where(eq(briefs.conversationId, id));
+    const ms = await database.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.id);
+    const [b] = await database.select().from(briefs).where(eq(briefs.conversationId, id));
     return { ...session(s), messages: ms.map(message), brief: b ? brief(b) : { ...EMPTY_FIELDS, revision: 0, provenance: {} } };
   },
   async replay(owner, id, requestId) {
-    const [row] = await db.select({ response: turnsTable.response }).from(turnsTable)
+    const [row] = await database.select({ response: turnsTable.response }).from(turnsTable)
       .innerJoin(sessions, eq(sessions.id, turnsTable.conversationId))
       .where(and(owned(owner, id), eq(turnsTable.requestId, requestId)));
     if (!row) return null;
-    const [latest] = await db.select().from(briefs).where(eq(briefs.conversationId, id));
+    const [latest] = await database.select().from(briefs).where(eq(briefs.conversationId, id));
     // Replay immutable messages, but never replay a stale brief over a newer manual correction.
     return { ...row.response as TurnReply, brief: brief(latest) };
   },
   async commitTurn(owner, before, input, result) {
-    return db.transaction(async tx => {
+    return database.transaction(async tx => {
       const [s] = await tx.select().from(sessions).where(owned(owner, before.id)).for("update");
       if (!s) throw new ConsultationError(404, "Conversation not found");
       const [receipt] = await tx.select().from(turnsTable).where(and(eq(turnsTable.conversationId, s.id), eq(turnsTable.requestId, input.requestId)));
@@ -81,7 +97,7 @@ export const repository: ConversationRepository = {
     });
   },
   async editBrief(owner, id, changes, revision) {
-    return db.transaction(async tx => {
+    return database.transaction(async tx => {
       const [s] = await tx.select().from(sessions).where(owned(owner, id)).for("update");
       if (!s) throw new ConsultationError(404, "Conversation not found");
       const [b] = await tx.select().from(briefs).where(eq(briefs.conversationId, id)).for("update");
@@ -91,4 +107,7 @@ export const repository: ConversationRepository = {
       return updated;
     });
   },
-};
+  };
+}
+
+export const repository = createRepository(db);

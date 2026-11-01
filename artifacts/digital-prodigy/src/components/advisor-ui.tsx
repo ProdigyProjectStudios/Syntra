@@ -49,10 +49,20 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
               key={d.id}
               role="radio"
               aria-checked={active}
+              aria-label={d.label}
+              tabIndex={active ? 0 : -1}
+              onKeyDown={event => {
+                const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+                const index = event.key === 'Home' ? 0 : event.key === 'End' ? DEPTHS.length - 1 : direction ? (i + direction + DEPTHS.length) % DEPTHS.length : -1;
+                if (index < 0) return;
+                event.preventDefault();
+                setDepth(DEPTHS[index].id);
+                event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[index]?.focus();
+              }}
               title={d.hint}
               data-testid={`button-depth-${d.id}`}
               onClick={() => setDepth(d.id)}
-              className={cn('relative z-10 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}
+              className={cn('relative z-10 flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary text-xs font-semibold transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}
             >
               {active && <motion.span layoutId="depth-pill" className="absolute inset-0 -z-10 rounded-full bg-primary shadow-[0_0_24px_-4px_hsl(187_92%_69%/.7)]" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
               <span className="flex gap-[2px]" aria-hidden>

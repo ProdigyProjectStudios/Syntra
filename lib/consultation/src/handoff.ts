@@ -88,16 +88,24 @@ export class HandoffError extends Error {
 }
 
 export function validateEnquiry(input: EnquiryInput): void {
+  if (!input || typeof input !== "object") throw new HandoffError("details", "Review the enquiry details before submitting.");
   if (input.consent !== true) throw new HandoffError("consent", "Review the project brief and consent before submitting.");
   if (!Number.isSafeInteger(input.conversationId) || input.conversationId <= 0 ||
       !Number.isSafeInteger(input.briefRevision) || input.briefRevision < 0 ||
-      !/^[a-zA-Z0-9_-]{8,128}$/.test(input.requestId)) {
+      typeof input.requestId !== "string" || !/^[a-zA-Z0-9_-]{8,128}$/.test(input.requestId)) {
     throw new HandoffError("details", "This consultation cannot be submitted. Refresh the session and try again.");
   }
-  if (clean(input.name).length < 2 || clean(input.name).length > 120 ||
+  if (typeof input.name !== "string" || typeof input.email !== "string" ||
+      (input.note !== undefined && typeof input.note !== "string") ||
+      clean(input.name).length < 2 || clean(input.name).length > 120 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim()) || input.email.length > 254 ||
       (input.note?.length ?? 0) > 2000) {
     throw new HandoffError("details", "Enter a valid name and email address.");
+  }
+  if (!input.brief || typeof input.brief !== "object" || Array.isArray(input.brief) ||
+      HANDOFF_LABELS.some(([key]) => input.brief[key] !== null &&
+        (typeof input.brief[key] !== "string" || input.brief[key]!.length > 4000))) {
+    throw new HandoffError("details", "The project brief contains invalid or oversized fields. Review it before submitting.");
   }
   if (!input.brief.objective?.trim()) {
     throw new HandoffError("details", "Review a clear project objective before submitting.");
@@ -111,31 +119,46 @@ export function validateEnquiry(input: EnquiryInput): void {
 export class HandoffCoordinator {
   private readonly inflight = new Map<string, { signature: string; promise: Promise<EnquiryReceipt> }>();
   private readonly complete = new Map<string, { signature: string; receipt: EnquiryReceipt }>();
+  // An unconfirmed outcome may already have reached the provider. A retry must
+  // never reuse its identity for a different reviewed intent, even after failure.
+  private readonly reserved = new Map<string, string>();
 
   async submit(input: EnquiryInput, gateway?: EnquiryGateway): Promise<EnquiryReceipt> {
     validateEnquiry(input);
     if (!gateway) return Promise.reject(new HandoffError("unconfirmed", "No verified enquiry integration has been connected."));
-    const signature = JSON.stringify([input.conversationId, input.briefRevision, input.brief, clean(input.name), input.email.trim().toLowerCase(), input.note?.trim() || ""]);
-    const previous = this.complete.get(input.requestId);
+    // Copy only the eight agreed fields. Caller edits after admission cannot
+    // change the external action or the consented snapshot held for its retry.
+    const snapshot: EnquiryInput = Object.freeze({
+      conversationId: input.conversationId, requestId: input.requestId,
+      briefRevision: input.briefRevision,
+      brief: Object.freeze(Object.fromEntries(HANDOFF_LABELS.map(([key]) => [key, input.brief[key]]))) as unknown as BriefFields,
+      name: clean(input.name), email: input.email.trim(), note: input.note?.trim(), consent: true,
+    });
+    const signature = JSON.stringify([snapshot.conversationId, snapshot.briefRevision, snapshot.brief,
+      snapshot.name, snapshot.email, snapshot.note || ""]);
+    const reserved = this.reserved.get(snapshot.requestId);
+    if (reserved && reserved !== signature) throw new HandoffError("collision", "This request ID belongs to an earlier reviewed enquiry. Retry its original details.");
+    const previous = this.complete.get(snapshot.requestId);
     if (previous) {
       if (previous.signature !== signature) return Promise.reject(new HandoffError("collision", "This request ID was already used for different details."));
-      return Promise.resolve(previous.receipt);
+      return { ...previous.receipt };
     }
-    const active = this.inflight.get(input.requestId);
+    const active = this.inflight.get(snapshot.requestId);
     if (active) {
       if (active.signature !== signature) return Promise.reject(new HandoffError("collision", "This request ID is already in progress with different details."));
-      return active.promise;
+      return { ...await active.promise };
     }
-    const promise = Promise.resolve().then(() => gateway.submitEnquiry(input)).then(receipt => {
+    this.reserved.set(snapshot.requestId, signature);
+    const promise = Promise.resolve().then(() => gateway.submitEnquiry(snapshot)).then(receipt => {
       if (!receipt || receipt.status !== "confirmed" || typeof receipt.reference !== "string" || !receipt.reference.trim()) {
         throw new HandoffError("unconfirmed", "The provider did not confirm the enquiry. Please check before retrying.");
       }
       const normalized: EnquiryReceipt = { status: "confirmed", reference: receipt.reference.trim() };
-      this.complete.set(input.requestId, { signature, receipt: normalized });
+      this.complete.set(snapshot.requestId, { signature, receipt: normalized });
       return normalized;
-    }).finally(() => this.inflight.delete(input.requestId));
-    this.inflight.set(input.requestId, { signature, promise });
-    return promise;
+    }).finally(() => this.inflight.delete(snapshot.requestId));
+    this.inflight.set(snapshot.requestId, { signature, promise });
+    return { ...await promise };
   }
 }
 

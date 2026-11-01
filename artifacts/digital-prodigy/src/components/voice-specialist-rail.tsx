@@ -69,7 +69,7 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
   };
 
   return (
-    <aside className={cn('absolute z-20', compact ? 'inset-x-4 top-[64px] flex justify-center' : 'left-5 top-1/2 -translate-y-1/2 lg:left-8')}
+    <aside className={cn('absolute z-20', compact ? 'inset-x-4 top-[calc(64px+env(safe-area-inset-top))] flex justify-center' : 'left-5 top-1/2 -translate-y-1/2 lg:left-8')}
       aria-label="Voice specialists" data-testid="voice-specialist-rail">
       <motion.div layout initial={false} animate={{ width: expanded ? compact ? 280 : 244 : horizontal ? 208 : 64 }}
         transition={{ duration: reduceMotion ? 0 : .28, ease: [.16, 1, .3, 1] }}

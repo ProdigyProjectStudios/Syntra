@@ -23,6 +23,7 @@ export function useHandoffEnquiry(id: number) {
     catch { return { attempt: null, blocked: true, error: 'Saved enquiry status is unavailable. Check with the provider before making a new request.' }; }
   });
   const [attempt, setAttempt] = useState<SavedEnquiryAttempt | null>(initial.attempt);
+  const [storageBlocked, setStorageBlocked] = useState(initial.blocked);
   const [error, setError] = useState(initial.error);
   const [submitting, setSubmitting] = useState(false);
   const busy = useRef(false);
@@ -39,7 +40,10 @@ export function useHandoffEnquiry(id: number) {
         setAttempt(saved);
         if (saved?.state === 'confirmed') setError(null);
         if (saved?.state === 'failed') setError('Receipt was not confirmed. A retry keeps the same reviewed request.');
-      } catch { setError('Saved enquiry status is unavailable. Check with the provider before starting another.'); }
+      } catch {
+        setStorageBlocked(true);
+        setError('Saved enquiry status is unavailable. Check with the provider before starting another.');
+      }
     };
     const onStatus = (event: Event) => {
       if ((event as CustomEvent<string>).detail === key) refresh();
@@ -50,7 +54,7 @@ export function useHandoffEnquiry(id: number) {
   }, [key, id]);
 
   async function submit(details: Omit<EnquiryInput, 'requestId'>) {
-    if (busy.current || attempt?.state === 'confirmed' || initial.blocked) return;
+    if (busy.current || attempt?.state === 'confirmed' || storageBlocked) return;
     const input = attempt?.input ?? { ...details, requestId: requestId.current };
     try { validateEnquiry(input); }
     catch (failure) { setError(failure instanceof Error ? failure.message : 'Review the enquiry details.'); return; }
@@ -88,7 +92,7 @@ export function useHandoffEnquiry(id: number) {
   return {
     attempt, error, submitting, submit,
     locked: Boolean(attempt),
-    storageBlocked: initial.blocked,
+    storageBlocked,
     confirmed: attempt?.state === 'confirmed',
     receipt: attempt?.receipt,
   };

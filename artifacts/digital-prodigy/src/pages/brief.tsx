@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link } from 'wouter';
 import { ArrowUpRight, Check, Copy, Download, Pencil, X, RotateCw } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRuntimeKeys } from '@/lib/runtime-context';
+import { useRuntime, useRuntimeKeys } from '@/lib/runtime-context';
 import { useGetBrief, useUpdateBrief } from '@/lib/runtime-hooks';
 import { formatProjectBrief, type BriefKey, type Brief, type Conversation, type FieldProvenance } from '@workspace/consultation';
 import { errorMessage } from '@/lib/errors';
@@ -25,7 +25,14 @@ const FIELDS: { key: BriefKey; label: string; wide?: boolean }[] = [
 ];
 
 export default function BriefPage() {
+  const { scope } = useRuntime();
   const { conversationId } = useAdvisor();
+  return <BriefWorkspace key={JSON.stringify([scope, conversationId])} />;
+}
+
+function BriefWorkspace() {
+  const { conversationId } = useAdvisor();
+  const manualCopyId = useId();
   const id = conversationId ?? 0;
   const { data, isLoading, isError, refetch } = useGetBrief(id);
   const filled = data ? FIELDS.filter((f) => data[f.key]).length : 0;
@@ -72,11 +79,20 @@ export default function BriefPage() {
                 Handoff <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            {exportStatus === 'failed' && <span role="alert" className="text-[10px] text-amber-200">Clipboard unavailable. Use Export.</span>}
           </div>
           <CompletionDial pct={pct} filled={filled} lit={FIELDS.map((f) => !!data?.[f.key])} />
         </div>
       </div>
+
+      {exportStatus === 'failed' && data && (
+        <div className="mb-5 rounded-2xl border border-primary/20 bg-primary/[.035] p-4" data-testid="brief-manual-copy">
+          <p role="alert" className="text-xs leading-relaxed text-amber-200">Your browser blocked clipboard access. Select the brief below to copy it manually, or use Export.</p>
+          <label htmlFor={manualCopyId} className="mt-3 block text-xs text-foreground/70">Your project brief, including field status</label>
+          <textarea id={manualCopyId} readOnly rows={6} value={markdown} onFocus={event => event.currentTarget.select()}
+            className="mt-2 block w-full resize-y rounded-xl border border-primary/25 bg-black/25 px-3 py-2.5 font-mono text-xs leading-relaxed text-foreground/80 outline-none focus:border-primary/60"
+            data-testid="textarea-manual-copy-brief" />
+        </div>
+      )}
 
       {!conversationId && (
         <div className="rounded-3xl border border-dashed border-border p-10 text-center">

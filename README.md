@@ -4,6 +4,8 @@ Syntra's canonical React/TypeScript frontend and consultation domain are version
 
 ## Start here
 
+- **[Release hardening — 1 November](docs/RELEASE-HARDENING.md)** — five-agent implementation, live production evidence, measured improvements and remaining release gates.
+- **[Production voice recovery](docs/VOICE-PRODUCTION-RECOVERY.md)** — actual cloud exchanges through the deployed recorder, audio-startup repairs and physical-device limitations.
 - **[AgentPlace handoff guide](docs/AGENTPLACE-HANDOFF.md)** — repository boundaries, validation and native runtime ownership.
 - **[Native transfer tools and registration](integrations/agentplace/README.md)** — generate the frontend/domain transfer and register it in the existing host.
 - **[Conversion acceptance](docs/ASSESSMENT-CONVERSION-ACCEPTANCE.md)** — consent, provenance, provider receipts and safe retry rules.

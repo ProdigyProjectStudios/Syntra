@@ -1,7 +1,7 @@
 import type { ContactOption, ServiceArea } from "./types.ts";
 
 /**
- * Public business facts reviewed on 2026-10-31 against Digital Prodigy's website.
+ * Public business facts reviewed on 2026-11-01 against Digital Prodigy's website.
  * Its "Book a Build Call" route opens /contact, an enquiry form, not a calendar.
  * This catalogue is shared by development and the deterministic native transfer.
  */
@@ -10,8 +10,25 @@ export const BUSINESS_PROFILE = {
   consultant: "Aaron Archer",
   website: "https://digitalprodigy.dev",
   contactSource: "https://digitalprodigy.dev/contact",
-  contactVerifiedOn: "2026-10-31",
+  contactVerifiedOn: "2026-11-01",
 } as const;
+
+/** Bounded descriptions of published work, not independently audited outcomes. */
+export const PORTFOLIO_EXAMPLES = [
+  { name: "FlowCraft AI", serviceIds: ["ai-automation", "ai-mvp-saas"],
+    summary: "A visual AI workflow product with agent workflows, analytics and execution tracking." },
+  { name: "Flow Analytics AI", serviceIds: ["client-portals", "ai-mvp-saas"],
+    summary: "Agency analytics dashboards with AI insights, client reporting and integrations." },
+  { name: "NEXUS AI Assets", serviceIds: ["client-portals", "premium-product-ui"],
+    summary: "An agency client portal combining project progress, milestone payments, chat and AI support." },
+  { name: "AgentOps Command Center", serviceIds: ["ai-automation"],
+    summary: "An operational multi-agent workflow that pauses for human approval before finalizing consequential work." },
+].map(example => ({ ...example, sourceUrl: "https://digitalprodigy.dev/", verifiedOn: "2026-11-01" }));
+
+export const PORTFOLIO_GUIDANCE = `Published project examples from Digital Prodigy's own website, reviewed on 2026-11-01:
+${PORTFOLIO_EXAMPLES.map(example => `- ${example.name}: ${example.summary}`).join("\n")}
+Source: https://digitalprodigy.dev/.
+When useful, choose at most one relevant example and explain the specific similarity to the visitor's needs. Describe it as published work, not proof of a guaranteed result. These descriptions do not establish current demo availability, customer metrics, prices, delivery times or transferable ready-made products. Do not invent case studies or imply that a previous project's scope commits Aaron to the same outcome here.`;
 
 export const SERVICE_AREAS: ServiceArea[] = [
   {

@@ -75,13 +75,13 @@ into an isolated directory and built with the frozen dependency tree and
 193,697 bytes gzip and 166,473 bytes Brotli, matching the inspected production
 entry. With the same `VITE_SYNTRA_VOICE_PROVIDER=azure`, `PORT=5173` and
 `BASE_PATH=/` settings, the integrated release build separates the Azure
-transport from text-first startup. Its initial entry is `index-hdy8MTIl.js`:
+transport from text-first startup. Its initial entry is `index-Q2xF7EUt.js`:
 
 | Initial JavaScript | Verified baseline | Integrated candidate | Reduction |
 | --- | ---: | ---: | ---: |
 | Raw | 596,738 B | 567,889 B | 28,849 B (4.83%) |
-| Gzip | 193,697 B | 184,716 B | 8,981 B (4.64%) |
-| Brotli | 166,473 B | 158,826 B | 7,647 B (4.59%) |
+| Gzip | 193,697 B | 184,717 B | 8,980 B (4.64%) |
+| Brotli | 166,473 B | 158,790 B | 7,683 B (4.62%) |
 
 These savings include the new recovery and accessibility code. Compression uses
 Node's default gzip and Brotli settings. The candidate was built locally; this

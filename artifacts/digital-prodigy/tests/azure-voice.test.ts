@@ -50,6 +50,7 @@ function fixture() {
   class Track {
     readonly kind = "audio";
     enabled = true;
+    muted = false;
     readyState = "live";
     stops = 0;
     listeners = new Map<string, Set<EventListenerOrEventListenerObject>>();
@@ -58,6 +59,13 @@ function fixture() {
       const listeners = this.listeners.get(type) ?? new Set(); listeners.add(listener); this.listeners.set(type, listeners);
     }
     removeEventListener(type: string, listener: EventListenerOrEventListenerObject) { this.listeners.get(type)?.delete(listener); }
+    setMuted(value: boolean) {
+      this.muted = value;
+      const event = new Event(value ? "mute" : "unmute");
+      for (const listener of [...(this.listeners.get(event.type) ?? [])]) {
+        if (typeof listener === "function") listener(event); else listener.handleEvent(event);
+      }
+    }
     end() {
       this.readyState = "ended";
       const event = new Event("ended");
@@ -916,4 +924,153 @@ test("Azure resource-region repair retires the old recognizer instead of applyin
   assert.equal(f.stream.track.readyState, "ended");
   assert.equal(f.events.at(-1)?.type, "error");
   await connection.close();
+});
+
+test("Azure idle audio suspension or interruption releases capture and permits a fresh connected turn", async t => {
+  for (const state of ["suspended", "interrupted"]) {
+    const f = fixture();
+    try {
+      const adapter = f.adapter();
+      const connection = await adapter.connect(1, f.capture, new AbortController().signal);
+      f.contexts[0].setState(state);
+      assert.equal(f.stream.track.readyState, "ended");
+      assert.equal(f.contexts[0].closes, 1);
+      assert.equal(f.recognizers[0].closes, 1);
+      assert.ok(f.events.some(event => event.type === "error" && /browser paused voice audio/.test(event.message)));
+      assert.equal(f.events.filter(event => event.type === "state").at(-1)?.state, "closed");
+      assert.equal(f.pendingTimers(), 0);
+      await connection.close();
+      const replacement = f.newStream(); f.setMedia(async () => replacement);
+      const reopened = await adapter.connect(1, f.capture, new AbortController().signal);
+      f.recognizers[1].final("after-audio-resume", "Continue with this synthetic project");
+      f.advance(1000); await settle();
+      assert.equal(f.sends.length, 1);
+      assert.equal(f.syntheses.length, 1);
+      assert.equal(replacement.track.readyState, "live");
+      await reopened.close();
+    } finally { f.restore(); }
+  }
+});
+
+test("Azure audio suspension during a model turn preserves original recovery and suppresses late playback", async t => {
+  const f = fixture(); t.after(f.restore);
+  const response = deferred<TurnReply>(); f.setSend(() => response.promise);
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.recognizers[0].final("phone-pause", "Keep this original synthetic request");
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  f.contexts[0].setState("suspended");
+  assert.deepEqual(JSON.parse(f.storage.get("syntra.development.voice.pending.v1:1")!), f.sends[0]);
+  response.resolve(resultFor(f.sends[0])); await settle();
+  assert.equal(f.syntheses.length, 0);
+  assert.equal(f.sends.length, 1);
+  assert.ok(f.storage.has("syntra.development.voice.pending.v1:1"));
+  assert.equal(f.stream.track.readyState, "ended");
+  await connection.close();
+});
+
+test("Azure startup suspension retains bounded activation instead of treating it as a runtime loss", async t => {
+  const f = fixture(); t.after(f.restore);
+  const resumed = deferred<void>();
+  f.setAudioResume(() => { f.contexts[0].setState("suspended"); return resumed.promise; });
+  const opening = f.adapter().connect(1, f.capture, new AbortController().signal);
+  await settle();
+  assert.equal(f.events.some(event => event.type === "error"), false);
+  assert.equal(f.contexts[0].closes, 0);
+  f.contexts[0].setState("running"); resumed.resolve();
+  const connection = await opening;
+  assert.equal(f.events.filter(event => event.type === "state").at(-1)?.state, "listening");
+  await connection.close();
+});
+
+test("Azure prolonged OS microphone mute has one bounded deadline and cleans all owned listeners", async t => {
+  const f = fixture(); t.after(f.restore);
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.stream.track.setMuted(true);
+  f.advance(1000); f.stream.track.setMuted(true);
+  f.advance(499);
+  assert.equal(f.stream.track.readyState, "live");
+  f.advance(1); await settle();
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.contexts[0].closes, 1);
+  assert.equal(f.recognizers[0].closes, 1);
+  assert.ok(f.events.some(event => event.type === "error" && /paused microphone input/.test(event.message)));
+  assert.equal(f.pendingTimers(), 0);
+  assert.ok([...f.stream.track.listeners.values()].every(listeners => listeners.size === 0));
+  const count = f.events.length;
+  f.stream.track.setMuted(false); f.advance(2000); await settle();
+  assert.equal(f.events.length, count, "Late device restoration cannot revive a retired session");
+  await connection.close();
+});
+
+test("Azure transient OS microphone mute cancels its deadline and accepts the next utterance", async t => {
+  const f = fixture(); t.after(f.restore);
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.stream.track.setMuted(true); f.advance(1499);
+  f.stream.track.setMuted(false); f.advance(2000);
+  assert.equal(f.stream.track.readyState, "live");
+  assert.equal(f.events.some(event => event.type === "error"), false);
+  f.recognizers[0].final("after-focus", "Continue this synthetic project");
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.syntheses.length, 1);
+  await connection.close();
+});
+
+test("Azure detects a source already muted when microphone permission resolves", async t => {
+  const f = fixture(); t.after(f.restore);
+  f.stream.track.muted = true;
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.advance(1500); await settle();
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.ok(f.events.some(event => event.type === "error" && /paused microphone input/.test(event.message)));
+  assert.equal(f.pendingTimers(), 0);
+  await connection.close();
+});
+
+test("Azure explicit user mute cancels OS watchdog and unmute rechecks an unavailable source", async t => {
+  const f = fixture(); t.after(f.restore);
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.stream.track.setMuted(true);
+  await connection.setMuted!(true);
+  f.stream.track.setMuted(true); f.advance(2000);
+  assert.equal(f.stream.track.readyState, "live");
+  assert.equal(f.stream.track.enabled, false);
+  assert.equal(f.events.some(event => event.type === "error"), false);
+  await connection.setMuted!(false);
+  f.advance(1500); await settle();
+  assert.equal(f.stream.track.readyState, "ended");
+  assert.equal(f.pendingTimers(), 0);
+  await connection.close();
+});
+
+test("Azure close during the OS mute grace cancels watchdog and device callbacks", async t => {
+  const f = fixture(); t.after(f.restore);
+  const connection = await f.adapter().connect(1, f.capture, new AbortController().signal);
+  f.stream.track.setMuted(true);
+  await connection.close();
+  const count = f.events.length;
+  f.stream.track.setMuted(false); f.advance(2000); await settle();
+  assert.equal(f.events.length, count);
+  assert.equal(f.pendingTimers(), 0);
+  assert.equal(f.contexts[0].closes, 1);
+  assert.ok([...f.stream.track.listeners.values()].every(listeners => listeners.size === 0));
+});
+
+test("Azure retired microphone mute callbacks cannot close a reopened connection", async t => {
+  const f = fixture(); t.after(f.restore);
+  const adapter = f.adapter();
+  const first = await adapter.connect(1, f.capture, new AbortController().signal);
+  f.stream.track.setMuted(true);
+  await first.close();
+  const replacement = f.newStream(); f.setMedia(async () => replacement);
+  const second = await adapter.connect(1, f.capture, new AbortController().signal);
+  const errorsBefore = f.events.filter(event => event.type === "error").length;
+  f.stream.track.setMuted(false); f.stream.track.setMuted(true);
+  f.advance(2000); await settle();
+  assert.equal(replacement.track.readyState, "live");
+  assert.equal(f.events.filter(event => event.type === "error").length, errorsBefore);
+  assert.equal(f.contexts[1].closes, 0);
+  assert.equal(f.recognizers[1].closes, 0);
+  await second.close();
 });

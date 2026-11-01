@@ -142,10 +142,48 @@ output preparation alone is not a claim that every browser's capture restriction
 are solved. The customer's failing browser/device trace is unavailable, so the
 reported production failure's exact original cause is not asserted.
 
+## Phone interruption hardening
+
+After the owner identified Android Chrome as the affected browser, a focused source
+review found two explicit state-reporting gaps: a post-startup AudioContext suspension
+while Listening could leave the UI saying Listening, and an OS-muted microphone
+track could remain live without producing audio until the general idle timeout.
+Neither gap is asserted as the original phone failure without that device's trace.
+
+The adapter now closes with an actionable reconnect message if already-started
+audio is suspended/interrupted outside an active synthesis attempt. Initial audio
+activation retains its bounded startup path; active synthesis interruption retains
+saved-response playback recovery. Closing during a model request preserves the
+original retry identity and suppresses late playback.
+
+A source-level `MediaStreamTrack.muted` interruption gets a 1.5-second grace period.
+An unmute cancels it; repeated mute events cannot extend it indefinitely. The
+watchdog also checks a source already muted when permission resolves. Deliberate
+application mute (`track.enabled = false`) is respected, and unmuting explicitly
+rechecks source availability. All mute/unmute/ended listeners and watchdog timers
+are removed on close, including when a newer connection replaces the old one.
+
+Nine additional adapter regressions cover these transitions, transient recovery,
+reopening after suspension, original-request persistence and late callbacks. This
+is verified state handling with provider/browser fixtures, not proof of Android
+hardware behavior. Android Chrome normally retains user activation, so output
+preparation alone is not presented as a confirmed Android-specific diagnosis.
+
+The updated build was also exercised with an Android Chrome user-agent, a
+393×851 mobile viewport, touch input and tap-driven opening/reopening in desktop
+Chromium. Only the candidate frontend assets were overlaid; the production API,
+model and Azure services remained real. Synthetic microphone capture produced
+two model replies and two complete PCM playbacks. The five unique persisted
+messages (two visitor/reply pairs plus greeting) and Concise depth were unchanged
+after reload. Reopening established a new connection; all four audio contexts and
+four speech sockets closed, with no browser errors. This is mobile-interaction
+emulation, not a physical Android microphone, speaker or OS audio-focus test, and
+the candidate source was not deployed.
+
 ## Automated evidence
 
-29 Azure adapter tests and three audio preparation tests pass individually. The
-five added adapter regressions cover prepared-context adoption, rejected resume,
+38 Azure adapter tests and three audio preparation tests pass individually. The
+initial five added adapter regressions cover prepared-context adoption, rejected resume,
 resume timeout, close during pending resume with late completion, and changed
 region during token renewal. The three helper tests cover synchronous gesture
 activation, one-time adoption, close/reopen ownership and unsupported preparation.

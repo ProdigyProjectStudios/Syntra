@@ -13,6 +13,13 @@ Azure `uksouth` voice catalogue, recognition and synthesis worked in live probes
 The blanket production outage was not reproduced in the available Chromium
 environment; the original failing device/browser is unavailable.
 
+The owner subsequently identified Android Chrome. A focused review found two
+concrete recovery gaps: post-startup audio suspension while listening/thinking and
+sustained OS microphone-source muting could leave an apparently live session.
+Both now surface explicit recovery, with a 1.5-second grace for source interruptions,
+intentional app mute preserved, and original pending requests retained. Nine added
+regressions cover these paths. This does not establish the cause on the actual phone.
+
 A controlled prerecorded-WAV run used Chromium's native capture device and the
 unmodified production SDK, model and persistence. It produced ten model replies
 and ten real synthesized PCM starts, nine software interruptions, and one token
@@ -34,6 +41,12 @@ and SDK sockets closed after 1,378/1,361 ms. The first harness incorrectly requi
 socket closure within one second; the follow-up established normal asynchronous
 retirement within the existing five-second guard. This was a browser source
 overlay, not a deployment, and still used synthetic capture.
+
+After the phone-interruption changes, an Android-user-agent/mobile-touch run of
+the updated candidate completed two full live-provider playbacks, reopened, and
+retained the same five unique messages and Concise depth after reload. All four
+audio contexts and speech sockets closed without browser errors. This used desktop
+Chromium mobile emulation and synthetic input; physical Android remains a gate.
 
 No Azure resource, region, SKU, network rule or key was changed. Existing speech
 and model allowances were used for bounded synthetic checks; exact charges cannot
@@ -62,7 +75,7 @@ are exposed only if the actual host supplies them.
 | --- | --- |
 | Frozen dependency install | pnpm 10.16.1; lockfile unchanged; no new shipped dependency |
 | Consultation/native/handoff/controller tests | 115 passed |
-| Voice/audio/token/API/retry tests | 85 passed |
+| Voice/audio/token/API/retry tests | 94 passed |
 | Real isolated PostgreSQL 16 integration | 5 passed: concurrency/manual edits/replay, rollback, pool saturation, ownership and query deadline |
 | Workspace TypeScript and production builds | Passed |
 | AgentPlace transfer | 132 checksums, 128 TS/TSX syntax files, scoped CSS and 12 exported native tests passed |
@@ -70,6 +83,7 @@ are exposed only if the actual host supplies them.
 | Chromium workflows with synthetic runtime | Lost acknowledgement/reload/original-ID recovery, brief provenance/export, consent/retry and isolated browser sessions passed |
 | Live deployed provider checks | Azure token/catalogue/synthesis and repeated cloud turns observed; see voice report |
 | Candidate frontend with live providers | Two full playbacks, Concise depth, five unique messages, close/reopen and bounded asynchronous socket cleanup observed in browser asset overlay |
+| Android-style touch with live providers | Updated candidate: two full playbacks, reopen, identical persisted history after reload, all contexts/sockets closed; desktop Chromium emulation and synthetic microphone |
 | Existing live HTTP suite against deployed baseline | Nine scenarios passed (10 TAP entries with parent): private session/ownership/CSRF, manual edit/clear conflicts, real model qualification, atomic persistence, depth, replay and concurrent manual correction |
 
 Browser workflow fixtures exercise actual rendered UI but do not certify provider
@@ -84,8 +98,8 @@ retain multiple Set-Cookie headers: production also sets a routing cookie, which
 the older single-cookie test client incorrectly substituted for its session cookie.
 That initial harness failure did not establish a production ownership defect.
 
-Initial JavaScript decreased from 596,738 to 567,889 bytes raw, 193,697 to 184,716
-gzip, and 166,473 to 158,826 Brotli (4.83%, 4.64%, 4.59%). These are same-config
+Initial JavaScript decreased from 596,738 to 567,889 bytes raw, 193,697 to 184,717
+gzip, and 166,473 to 158,790 Brotli (4.83%, 4.64%, 4.62%). These are same-config
 local production builds, not deployed network speedups. Covered canvases produced
 zero draw calls in each sampled 300 ms browser interval; visible cinematic effects
 remain intact. See [Frontend measurements](FRONTEND-HARDENING.md) and
@@ -94,7 +108,7 @@ remain intact. See [Frontend measurements](FRONTEND-HARDENING.md) and
 ## Remaining release gates
 
 1. Deploy the reviewed source into the existing credentialed Replit preview and
-   verify the reported failing browser/device. This workspace has public access
+   verify the reported failing Android Chrome phone. This workspace has public access
    and owned test sessions but no Replit deployment identity, backend runtime logs,
    Azure management identity or production database credentials.
 2. Complete ten human spoken exchanges with verified audible output; early/mid/late

@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "4s0yiIk7sZP5bJFH6XBxa"
+uri = "file://generated-artifacts/exports/syntra-orbs-source.zip"
+type = "unspecified"
+title = "Syntra orb source code"
+description = "ZIP containing the original neural orbs, mode selector, specialist and platform orbs, supporting styles/hooks, and integration instructions."
+logical_id = "383926dd-ce54-44c9-b60f-9af2b20f86dc"
+content_hash = "sha256:95bb173a74486761b28ce076a47300cdc269a935c14af7de8c4d24e9ee3b419a"
+size = 40269
+mtime_ms = 1793564278579
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:789e029a-b803-41eb-b433-ca8ed2e954de/383926dd-ce54-44c9-b60f-9af2b20f86dc/fb8f1a7a-2c9c-4e6c-8507-7393cfe19aea"
+storage_version_token = "1793564283360892"
+content_type = "application/octet-stream"

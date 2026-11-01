@@ -64,7 +64,7 @@ function readPending(id: number): TurnInput | undefined {
 }
 
 /** The server checks consultation ownership. A stalled token request cannot hold voice open. */
-async function tokenFor(id: number, signal: AbortSignal): Promise<SpeechToken> {
+export async function tokenFor(id: number, signal: AbortSignal): Promise<SpeechToken> {
   const requestLifetime = new AbortController();
   const abort = () => requestLifetime.abort(signal.reason ?? aborted());
   signal.addEventListener('abort', abort, { once: true });

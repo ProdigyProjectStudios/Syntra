@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowUp, ArrowUpRight, RotateCw } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, RotateCw, Mic, Volume2, Square, LoaderCircle } from 'lucide-react';
+import { useChatSpeech } from '@/hooks/use-chat-speech';
 import { useListConversations } from '@/lib/runtime-hooks';
 import { getSpecialistProfile, type Message } from '@workspace/consultation';
 import { formatDistanceToNow } from 'date-fns';
@@ -72,8 +73,10 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
 
 /* ---------- Composer ---------- */
 export function Composer({ onSpeak }: { onSpeak: () => void }) {
-  const { send, sending, specialist } = useAdvisor();
+  const { send, sending, specialist, conversation, conversationId, ensureVoiceConversation } = useAdvisor();
   const profile = getSpecialistProfile(specialist);
+  const speech = useChatSpeech(ensureVoiceConversation, profile.voiceId, conversationId);
+  const latestReply = conversation?.messages.filter(message => message.role === 'advisor').at(-1)?.content;
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
   const [mobile, setMobile] = useState(false);
@@ -107,7 +110,8 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
   }, [value, mobile]);
 
   const submit = () => {
-    if (!value.trim() || sending) return;
+    if (!value.trim() || sending || speech.mode === 'dictating' || speech.mode === 'loading') return;
+    speech.stop();
     send(value);
     setValue('');
   };
@@ -120,12 +124,13 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
             <div className="h-px w-1/3 anim-scan bg-gradient-to-r from-transparent via-primary to-transparent" />
           </div>
         )}
-        <div className="flex items-end gap-1 p-1 pl-3.5">
+        <div className="flex flex-wrap items-end gap-1 p-1 pl-3.5">
           <textarea
             ref={ref}
             rows={1}
             maxLength={12000}
             value={value}
+            readOnly={speech.mode === 'dictating' || speech.mode === 'loading'}
             data-testid="input-message"
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -138,12 +143,25 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
             }}
             placeholder={`Message ${profile.name}…`}
             aria-label="Message the advisor"
-            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin"
+            className="max-h-40 min-h-[44px] min-w-0 basis-full sm:basis-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin"
           />
 
+          <div className="ml-auto flex items-center gap-1">
+          <button type="button" onClick={() => speech.mode !== 'idle' ? speech.finish() : speech.dictate(value, setValue)}
+            disabled={sending || speech.mode === 'playing'} aria-label={speech.mode === 'dictating' ? 'Finish dictation' : speech.mode === 'loading' ? 'Cancel speech' : 'Dictate message'}
+            aria-pressed={speech.mode === 'dictating'} data-testid="button-dictate"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary transition hover:bg-primary/10 disabled:opacity-35 focus-visible:ring-1 focus-visible:ring-primary">
+            {speech.mode === 'loading' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : speech.mode === 'dictating' ? <Square className="h-4 w-4 fill-current" /> : <Mic className="h-4 w-4" />}
+          </button>
+          <button type="button" onClick={() => speech.mode === 'playing' ? speech.stop() : latestReply && speech.play(latestReply)}
+            disabled={!latestReply || sending || speech.mode === 'dictating' || speech.mode === 'loading'}
+            aria-label={speech.mode === 'playing' ? 'Stop response playback' : 'Play latest response'} data-testid="button-play-response"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary transition hover:bg-primary/10 disabled:opacity-35 focus-visible:ring-1 focus-visible:ring-primary">
+            {speech.mode === 'playing' ? <Square className="h-4 w-4 fill-current" /> : <Volume2 className="h-4 w-4" />}
+          </button>
           <button
             type="button"
-            onClick={onSpeak}
+            onClick={() => { speech.stop(); onSpeak(); }}
             data-testid="button-speak-mobile"
             aria-label="Open voice mode"
             className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary outline-none transition-transform active:scale-90 focus-visible:ring-1 focus-visible:ring-primary/60"
@@ -152,14 +170,16 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
           </button>
           <button
             onClick={submit}
-            disabled={!value.trim() || sending}
+            disabled={!value.trim() || sending || speech.mode === 'dictating' || speech.mode === 'loading'}
             data-testid="button-send"
             aria-label="Send message"
             className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,hsl(187_92%_72%),hsl(205_95%_62%)_55%,hsl(217_95%_58%))] text-primary-foreground transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_-2px_hsl(199_95%_60%/.75)] halo active:scale-90 disabled:scale-100 disabled:bg-none disabled:bg-secondary disabled:text-muted-foreground disabled:shadow-none"
           >
             <ArrowUp className="h-5 w-5" />
           </button>
+          </div>
         </div>
+        {(speech.error || speech.mode !== 'idle') && <p role="status" className="px-4 pb-2 text-xs text-primary/80">{speech.error || (speech.mode === 'dictating' ? 'Listening… finish dictation to review and send. Audio is processed by the configured speech provider.' : speech.mode === 'playing' ? 'Playing the latest response…' : 'Connecting speech…')}</p>}
       </div>
 
     </div>

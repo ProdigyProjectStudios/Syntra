@@ -5,6 +5,7 @@ import { Compass, Boxes, FileText, CalendarClock, History, Plus, X } from 'lucid
 import { useAdvisor } from '@/lib/advisor';
 import { AdvisorOrb, Composer, DepthSwitch, HistoryList, Stream } from '@/components/advisor-ui';
 import { VoiceConsole, OPEN_VOICE_EVENT } from '@/components/voice';
+import { PlatformOrbits } from '@/components/platform-orbits';
 import { DeferredVisuals } from '@/components/deferred-visuals';
 import { useReadyRoute } from '@/lib/route-pages';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -146,6 +147,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
       </aside>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+        <PlatformOrbits />
         <header className="flex items-center justify-between gap-3 px-4 pt-4 sm:px-6 lg:pt-5" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <img src={logo} alt="Digital Prodigy" className="h-8 w-8 shrink-0 object-contain drop-shadow-[0_0_8px_rgba(0,255,255,.4)] lg:hidden" />

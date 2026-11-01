@@ -50,7 +50,7 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
   const [focused, setFocused] = useState<SpecialistId | null>(null);
   const reduceMotion = useReducedMotion();
   const buttons = useRef(new Map<SpecialistId, HTMLButtonElement>());
-  const horizontal = compact && !expanded;
+  const horizontal = !expanded;
   const candidate = hovered ?? focused;
   const hoverProfile = candidate ? getSpecialistProfile(candidate) : null;
   const reason = (id: SpecialistId) => !supported.includes(id)
@@ -69,12 +69,12 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
   };
 
   return (
-    <aside className={cn('absolute z-20', compact ? 'inset-x-4 top-[calc(64px+env(safe-area-inset-top))] flex justify-center' : 'left-5 top-1/2 -translate-y-1/2 lg:left-8')}
+    <aside className="relative z-20 flex shrink-0 justify-center pt-3 pb-2"
       aria-label="Voice specialists" data-testid="voice-specialist-rail">
       <motion.div layout initial={false} animate={{ width: expanded ? compact ? 280 : 244 : horizontal ? 208 : 64 }}
         transition={{ duration: reduceMotion ? 0 : .28, ease: [.16, 1, .3, 1] }}
-        className={cn('relative max-w-[calc(100vw-32px)] border border-white/[.075] bg-[#060914]/85 shadow-[0_12px_70px_-24px_rgba(34,211,238,.18)] backdrop-blur-xl',
-          horizontal ? 'flex items-center gap-0.5 rounded-full px-1.5 py-1' : 'flex flex-col rounded-[28px] p-1.5')}>
+        className={cn('relative max-w-[calc(100vw-32px)] border border-white/[.045] bg-[#060914]/85 shadow-[0_12px_70px_-24px_rgba(34,211,238,.18)] backdrop-blur-xl',
+          horizontal ? 'flex items-center gap-0.5 rounded-full px-1.5 py-1' : 'flex max-h-[28dvh] flex-col overflow-y-auto overscroll-contain rounded-[28px] p-1.5 scroll-thin')}>
         {expanded && (
           <div className="mb-1 flex items-center justify-between gap-3 px-3 pb-1 pt-2">
             <p className="font-mono text-[9px] uppercase tracking-[.23em] text-white/40">{preview ? 'Identity preview' : 'Voice intelligence'}</p>
@@ -134,7 +134,7 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
           <motion.div key={hoverProfile.id} initial={{ opacity: 0, y: compact ? -3 : 3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : .15 }}
             className={cn('pointer-events-none absolute w-[248px] max-w-[calc(100vw-32px)] rounded-2xl border border-white/10 bg-[#080d1b]/95 px-4 py-3 text-left shadow-xl backdrop-blur-xl',
-              compact ? 'left-1/2 top-full mt-2 -translate-x-1/2' : 'left-full top-1/2 ml-3 -translate-y-1/2')}
+              'left-1/2 top-full mt-2 -translate-x-1/2')}
             role="tooltip" data-testid="voice-specialist-tooltip">
             <p className="text-[13px] font-medium tracking-[.04em]" style={{ color: SPECIALIST_VISUALS[hoverProfile.id].color }}>{hoverProfile.name}</p>
             <p className="mt-1 text-[11px] text-white/70">{hoverProfile.title}</p>

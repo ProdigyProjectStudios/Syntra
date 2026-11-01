@@ -51,7 +51,7 @@ type CoreProps = {
 
 export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNodes = 640, bloom: withBloom = true, still = false, className }: CoreProps) {
   const mobile = useMediaQuery('(max-width: 639px), (pointer: coarse)');
-  const nodes = mobile ? Math.min(requestedNodes, 220) : requestedNodes;
+  const nodes = requestedNodes;
   const active = useVisualActivity();
   const activeRef = useRef(active);
   activeRef.current = active;
@@ -201,7 +201,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
     const ctx = c.getContext('2d');
     const bctx = bc?.getContext('2d') ?? null;
     if (!ctx) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.75);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
     c.width = Math.round(size * dpr);
     c.height = Math.round(size * dpr);
     if (bc) { bc.width = Math.round(size / 2); bc.height = Math.round(size / 2); }
@@ -456,7 +456,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
 
   return (
     <div ref={wrap} className={className} style={{ position: 'relative', width: size, height: size, flexShrink: 0, WebkitMaskImage: 'radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%)', maskImage: 'radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%)' }} aria-hidden>
-      {withBloom && !mobile && <canvas ref={bloom} className="pointer-events-none absolute inset-0 h-full w-full opacity-90 mix-blend-screen" style={{ filter: `blur(${Math.max(2, Math.round(size * 0.025))}px) saturate(1.5) brightness(1.25)` }} />}
+      {withBloom && <canvas ref={bloom} className="pointer-events-none absolute inset-0 h-full w-full opacity-90 mix-blend-screen" style={{ filter: `blur(${Math.max(2, Math.round(size * 0.025))}px) saturate(1.5) brightness(1.25)` }} />}
       <canvas ref={main} className="absolute inset-0 h-full w-full" />
     </div>
   );

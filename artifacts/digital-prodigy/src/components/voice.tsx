@@ -8,6 +8,7 @@ import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
 import { NeuralCore, type CoreState } from '@/components/neural-core';
 import { VoiceSpecialistRail, SPECIALIST_VISUALS } from '@/components/voice-specialist-rail';
+import { PlatformOrbits } from '@/components/platform-orbits';
 import { VoiceConnectionLifecycle, isLocalVoiceNotice, reconnectFailure } from '@/components/voice-connection-lifecycle';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
@@ -307,7 +308,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
     (!failure.recovery || (failure.recovery === 'turn' ? connection?.retryTurn : connection?.retryPlayback)));
   const recoveryLabel = failure?.recovery === 'turn' ? 'Retry this turn' : failure?.recovery === 'playback' ? 'Replay response' : 'Reconnect';
   const discloseProvider = available && !native;
-  const stageBottom = canRecover ? discloseProvider ? 196 : 160 : discloseProvider ? 144 : 128;
+  const stageBottom = 56 + (canRecover ? discloseProvider ? 196 : 160 : discloseProvider ? 144 : 128);
   const profile = getSpecialistProfile(specialist);
   const visual = SPECIALIST_VISUALS[specialist];
   const supported = !available ? SPECIALISTS.map(item => item.id) : runtime.voice.specialists ?? ['syntra'] as const;
@@ -348,10 +349,11 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
             </button>
           </div>
 
+          <div className="relative z-20 shrink-0 pt-[calc(3.5rem+env(safe-area-inset-top))]"><PlatformOrbits /></div>
           <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
             lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
 
-          <div ref={stageRef} className="absolute inset-x-0 flex min-h-0 flex-col items-center justify-center sm:left-20 sm:right-2 lg:left-0 lg:right-0" style={{ top: `calc(${compact ? 132 : 68}px + env(safe-area-inset-top))`, bottom: `calc(${stageBottom}px + env(safe-area-inset-bottom))` }}>
+          <div ref={stageRef} className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center" style={{ marginBottom: `calc(${stageBottom}px + env(safe-area-inset-bottom))` }}>
             <motion.div initial={reduceMotion ? false : { scale: .94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: reduceMotion ? 0 : 1, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none relative z-[5] shrink-0">
               <motion.div animate={{ filter: `hue-rotate(${failure ? 0 : visual.hue}deg)` }} transition={{ duration: reduceMotion ? 0 : .55 }}>
@@ -408,7 +410,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
               className="flex items-center gap-2 rounded-full border border-primary/30 bg-[#04030B]/85 px-5 py-2.5 text-sm text-primary transition hover:bg-primary/10 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
               <RotateCw className={cn('h-4 w-4', controlPending && 'motion-safe:animate-spin')} strokeWidth={1.5} /> {controlPending ? 'Recovering…' : recoveryLabel}
             </button>}
-            <div className="flex items-center justify-center gap-2.5">
+            <div className="flex flex-col items-center justify-center gap-2.5">
               {connection?.setMuted && <button onClick={() => void changeMute()} disabled={controlPending}
                 aria-label={muted ? 'Unmute microphone' : 'Mute microphone'} aria-pressed={muted} title={muted ? 'Unmute microphone' : 'Mute microphone'}
                 data-testid="button-mute-voice"

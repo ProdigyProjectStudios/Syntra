@@ -6,6 +6,7 @@ import { getSpecialistProfile, type Message } from '@workspace/consultation';
 import { formatDistanceToNow } from 'date-fns';
 import { DEPTHS, useAdvisor } from '@/lib/advisor';
 import { NeuralCore } from '@/components/neural-core';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
@@ -16,14 +17,12 @@ export function AdvisorOrb({ size: requestedSize = 56, mobileSize, thinking = fa
   const size = mobile ? mobileSize ?? requestedSize : requestedSize;
   const isLive = live ?? (thinking || size >= 40);
   const canvas = Math.round(size * 1.45);
-  const nodes = mobile
-    ? size <= 32 ? 36 : size <= 90 ? 90 : 180
-    : size <= 32 ? 70 : size <= 90 ? 200 : 420;
+  const nodes = size <= 32 ? 70 : size <= 90 ? 200 : 420;
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }} aria-hidden>
       <div className="absolute inset-[-25%] rounded-full anim-breathe" style={{ background: 'radial-gradient(circle, hsl(187 92% 69% / .16), hsl(217 95% 60% / .06) 45%, transparent 70%)' }} />
       <NeuralCore
-        key={`${nodes}-${isLive}`}
+        key={`${nodes}-${isLive}-${thinking}`}
         size={canvas}
         nodes={nodes}
         state={thinking ? 'speaking' : 'idle'}
@@ -45,8 +44,7 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
         {DEPTHS.map((d, i) => {
           const active = depth === d.id;
           return (
-            <button
-              key={d.id}
+            <Tooltip key={d.id}><TooltipTrigger asChild><button
               role="radio"
               aria-checked={active}
               aria-label={d.label}
@@ -59,19 +57,12 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
                 setDepth(DEPTHS[index].id);
                 event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[index]?.focus();
               }}
-              title={d.hint}
               data-testid={`button-depth-${d.id}`}
               onClick={() => setDepth(d.id)}
-              className={cn('relative z-10 flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary text-xs font-semibold transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground')}
+              className={cn('relative z-10 flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary text-xs font-semibold transition-colors', active ? 'text-primary ring-1 ring-primary/25 bg-primary/5' : 'text-muted-foreground hover:text-foreground')}
             >
-              {active && <motion.span layoutId="depth-pill" className="absolute inset-0 -z-10 rounded-full bg-primary shadow-[0_0_24px_-4px_hsl(187_92%_69%/.7)]" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
-              <span className="flex gap-[2px]" aria-hidden>
-                {[0, 1, 2].map((b) => (
-                  <span key={b} className={cn('h-2.5 w-[3px] rounded-full', b <= i ? (active ? 'bg-primary-foreground' : 'bg-ion/70') : 'bg-current opacity-20')} />
-                ))}
-              </span>
-              <span className={cn(compact && 'hidden sm:inline')}>{d.label}</span>
-            </button>
+              <AdvisorOrb size={18 + i * 7} live={active} />
+            </button></TooltipTrigger><TooltipContent side="bottom" sideOffset={12} className="rounded-2xl border border-primary/20 bg-[#080d1b]/95 px-4 py-3 shadow-[0_12px_40px_#0008] backdrop-blur-xl"><p className="text-sm text-primary">{d.label}</p><p className="mt-1 text-xs text-white/50">{d.hint}</p></TooltipContent></Tooltip>
           );
         })}
       </div>
@@ -81,11 +72,10 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
 
 /* ---------- Composer ---------- */
 export function Composer({ onSpeak }: { onSpeak: () => void }) {
-  const { send, sending, depth, specialist } = useAdvisor();
+  const { send, sending, specialist } = useAdvisor();
   const profile = getSpecialistProfile(specialist);
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
-  const [wake, setWake] = useState(false);
   const [mobile, setMobile] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -124,13 +114,13 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
 
   return (
     <div className="flex items-end gap-2 sm:gap-3">
-      <div className={cn('relative min-w-0 flex-1 rounded-[24px] sm:rounded-[26px] glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
+      <div className={cn('relative min-w-0 flex-1 rounded-[24px]  glass edge-light transition-shadow duration-500', focused && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35),0_20px_80px_-20px_hsl(210_95%_55%/.6)]')}>
         {sending && (
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px overflow-hidden">
             <div className="h-px w-1/3 anim-scan bg-gradient-to-r from-transparent via-primary to-transparent" />
           </div>
         )}
-        <div className="flex items-end gap-1 p-1 pl-3.5 sm:gap-2 sm:p-2 sm:pl-5">
+        <div className="flex items-end gap-1 p-1 pl-3.5">
           <textarea
             ref={ref}
             rows={1}
@@ -146,19 +136,17 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
                 submit();
               }
             }}
-            placeholder={mobile ? `Message ${profile.name}…` : specialist === 'syntra' ? 'What are you thinking of building?' : `Explore your project with ${profile.name}…`}
+            placeholder={`Message ${profile.name}…`}
             aria-label="Message the advisor"
-            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin sm:py-3 sm:text-[15px] sm:leading-relaxed"
+            className="max-h-40 min-h-[44px] min-w-0 flex-1 resize-none bg-transparent py-2.5 text-base leading-6 outline-none placeholder:text-muted-foreground/70 scroll-thin"
           />
-          <div className="hidden sm:flex items-center self-center pr-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">
-            {profile.name} / {DEPTHS.find((d) => d.id === depth)?.label}
-          </div>
+
           <button
             type="button"
             onClick={onSpeak}
             data-testid="button-speak-mobile"
             aria-label="Open voice mode"
-            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary outline-none transition-transform active:scale-90 focus-visible:ring-1 focus-visible:ring-primary/60 sm:hidden"
+            className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary outline-none transition-transform active:scale-90 focus-visible:ring-1 focus-visible:ring-primary/60"
           >
             <AdvisorOrb size={28} live />
           </button>
@@ -173,27 +161,15 @@ export function Composer({ onSpeak }: { onSpeak: () => void }) {
           </button>
         </div>
       </div>
-      <button
-        onClick={onSpeak}
-        onPointerEnter={() => setWake(true)}
-        onPointerLeave={() => setWake(false)}
-        data-testid="button-speak"
-        aria-label="Open voice mode"
-        className="group relative hidden h-[60px] shrink-0 items-center gap-2 overflow-hidden rounded-[26px] border border-primary/25 bg-[linear-gradient(160deg,hsl(217_80%_30%/.28),hsl(236_50%_6%/.6))] pl-2 pr-3 font-semibold text-primary backdrop-blur-xl transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_44px_-8px_hsl(199_95%_60%/.7)] sm:flex sm:pr-5"
-      >
-        <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: 'radial-gradient(80% 120% at 25% 50%, hsl(187 92% 69% / .16), transparent 70%)' }} />
-        <AdvisorOrb size={44} live thinking={wake} />
-        <span className="relative hidden flex-col items-start leading-tight sm:flex">
-          <span className="text-sm">Speak</span>
-          <span className="font-mono text-[9px] font-normal uppercase tracking-[0.25em] text-primary/50 transition-colors group-hover:text-primary/80">Voice mode</span>
-        </span>
-      </button>
+
     </div>
   );
 }
 
 /* ---------- Message stream ---------- */
 function Bubble({ m, delay }: { m: Message; delay: number }) {
+  const [arriving, setArriving] = useState(true);
+  useEffect(() => { const timer = window.setTimeout(() => setArriving(false), 2400); return () => window.clearTimeout(timer); }, []);
   const advisor = m.role === 'advisor';
   return (
     <motion.div
@@ -203,7 +179,7 @@ function Bubble({ m, delay }: { m: Message; delay: number }) {
       className={cn('flex min-w-0 gap-3', !advisor && 'justify-end')}
       data-testid={`message-${m.id}`}
     >
-      {advisor && <div className="mt-1"><AdvisorOrb size={22} /></div>}
+      {advisor && <div className="mt-1"><AdvisorOrb size={22} thinking={arriving} /></div>}
       <div className={cn('max-w-[min(42rem,88%)]', advisor ? '' : 'rounded-2xl rounded-tr-md border border-ion/25 bg-[linear-gradient(135deg,hsl(217_90%_55%/.16),hsl(187_92%_69%/.07))] px-4 py-3')}>
         {advisor && (
           <div className="mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">

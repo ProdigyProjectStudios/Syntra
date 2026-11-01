@@ -84,8 +84,8 @@ retain multiple Set-Cookie headers: production also sets a routing cookie, which
 the older single-cookie test client incorrectly substituted for its session cookie.
 That initial harness failure did not establish a production ownership defect.
 
-Initial JavaScript decreased from 596,738 to 567,889 bytes raw, 193,697 to 184,717
-gzip, and 166,473 to 158,785 Brotli (4.83%, 4.64%, 4.62%). These are same-config
+Initial JavaScript decreased from 596,738 to 567,889 bytes raw, 193,697 to 184,716
+gzip, and 166,473 to 158,826 Brotli (4.83%, 4.64%, 4.59%). These are same-config
 local production builds, not deployed network speedups. Covered canvases produced
 zero draw calls in each sampled 300 ms browser interval; visible cinematic effects
 remain intact. See [Frontend measurements](FRONTEND-HARDENING.md) and

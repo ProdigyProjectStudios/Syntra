@@ -119,3 +119,10 @@ The first release runs passed the application, PostgreSQL, type, transfer and bu
 steps, then failed installing Playwright 1.56.1 on the newly advanced
 `ubuntu-latest` (Ubuntu 26.04). The workflow now pins supported Ubuntu 24.04 so the
 OS and pinned browser tooling remain reproducible.
+
+A subsequent parallel run exposed an incorrect canvas measurement: the harness
+counted the visible interaction overlay above the voice modal as covered background.
+Slow frames extended that click animation into the observation interval. Explicit
+render-layer markers now identify the covered consultation/ambient canvases; the
+test requires zero covered draws while deliberately triggering and verifying
+foreground click feedback. No visual effect was disabled to satisfy the check.

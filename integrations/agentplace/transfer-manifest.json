@@ -116,7 +116,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/click-burst.tsx",
       "source": "artifacts/digital-prodigy/src/components/click-burst.tsx",
-      "sha256": "35e26939542973f34b1aa05825f80cd81dea76286582609f232bae68177ddebe"
+      "sha256": "b76e9b4de8bc90ead7633164df8d573c43933e171073be00fd8a120e17258d9b"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/constellation.tsx",
@@ -141,7 +141,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/neural-field.tsx",
       "source": "artifacts/digital-prodigy/src/components/neural-field.tsx",
-      "sha256": "941abd23eabcf8117b156208a5a0611a1a14612a50b21db88725f42509989409"
+      "sha256": "4b3ed9216750e171240bc44d41615b6c731730309a95e77263a2b1af3fe8833d"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/components/shell.tsx",

@@ -10,7 +10,9 @@ const { chromium } = await import(
 );
 const base = process.env.SYNTRA_CHECK_URL || "http://127.0.0.1:5173";
 if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(base).hostname)) {
-  throw new Error("Synthetic runtime checks require a local preview; never inject them into production.");
+  throw new Error(
+    "Synthetic runtime checks require a local preview; never inject them into production.",
+  );
 }
 const out = path.resolve(
   process.env.SYNTRA_LAYOUT_OUTPUT || "generated-artifacts/frontend-hardening",
@@ -125,6 +127,7 @@ async function fixture(page) {
       const context = await browser.newContext({
         viewport: { width, height },
         deviceScaleFactor: 1,
+        reducedMotion: "no-preference",
       });
       const page = await context.newPage();
       await fixture(page);
@@ -203,15 +206,50 @@ async function fixture(page) {
       }
       await page.keyboard.press("Escape");
       await page.waitForTimeout(300);
-      await page.evaluate(() => {
-        const canvases = new WeakSet(document.querySelectorAll("canvas"));
+      await page.locator('canvas[data-visual-layer="ambient"]').waitFor();
+      const instrumented = await page.evaluate(() => {
+        // The interaction canvas sits above the modal and must keep rendering.
+        // Classifying every preexisting canvas as covered made a slow click burst
+        // look like a background regression. Scope by ownership, not elapsed time.
+        const consultation = [...document.querySelectorAll(".contents canvas")];
+        const ambient = [
+          ...document.querySelectorAll('canvas[data-visual-layer="ambient"]'),
+        ];
+        const interaction = [
+          ...document.querySelectorAll(
+            'canvas[data-visual-layer="interaction"]',
+          ),
+        ];
+        const covered = new WeakSet([...consultation, ...ambient]);
+        const foreground = new WeakSet(interaction);
         window.__backgroundDraws = 0;
+        window.__foregroundDraws = 0;
         const draw = CanvasRenderingContext2D.prototype.drawImage;
         CanvasRenderingContext2D.prototype.drawImage = function (...args) {
-          if (canvases.has(this.canvas)) window.__backgroundDraws++;
+          if (covered.has(this.canvas)) window.__backgroundDraws++;
+          if (foreground.has(this.canvas)) window.__foregroundDraws++;
           return draw.apply(this, args);
         };
+        return {
+          consultation: consultation.length,
+          ambient: ambient.length,
+          interaction: interaction.length,
+        };
       });
+      assert(
+        instrumented.consultation > 0,
+        "No consultation canvases were instrumented",
+      );
+      assert.equal(
+        instrumented.ambient,
+        1,
+        "Ambient canvas missing from pause check",
+      );
+      assert.equal(
+        instrumented.interaction,
+        1,
+        "Visible interaction canvas missing",
+      );
       await page
         .getByTestId(width < 640 ? "button-speak-mobile" : "button-speak")
         .click();
@@ -258,16 +296,30 @@ async function fixture(page) {
       );
       await page.evaluate(() => {
         window.__backgroundDraws = 0;
+        window.__foregroundDraws = 0;
       });
+      // Deliberately trigger visible click feedback during the pause observation.
+      // Re-selecting the current specialist leaves the voice session unchanged.
+      await page.getByTestId("button-voice-specialist-syntra").click();
+      await page.waitForFunction(() => window.__foregroundDraws > 0);
       await page.waitForTimeout(300);
+      voice.instrumentedCanvases = instrumented;
       voice.coveredCanvasDraws = await page.evaluate(
         () => window.__backgroundDraws,
+      );
+      voice.foregroundCanvasDraws = await page.evaluate(
+        () => window.__foregroundDraws,
       );
       assert.equal(
         voice.coveredCanvasDraws,
         0,
         "Covered canvases should pause while voice is open",
       );
+      assert(
+        voice.foregroundCanvasDraws > 0,
+        "Visible click feedback did not render above voice",
+      );
+      await page.getByTestId("button-close-voice").focus();
       await page.screenshot({ path: `${out}/${width}-voice.png` });
       await page.getByTestId("button-close-voice").click();
       await page.waitForTimeout(500);

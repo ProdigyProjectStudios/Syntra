@@ -177,10 +177,28 @@ async function context(width = 390, height = 844, device = {}) {
 async function until(check, message, timeout = 8000) {
   const end = Date.now() + timeout;
   while (Date.now() < end) { if (await check()) return; await new Promise(resolve => setTimeout(resolve, 50)); }
-  assert.fail(message);
+  assert.fail(typeof message === 'function' ? message() : message);
 }
 async function navigate(page, path) {
   await page.locator(`a[href="${path}"]`).filter({ visible: true }).first().click();
+}
+const sectionKeys = ['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'];
+async function expectBlueprintDepth(page, depth, expandedKeys) {
+  const expected = Object.fromEntries(sectionKeys.map(key => [key, String(expandedKeys.includes(key))]));
+  let observed;
+  // The selected depth renders first; section expansion follows in a React
+  // effect. Require the complete visible state in one snapshot before proceeding.
+  await until(async () => {
+    observed = await page.evaluate(keys => ({
+      depth: document.querySelector('[data-testid^="button-depth-"][aria-checked="true"]')?.getAttribute('data-testid'),
+      sections: Object.fromEntries(keys.map(key => {
+        const nodes = document.querySelectorAll(`[data-testid="blueprint-section-${key}"]`);
+        return [key, { count: nodes.length, expanded: nodes[0]?.querySelector(':scope > button')?.getAttribute('aria-expanded') }];
+      })),
+    }), sectionKeys);
+    return observed.depth === `button-depth-${depth}` && sectionKeys.every(key =>
+      observed.sections[key].count === 1 && observed.sections[key].expanded === expected[key]);
+  }, () => `Blueprint depth ${depth} did not settle. Expected expansions: ${JSON.stringify(expected)}; observed: ${JSON.stringify(observed)}`);
 }
 try {
   const { ctx, page, errors } = await context();
@@ -259,7 +277,7 @@ try {
   await page.evaluate(() => window.__SYNTRA_TEST__.bumpBrief());
   await page.reload({ waitUntil: 'networkidle' });
   await page.getByTestId('button-submit-enquiry').waitFor();
-  assert.equal(await page.getByTestId('input-handoff-name').isDisabled(), true);
+  await until(async () => await page.getByTestId('input-handoff-name').isDisabled(), 'Reload recovery locks the already attempted enquiry details');
   await page.getByTestId('button-submit-enquiry').click();
   await page.getByTestId('status-handoff-confirmed').waitFor();
   const final = await page.evaluate(() => window.__SYNTRA_TEST__.snapshot());
@@ -297,27 +315,23 @@ try {
   await jp.getByTestId('button-voice-specialist-technical').click();
   await until(async () => (await jp.getByTestId('voice-active-specialist').textContent()).includes('Kryon'), 'Synthetic voice can select supported perspective');
   await jp.getByTestId('button-close-voice').click();
-  assert.equal(await jp.getByTestId('button-text-specialist-technical').getAttribute('aria-checked'), 'true');
+  await until(async () => await jp.getByTestId('button-text-specialist-technical').getAttribute('aria-checked') === 'true', 'Shared text perspective reflects the completed voice selection');
   assert.equal((await snapshot()).conversation.messages.length, 6, 'Changing perspective does not fabricate another exchange');
   results.push({ scenario: 'bottleneck → Syntra → Kryon → Nyx; shared depth, transcript and voice perspective', passed: true, persistedPairs: 3, voiceEvidence: 'synthetic runtime selector only; no audio' });
 
   await navigate(jp, '/brief');
   await jp.getByTestId('tab-solution-blueprint').click();
   await jp.getByTestId('blueprint-item-reviewer-boundary').waitFor();
-  const sectionKeys = ['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'];
-  for (const key of sectionKeys) {
-    assert.equal(await jp.getByTestId(`blueprint-section-${key}`).count(), 1, key);
-    assert.equal(await jp.getByTestId(`blueprint-section-${key}`).locator('button').first().getAttribute('aria-expanded'), 'true', 'Deep dive expands each section');
-  }
+  await expectBlueprintDepth(jp, 'deep_dive', sectionKeys);
   const valueItem = jp.getByTestId('blueprint-item-approval-capacity');
   assert.equal(await valueItem.getByTestId('status-blueprint-approval-capacity').textContent(), 'Assumption');
   assert.match(await valueItem.textContent(), /33\.33 hours\/month/);
   await jp.getByTestId('button-depth-concise').click();
-  for (const key of sectionKeys) assert.equal(await jp.getByTestId(`blueprint-section-${key}`).locator('button').first().getAttribute('aria-expanded'), 'false');
+  await expectBlueprintDepth(jp, 'concise', []);
   await jp.getByTestId('button-depth-detailed').click();
-  assert.equal(await jp.getByTestId('blueprint-section-architecture').locator('button').first().getAttribute('aria-expanded'), 'true');
-  assert.equal(await jp.getByTestId('blueprint-section-value').locator('button').first().getAttribute('aria-expanded'), 'false');
+  await expectBlueprintDepth(jp, 'detailed', ['objectives', 'architecture', 'workflows', 'roadmap']);
   await jp.getByTestId('button-depth-deep_dive').click();
+  await expectBlueprintDepth(jp, 'deep_dive', sectionKeys);
   await jp.screenshot({ path: `${out}/blueprint-390.png` });
   results.push({ scenario: 'ten Blueprint sections, distinct depth expansion and labelled server-derived capacity scenario', passed: true });
 
@@ -363,6 +377,8 @@ try {
   const removedVersion = (await snapshot()).blueprintStore.document.version;
   await jp.getByTestId('button-regenerate-blueprint').click();
   await until(async () => (await snapshot()).blueprintCalls.length === 6, 'Regeneration reaches domain');
+  await until(async () => !await jp.getByTestId('button-regenerate-blueprint').isDisabled()
+    && await jp.getByTestId('blueprint-operation-error').count() === 0, 'Regeneration finishes before its no-op version is checked');
   assert.equal((await snapshot()).blueprintStore.document.version, removedVersion, 'Unchanged sync does not inflate history');
   await navigate(jp, '/');
   await jp.getByTestId('button-text-specialist-automation').click();
@@ -428,10 +444,11 @@ try {
   await ap.getByTestId('button-voice-specialist-automation').tap();
   await until(async () => (await ap.getByTestId('voice-active-specialist').textContent()).includes('Nyx'), 'Android-style touch switches supported voice perspective');
   await ap.getByTestId('button-close-voice').tap();
-  assert.equal(await ap.getByTestId('button-text-specialist-automation').getAttribute('aria-checked'), 'true');
+  await until(async () => await ap.getByTestId('button-text-specialist-automation').getAttribute('aria-checked') === 'true', 'Android-style text perspective reflects the completed voice selection');
   await ap.locator('a[href="/brief"]').filter({ visible: true }).first().tap();
   await ap.getByTestId('tab-solution-blueprint').tap();
   await ap.getByTestId('blueprint-item-reviewer-boundary').waitFor();
+  await expectBlueprintDepth(ap, 'deep_dive', sectionKeys);
   const androidSaved = await ap.evaluate(() => window.__SYNTRA_TEST__.snapshot());
   assert.equal(androidSaved.conversation.id, 1);
   assert.equal(androidSaved.conversation.messages.length, 4);
@@ -445,10 +462,11 @@ try {
   assert.match(await readFile(await androidDownload.path(), 'utf8'), /Reviewer permission boundary/);
   await ap.reload({ waitUntil: 'networkidle' });
   await ap.getByTestId('blueprint-item-reviewer-boundary').waitFor();
+  await expectBlueprintDepth(ap, 'deep_dive', sectionKeys);
   assert.equal((await ap.evaluate(() => window.__SYNTRA_TEST__.snapshot())).blueprintStore.document.version, androidSaved.blueprintStore.document.version);
   await ap.locator('a[href="/"]').filter({ visible: true }).first().tap();
-  assert.equal(await ap.getByTestId('button-text-specialist-automation').getAttribute('aria-checked'), 'true');
-  assert.equal(await ap.getByTestId('button-depth-deep_dive').getAttribute('aria-checked'), 'true');
+  await until(async () => await ap.getByTestId('button-text-specialist-automation').getAttribute('aria-checked') === 'true'
+    && await ap.getByTestId('button-depth-deep_dive').getAttribute('aria-checked') === 'true', 'Reload restores the shared perspective and depth');
   assert.equal((await ap.evaluate(() => window.__SYNTRA_TEST__.snapshot())).conversation.messages.length, 4);
   assert.deepEqual(android.errors, []);
   results.push({ scenario: 'Android-style touch taps: Kryon text → Nyx voice perspective → Blueprint export/reload with shared session and depth',

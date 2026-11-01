@@ -8,7 +8,6 @@ import { useAdvisor } from '@/lib/advisor';
 import { cn } from '@/lib/utils';
 import { NeuralCore, type CoreState } from '@/components/neural-core';
 import { VoiceSpecialistRail, SPECIALIST_VISUALS } from '@/components/voice-specialist-rail';
-import { PlatformOrbits } from '@/components/platform-orbits';
 import { VoiceConnectionLifecycle, isLocalVoiceNotice, reconnectFailure } from '@/components/voice-connection-lifecycle';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
@@ -349,7 +348,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
             </button>
           </div>
 
-          <div className="relative z-20 shrink-0 pt-[calc(3.5rem+env(safe-area-inset-top))]"><PlatformOrbits /></div>
+          <div aria-hidden="true" className="shrink-0 pt-[calc(3.5rem+env(safe-area-inset-top))]" />
           <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
             lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
 

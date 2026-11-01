@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Compass, Boxes, FileText, CalendarClock, History, Plus, X } from 'lucide-react';
+import { Compass, Boxes, FileText, CalendarClock, History, Plus, X, Sparkles, BookOpenCheck, FlaskConical } from 'lucide-react';
 import { useAdvisor } from '@/lib/advisor';
 import { AdvisorOrb, Composer, DepthSwitch, HistoryList, Stream } from '@/components/advisor-ui';
 import { VoiceConsole, OPEN_VOICE_EVENT } from '@/components/voice';
@@ -13,9 +13,12 @@ import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/', label: 'Discover', icon: Compass, code: '01' },
-  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '02' },
-  { href: '/brief', label: 'Project Brief', icon: FileText, code: '03' },
-  { href: '/book', label: 'Book', icon: CalendarClock, code: '04' },
+  { href: '/lab', label: 'Decision Lab', icon: Sparkles, code: '02' },
+  { href: '/evidence', label: 'Evidence Room', icon: BookOpenCheck, code: '03' },
+  { href: '/action', label: 'Action Studio', icon: FlaskConical, code: '04' },
+  { href: '/solutions', label: 'Solutions', icon: Boxes, code: '05' },
+  { href: '/brief', label: 'Project Brief', icon: FileText, code: '06' },
+  { href: '/book', label: 'Book', icon: CalendarClock, code: '07' },
 ];
 
 export function Shell({ children }: { children: (location: string) => ReactNode }) {
@@ -24,6 +27,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
   const [voice, setVoice] = useState(false);
   const [hist, setHist] = useState(false);
   const onDiscover = location === '/';
+  const onTool = ['/lab', '/evidence', '/action'].includes(location);
   const current = NAV.find((n) => n.href === location);
 
   // anything sent from another view (composer, step chips, cards) brings the conversation into place
@@ -41,7 +45,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
   return (
     <div className="env dark relative flex h-[100dvh] w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-0 z-0 grid-floor" />
-      <NeuralField energy={sending || voice ? 1 : 0} />
+      <div className={onTool ? 'pointer-events-none absolute inset-0 opacity-20' : 'contents'}><NeuralField energy={sending || voice ? 1 : 0} /></div>
 
       {/* Slim instrument rail */}
       <aside className="relative z-20 hidden w-[72px] shrink-0 flex-col items-center py-5 lg:flex">
@@ -91,7 +95,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <DepthSwitch compact />
+            {!onTool && <DepthSwitch compact />}
             <button onClick={() => setHist(true)} data-testid="button-open-history" aria-label="Sessions" className="grid h-9 w-9 place-items-center rounded-full glass lg:hidden"><History className="h-4 w-4" /></button>
           </div>
         </header>
@@ -100,10 +104,10 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
           {NAV.map((n) => {
             const active = location === n.href;
             return (
-              <Link key={n.href} href={n.href} data-testid={`link-m-${n.code}`} className={cn('relative flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[11px] font-medium transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground')}>
+              <Link key={n.href} href={n.href} aria-label={n.label} title={n.label} data-testid={`link-m-${n.code}`} className={cn('relative flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[11px] font-medium transition-colors', active ? 'text-primary-foreground' : 'text-muted-foreground')}>
                 {active && <motion.span layoutId="m-nav" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-full bg-[linear-gradient(135deg,hsl(187_92%_70%),hsl(212_95%_62%))] halo" />}
                 <n.icon className="relative h-3.5 w-3.5" />
-                <span className="relative hidden min-[420px]:inline">{n.label.split(' ').pop()}</span>
+                <span className="relative hidden min-[700px]:inline">{n.label.split(' ').pop()}</span>
               </Link>
             );
           })}
@@ -118,14 +122,14 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -12, filter: 'blur(8px)' }}
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                className="mx-auto max-w-4xl py-6"
+                className={cn('mx-auto py-6', location === '/lab' || location === '/action' ? 'max-w-[1240px] lg:px-6 xl:px-10' : 'max-w-4xl')}
               >
                 {children(location)}
               </motion.div>
             </AnimatePresence>
           </main>
           <AnimatePresence>
-            {!onDiscover && (
+            {!onDiscover && !onTool && (
               <motion.aside initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="edge-light hidden w-[340px] shrink-0 flex-col overflow-hidden rounded-[28px] glass xl:flex" aria-label="Conversation">
                 <div className="flex items-center gap-3 px-5 py-4">
                   <AdvisorOrb size={30} thinking={sending} />
@@ -143,9 +147,9 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
           </AnimatePresence>
         </div>
 
-        <div className="px-4 pb-4 sm:px-6 sm:pb-6">
+        {!onTool && <div className="px-4 pb-4 sm:px-6 sm:pb-6">
           <div className="mx-auto max-w-3xl"><Composer onSpeak={() => setVoice(true)} /></div>
-        </div>
+        </div>}
       </div>
 
       {/* Sessions drawer */}

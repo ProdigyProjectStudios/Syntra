@@ -12,6 +12,8 @@ tags:
     description: Health operations
   - name: advisor
     description: AI build advisor operations
+  - name: intelligence
+    description: Stateless cross-market decision intelligence
 paths:
   /healthz:
     get:
@@ -26,6 +28,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /opportunity/analyze:
+    post:
+      operationId: analyzeOpportunity
+      tags: [intelligence]
+      summary: Compare three approaches to a described opportunity
+      description: Returns a structured decision canvas. Inputs and outputs are not stored by this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpportunityInput"
+      responses:
+        "200":
+          description: Decision canvas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpportunityAnalysis"
+        "400":
+          description: Invalid input
+        "429":
+          description: Rate limit reached
+        "502":
+          description: Analysis unavailable
+        "503":
+          description: Pilot capacity reached
+
+  /evidence/analyze:
+    post:
+      operationId: analyzeEvidence
+      tags: [intelligence]
+      summary: Review a proposed decision against visitor-supplied excerpts
+      description: Returns claim assessments with server-verified quotations from supplied sources. Inputs and outputs are not stored by this endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvidenceInput"
+      responses:
+        "200":
+          description: Evidence review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceAnalysis"
+        "400":
+          description: Invalid input
+        "429":
+          description: Rate limit reached
+        "502":
+          description: Review unavailable
+        "503":
+          description: Pilot capacity reached
+
+  /action/plan:
+    post:
+      operationId: planAction
+      tags: [intelligence]
+      summary: Draft a bounded, measurable pilot plan
+      description: Returns a draft experiment plan. The endpoint does not execute actions or store inputs or outputs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ActionInput"
+      responses:
+        "200":
+          description: Pilot plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActionPlan"
+        "400":
+          description: Invalid input
+        "429":
+          description: Rate limit reached
+        "502":
+          description: Planning unavailable
+        "503":
+          description: Pilot capacity reached
 
   /services:
     get:
@@ -64,7 +150,7 @@ paths:
       operationId: listConversations
       tags: [advisor]
       summary: List conversations
-      description: Returns all advisor conversations, most recent first, for persistent chat history
+      description: Returns advisor conversations belonging to the current visitor session, most recent first
       responses:
         "200":
           description: Conversations
@@ -213,6 +299,324 @@ paths:
 
 components:
   schemas:
+    OpportunityInput:
+      type: object
+      properties:
+        market:
+          type: string
+          minLength: 2
+          maxLength: 80
+        challenge:
+          type: string
+          minLength: 40
+          maxLength: 3000
+        constraints:
+          type: string
+          maxLength: 1000
+      required: [market, challenge]
+
+    OpportunityRoute:
+      type: object
+      properties:
+        name:
+          type: string
+        approach:
+          type: string
+        firstRelease:
+          type: string
+        effort:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        mainRisk:
+          type: string
+        tradeoff:
+          type: string
+      required: [name, approach, firstRelease, effort, mainRisk, tradeoff]
+
+    AdjacentMarket:
+      type: object
+      properties:
+        market:
+          type: string
+        transfer:
+          type: string
+      required: [market, transfer]
+
+    OpportunityAnalysis:
+      type: object
+      properties:
+        headline:
+          type: string
+        diagnosis:
+          type: string
+        valueAtStake:
+          type: string
+        routes:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/OpportunityRoute"
+        recommendedRoute:
+          type: integer
+          minimum: 0
+          maximum: 2
+        recommendationReason:
+          type: string
+        firstExperiment:
+          type: string
+        successSignal:
+          type: string
+        assumptions:
+          type: array
+          items:
+            type: string
+        questions:
+          type: array
+          items:
+            type: string
+        adjacentMarkets:
+          type: array
+          minItems: 2
+          maxItems: 2
+          items:
+            $ref: "#/components/schemas/AdjacentMarket"
+        confidence:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        confidenceReason:
+          type: string
+      required: [headline, diagnosis, valueAtStake, routes, recommendedRoute, recommendationReason, firstExperiment, successSignal, assumptions, questions, adjacentMarkets, confidence, confidenceReason]
+
+    EvidenceInput:
+      type: object
+      properties:
+        decision:
+          type: string
+          minLength: 20
+          maxLength: 2000
+        sources:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/EvidenceSource"
+      required: [decision, sources]
+
+    EvidenceSource:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]{1,50}$"
+        title:
+          type: string
+          minLength: 2
+          maxLength: 100
+        text:
+          type: string
+          minLength: 80
+          maxLength: 6000
+      required: [id, title, text]
+
+    EvidenceCitation:
+      type: object
+      properties:
+        sourceId:
+          type: string
+        quote:
+          type: string
+          minLength: 12
+          maxLength: 300
+      required: [sourceId, quote]
+
+    EvidenceClaim:
+      type: object
+      properties:
+        statement:
+          type: string
+          minLength: 15
+          maxLength: 450
+        assessment:
+          type: string
+          enum: [SUPPORTED, CONFLICTED, UNCLEAR]
+        explanation:
+          type: string
+          minLength: 20
+          maxLength: 500
+        citations:
+          type: array
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/EvidenceCitation"
+      required: [statement, assessment, explanation, citations]
+
+    EvidenceAnalysis:
+      type: object
+      properties:
+        headline:
+          type: string
+          minLength: 8
+          maxLength: 150
+        stance:
+          type: string
+          enum: [TEST, REVISE, PAUSE]
+        revisedDecision:
+          type: string
+          minLength: 30
+          maxLength: 700
+        rationale:
+          type: string
+          minLength: 25
+          maxLength: 700
+        claims:
+          type: array
+          minItems: 3
+          maxItems: 6
+          items:
+            $ref: "#/components/schemas/EvidenceClaim"
+        gaps:
+          type: array
+          minItems: 2
+          maxItems: 4
+          items:
+            type: string
+            minLength: 15
+            maxLength: 350
+        nextValidationStep:
+          type: string
+          minLength: 25
+          maxLength: 500
+      required: [headline, stance, revisedDecision, rationale, claims, gaps, nextValidationStep]
+
+    ActionInput:
+      type: object
+      properties:
+        market:
+          type: string
+          minLength: 2
+          maxLength: 80
+        experiment:
+          type: string
+          minLength: 40
+          maxLength: 2000
+        successSignal:
+          type: string
+          minLength: 10
+          maxLength: 400
+        constraints:
+          type: string
+          maxLength: 1000
+      required: [market, experiment, successSignal]
+
+    ActionMeasurement:
+      type: object
+      properties:
+        metric:
+          type: string
+          minLength: 5
+          maxLength: 200
+        baselineNeeded:
+          type: string
+          minLength: 10
+          maxLength: 300
+        observationMethod:
+          type: string
+          minLength: 10
+          maxLength: 300
+        reviewPoint:
+          type: string
+          minLength: 10
+          maxLength: 200
+      required: [metric, baselineNeeded, observationMethod, reviewPoint]
+
+    ActionMilestone:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        deliverable:
+          type: string
+          minLength: 10
+          maxLength: 350
+        ownerRole:
+          type: string
+          minLength: 2
+          maxLength: 80
+        acceptanceCriteria:
+          type: string
+          minLength: 10
+          maxLength: 350
+        approvalGate:
+          type: ["string", "null"]
+      required: [name, deliverable, ownerRole, acceptanceCriteria, approvalGate]
+
+    ActionEvaluationCase:
+      type: object
+      properties:
+        scenario:
+          type: string
+          minLength: 10
+          maxLength: 300
+        expectedBehavior:
+          type: string
+          minLength: 10
+          maxLength: 300
+        failureSignal:
+          type: string
+          minLength: 10
+          maxLength: 300
+      required: [scenario, expectedBehavior, failureSignal]
+
+    ActionPlan:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 8
+          maxLength: 140
+        hypothesis:
+          type: string
+          minLength: 20
+          maxLength: 400
+        decisionRule:
+          type: string
+          minLength: 20
+          maxLength: 400
+        measurement:
+          $ref: "#/components/schemas/ActionMeasurement"
+        milestones:
+          type: array
+          minItems: 3
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/ActionMilestone"
+        evaluationCases:
+          type: array
+          minItems: 3
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/ActionEvaluationCase"
+        assumptions:
+          type: array
+          minItems: 2
+          maxItems: 4
+          items:
+            type: string
+            minLength: 5
+            maxLength: 250
+        stopConditions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            minLength: 10
+            maxLength: 250
+      required: [title, hypothesis, decisionRule, measurement, milestones, evaluationCases, assumptions, stopConditions]
+
     HealthStatus:
       type: object
       properties:

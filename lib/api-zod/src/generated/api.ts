@@ -18,6 +18,256 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * Returns a structured decision canvas. Inputs and outputs are not stored by this endpoint.
+ * @summary Compare three approaches to a described opportunity
+ */
+export const analyzeOpportunityBodyMarketMin = 2;
+export const analyzeOpportunityBodyMarketMax = 80;
+
+export const analyzeOpportunityBodyChallengeMin = 40;
+export const analyzeOpportunityBodyChallengeMax = 3000;
+
+export const analyzeOpportunityBodyConstraintsMax = 1000;
+
+
+
+export const AnalyzeOpportunityBody = zod.object({
+  "market": zod.string().min(analyzeOpportunityBodyMarketMin).max(analyzeOpportunityBodyMarketMax),
+  "challenge": zod.string().min(analyzeOpportunityBodyChallengeMin).max(analyzeOpportunityBodyChallengeMax),
+  "constraints": zod.string().max(analyzeOpportunityBodyConstraintsMax).optional()
+})
+
+export const analyzeOpportunityResponseRoutesMin = 3;
+export const analyzeOpportunityResponseRoutesMax = 3;
+
+export const analyzeOpportunityResponseRecommendedRouteMin = 0;
+export const analyzeOpportunityResponseRecommendedRouteMax = 2;
+
+export const analyzeOpportunityResponseAdjacentMarketsMin = 2;
+export const analyzeOpportunityResponseAdjacentMarketsMax = 2;
+
+
+
+export const AnalyzeOpportunityResponse = zod.object({
+  "headline": zod.string(),
+  "diagnosis": zod.string(),
+  "valueAtStake": zod.string(),
+  "routes": zod.array(zod.object({
+  "name": zod.string(),
+  "approach": zod.string(),
+  "firstRelease": zod.string(),
+  "effort": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "mainRisk": zod.string(),
+  "tradeoff": zod.string()
+})).min(analyzeOpportunityResponseRoutesMin).max(analyzeOpportunityResponseRoutesMax),
+  "recommendedRoute": zod.number().int().min(analyzeOpportunityResponseRecommendedRouteMin).max(analyzeOpportunityResponseRecommendedRouteMax),
+  "recommendationReason": zod.string(),
+  "firstExperiment": zod.string(),
+  "successSignal": zod.string(),
+  "assumptions": zod.array(zod.string()),
+  "questions": zod.array(zod.string()),
+  "adjacentMarkets": zod.array(zod.object({
+  "market": zod.string(),
+  "transfer": zod.string()
+})).min(analyzeOpportunityResponseAdjacentMarketsMin).max(analyzeOpportunityResponseAdjacentMarketsMax),
+  "confidence": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "confidenceReason": zod.string()
+})
+
+
+/**
+ * Returns claim assessments with server-verified quotations from supplied sources. Inputs and outputs are not stored by this endpoint.
+ * @summary Review a proposed decision against visitor-supplied excerpts
+ */
+export const analyzeEvidenceBodyDecisionMin = 20;
+export const analyzeEvidenceBodyDecisionMax = 2000;
+
+export const analyzeEvidenceBodySourcesItemIdRegExp = new RegExp('^[a-zA-Z0-9_-]{1,50}$');
+export const analyzeEvidenceBodySourcesItemTitleMin = 2;
+export const analyzeEvidenceBodySourcesItemTitleMax = 100;
+
+export const analyzeEvidenceBodySourcesItemTextMin = 80;
+export const analyzeEvidenceBodySourcesItemTextMax = 6000;
+
+export const analyzeEvidenceBodySourcesMax = 3;
+
+
+
+export const AnalyzeEvidenceBody = zod.object({
+  "decision": zod.string().min(analyzeEvidenceBodyDecisionMin).max(analyzeEvidenceBodyDecisionMax),
+  "sources": zod.array(zod.object({
+  "id": zod.string().regex(analyzeEvidenceBodySourcesItemIdRegExp),
+  "title": zod.string().min(analyzeEvidenceBodySourcesItemTitleMin).max(analyzeEvidenceBodySourcesItemTitleMax),
+  "text": zod.string().min(analyzeEvidenceBodySourcesItemTextMin).max(analyzeEvidenceBodySourcesItemTextMax)
+})).min(1).max(analyzeEvidenceBodySourcesMax)
+})
+
+export const analyzeEvidenceResponseHeadlineMin = 8;
+export const analyzeEvidenceResponseHeadlineMax = 150;
+
+export const analyzeEvidenceResponseRevisedDecisionMin = 30;
+export const analyzeEvidenceResponseRevisedDecisionMax = 700;
+
+export const analyzeEvidenceResponseRationaleMin = 25;
+export const analyzeEvidenceResponseRationaleMax = 700;
+
+export const analyzeEvidenceResponseClaimsItemStatementMin = 15;
+export const analyzeEvidenceResponseClaimsItemStatementMax = 450;
+
+export const analyzeEvidenceResponseClaimsItemExplanationMin = 20;
+export const analyzeEvidenceResponseClaimsItemExplanationMax = 500;
+
+export const analyzeEvidenceResponseClaimsItemCitationsItemQuoteMin = 12;
+export const analyzeEvidenceResponseClaimsItemCitationsItemQuoteMax = 300;
+
+export const analyzeEvidenceResponseClaimsItemCitationsMax = 3;
+
+export const analyzeEvidenceResponseClaimsMin = 3;
+export const analyzeEvidenceResponseClaimsMax = 6;
+
+export const analyzeEvidenceResponseGapsItemMin = 15;
+export const analyzeEvidenceResponseGapsItemMax = 350;
+
+export const analyzeEvidenceResponseGapsMin = 2;
+export const analyzeEvidenceResponseGapsMax = 4;
+
+export const analyzeEvidenceResponseNextValidationStepMin = 25;
+export const analyzeEvidenceResponseNextValidationStepMax = 500;
+
+
+
+export const AnalyzeEvidenceResponse = zod.object({
+  "headline": zod.string().min(analyzeEvidenceResponseHeadlineMin).max(analyzeEvidenceResponseHeadlineMax),
+  "stance": zod.enum(['TEST', 'REVISE', 'PAUSE']),
+  "revisedDecision": zod.string().min(analyzeEvidenceResponseRevisedDecisionMin).max(analyzeEvidenceResponseRevisedDecisionMax),
+  "rationale": zod.string().min(analyzeEvidenceResponseRationaleMin).max(analyzeEvidenceResponseRationaleMax),
+  "claims": zod.array(zod.object({
+  "statement": zod.string().min(analyzeEvidenceResponseClaimsItemStatementMin).max(analyzeEvidenceResponseClaimsItemStatementMax),
+  "assessment": zod.enum(['SUPPORTED', 'CONFLICTED', 'UNCLEAR']),
+  "explanation": zod.string().min(analyzeEvidenceResponseClaimsItemExplanationMin).max(analyzeEvidenceResponseClaimsItemExplanationMax),
+  "citations": zod.array(zod.object({
+  "sourceId": zod.string(),
+  "quote": zod.string().min(analyzeEvidenceResponseClaimsItemCitationsItemQuoteMin).max(analyzeEvidenceResponseClaimsItemCitationsItemQuoteMax)
+})).max(analyzeEvidenceResponseClaimsItemCitationsMax)
+})).min(analyzeEvidenceResponseClaimsMin).max(analyzeEvidenceResponseClaimsMax),
+  "gaps": zod.array(zod.string().min(analyzeEvidenceResponseGapsItemMin).max(analyzeEvidenceResponseGapsItemMax)).min(analyzeEvidenceResponseGapsMin).max(analyzeEvidenceResponseGapsMax),
+  "nextValidationStep": zod.string().min(analyzeEvidenceResponseNextValidationStepMin).max(analyzeEvidenceResponseNextValidationStepMax)
+})
+
+
+/**
+ * Returns a draft experiment plan. The endpoint does not execute actions or store inputs or outputs.
+ * @summary Draft a bounded, measurable pilot plan
+ */
+export const planActionBodyMarketMin = 2;
+export const planActionBodyMarketMax = 80;
+
+export const planActionBodyExperimentMin = 40;
+export const planActionBodyExperimentMax = 2000;
+
+export const planActionBodySuccessSignalMin = 10;
+export const planActionBodySuccessSignalMax = 400;
+
+export const planActionBodyConstraintsMax = 1000;
+
+
+
+export const PlanActionBody = zod.object({
+  "market": zod.string().min(planActionBodyMarketMin).max(planActionBodyMarketMax),
+  "experiment": zod.string().min(planActionBodyExperimentMin).max(planActionBodyExperimentMax),
+  "successSignal": zod.string().min(planActionBodySuccessSignalMin).max(planActionBodySuccessSignalMax),
+  "constraints": zod.string().max(planActionBodyConstraintsMax).optional()
+})
+
+export const planActionResponseTitleMin = 8;
+export const planActionResponseTitleMax = 140;
+
+export const planActionResponseHypothesisMin = 20;
+export const planActionResponseHypothesisMax = 400;
+
+export const planActionResponseDecisionRuleMin = 20;
+export const planActionResponseDecisionRuleMax = 400;
+
+export const planActionResponseMeasurementMetricMin = 5;
+export const planActionResponseMeasurementMetricMax = 200;
+
+export const planActionResponseMeasurementBaselineNeededMin = 10;
+export const planActionResponseMeasurementBaselineNeededMax = 300;
+
+export const planActionResponseMeasurementObservationMethodMin = 10;
+export const planActionResponseMeasurementObservationMethodMax = 300;
+
+export const planActionResponseMeasurementReviewPointMin = 10;
+export const planActionResponseMeasurementReviewPointMax = 200;
+
+export const planActionResponseMilestonesItemNameMin = 3;
+export const planActionResponseMilestonesItemNameMax = 100;
+
+export const planActionResponseMilestonesItemDeliverableMin = 10;
+export const planActionResponseMilestonesItemDeliverableMax = 350;
+
+export const planActionResponseMilestonesItemOwnerRoleMin = 2;
+export const planActionResponseMilestonesItemOwnerRoleMax = 80;
+
+export const planActionResponseMilestonesItemAcceptanceCriteriaMin = 10;
+export const planActionResponseMilestonesItemAcceptanceCriteriaMax = 350;
+
+export const planActionResponseMilestonesMin = 3;
+export const planActionResponseMilestonesMax = 5;
+
+export const planActionResponseEvaluationCasesItemScenarioMin = 10;
+export const planActionResponseEvaluationCasesItemScenarioMax = 300;
+
+export const planActionResponseEvaluationCasesItemExpectedBehaviorMin = 10;
+export const planActionResponseEvaluationCasesItemExpectedBehaviorMax = 300;
+
+export const planActionResponseEvaluationCasesItemFailureSignalMin = 10;
+export const planActionResponseEvaluationCasesItemFailureSignalMax = 300;
+
+export const planActionResponseEvaluationCasesMin = 3;
+export const planActionResponseEvaluationCasesMax = 5;
+
+export const planActionResponseAssumptionsItemMin = 5;
+export const planActionResponseAssumptionsItemMax = 250;
+
+export const planActionResponseAssumptionsMin = 2;
+export const planActionResponseAssumptionsMax = 4;
+
+export const planActionResponseStopConditionsItemMin = 10;
+export const planActionResponseStopConditionsItemMax = 250;
+
+export const planActionResponseStopConditionsMax = 3;
+
+
+
+export const PlanActionResponse = zod.object({
+  "title": zod.string().min(planActionResponseTitleMin).max(planActionResponseTitleMax),
+  "hypothesis": zod.string().min(planActionResponseHypothesisMin).max(planActionResponseHypothesisMax),
+  "decisionRule": zod.string().min(planActionResponseDecisionRuleMin).max(planActionResponseDecisionRuleMax),
+  "measurement": zod.object({
+  "metric": zod.string().min(planActionResponseMeasurementMetricMin).max(planActionResponseMeasurementMetricMax),
+  "baselineNeeded": zod.string().min(planActionResponseMeasurementBaselineNeededMin).max(planActionResponseMeasurementBaselineNeededMax),
+  "observationMethod": zod.string().min(planActionResponseMeasurementObservationMethodMin).max(planActionResponseMeasurementObservationMethodMax),
+  "reviewPoint": zod.string().min(planActionResponseMeasurementReviewPointMin).max(planActionResponseMeasurementReviewPointMax)
+}),
+  "milestones": zod.array(zod.object({
+  "name": zod.string().min(planActionResponseMilestonesItemNameMin).max(planActionResponseMilestonesItemNameMax),
+  "deliverable": zod.string().min(planActionResponseMilestonesItemDeliverableMin).max(planActionResponseMilestonesItemDeliverableMax),
+  "ownerRole": zod.string().min(planActionResponseMilestonesItemOwnerRoleMin).max(planActionResponseMilestonesItemOwnerRoleMax),
+  "acceptanceCriteria": zod.string().min(planActionResponseMilestonesItemAcceptanceCriteriaMin).max(planActionResponseMilestonesItemAcceptanceCriteriaMax),
+  "approvalGate": zod.string().nullable()
+})).min(planActionResponseMilestonesMin).max(planActionResponseMilestonesMax),
+  "evaluationCases": zod.array(zod.object({
+  "scenario": zod.string().min(planActionResponseEvaluationCasesItemScenarioMin).max(planActionResponseEvaluationCasesItemScenarioMax),
+  "expectedBehavior": zod.string().min(planActionResponseEvaluationCasesItemExpectedBehaviorMin).max(planActionResponseEvaluationCasesItemExpectedBehaviorMax),
+  "failureSignal": zod.string().min(planActionResponseEvaluationCasesItemFailureSignalMin).max(planActionResponseEvaluationCasesItemFailureSignalMax)
+})).min(planActionResponseEvaluationCasesMin).max(planActionResponseEvaluationCasesMax),
+  "assumptions": zod.array(zod.string().min(planActionResponseAssumptionsItemMin).max(planActionResponseAssumptionsItemMax)).min(planActionResponseAssumptionsMin).max(planActionResponseAssumptionsMax),
+  "stopConditions": zod.array(zod.string().min(planActionResponseStopConditionsItemMin).max(planActionResponseStopConditionsItemMax)).min(1).max(planActionResponseStopConditionsMax)
+})
+
+
+/**
  * Returns Digital Prodigy's four service areas for the Solutions experience
  * @summary List service areas
  */
@@ -46,7 +296,7 @@ export const ListContactOptionsResponse = zod.array(ListContactOptionsResponseIt
 
 
 /**
- * Returns all advisor conversations, most recent first, for persistent chat history
+ * Returns advisor conversations belonging to the current visitor session, most recent first
  * @summary List conversations
  */
 export const ListConversationsResponseItem = zod.object({

@@ -10,7 +10,7 @@ export default function Book() {
   return (
     <div>
       <div className="mb-8">
-        <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">04 / Handoff</div>
+        <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">07 / Handoff</div>
         <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">Continue with <span className="text-ember glow-text">a human.</span></h1>
         <p className="mt-3 max-w-xl text-foreground/65">Take your brief to the Digital Prodigy team through their verified channels.</p>
       </div>

@@ -6,6 +6,7 @@ export const conversationsTable = pgTable("conversations", {
   id: serial("id").primaryKey(),
   title: text("title").notNull().default("New conversation"),
   depth: text("depth").notNull().default("detailed"),
+  ownerSessionHash: text("owner_session_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

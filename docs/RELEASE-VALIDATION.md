@@ -114,3 +114,8 @@ assessment-voice branch or `main`, in addition to the earlier conversion paths.
 It includes an ephemeral PostgreSQL 16 service, the existing unit/type/build/native
 transfer checks, and both browser suites. Publishing the AgentPlace assessment
 remains conditional on actual free-Luna/native-host and physical voice validation.
+
+The first release runs passed the application, PostgreSQL, type, transfer and build
+steps, then failed installing Playwright 1.56.1 on the newly advanced
+`ubuntu-latest` (Ubuntu 26.04). The workflow now pins supported Ubuntu 24.04 so the
+OS and pinned browser tooling remain reproducible.

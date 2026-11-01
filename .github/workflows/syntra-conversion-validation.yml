@@ -18,7 +18,8 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Keep the OS compatible with the pinned Playwright browser/dependency bundle.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
       postgres:

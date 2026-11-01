@@ -64,7 +64,14 @@ for (const file of await files(frontend)) {
   await emit(path.join(client, 'frontend', relative), content, path.relative(root, file));
 }
 for (const file of await files(path.join(root, 'lib/consultation/src'))) {
-  if (file.endsWith('.test.ts')) continue;
+  if (file.endsWith('.test.ts')) {
+    // Carry the new portable Blueprint proofs with the server handoff, without
+    // shipping Node test modules into the customer-facing client source tree.
+    if (['blueprint.test.ts', 'blueprint-persistence.test.ts'].includes(path.basename(file))) {
+      await emit(path.join(server, 'shared', path.basename(file)), await fs.readFile(file), path.relative(root, file));
+    }
+    continue;
+  }
   for (const target of [path.join(client, 'shared'), path.join(server, 'shared')]) {
     await emit(path.join(target, path.basename(file)), await fs.readFile(file), path.relative(root, file));
   }

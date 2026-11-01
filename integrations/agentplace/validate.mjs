@@ -28,5 +28,7 @@ execFileSync(process.execPath, [path.join(client, 'compile-styles.mjs')], {
 });
 const testDir = path.join(out, 'agent-dev-server/src/bl/syntra');
 const tests = (await fs.readdir(testDir)).filter(p => p.endsWith('.test.ts')).map(p => path.join(testDir, p));
+const sharedTests = path.join(testDir, 'shared');
+tests.push(...(await fs.readdir(sharedTests)).filter(p => p.endsWith('.test.ts')).map(p => path.join(sharedTests, p)));
 execFileSync(process.execPath, ['--experimental-strip-types', '--test', ...tests], { cwd: root, stdio: 'inherit' });
 console.log(`Validated ${manifest.files.length} checksums, ${entries.length} TS/TSX syntax files, scoped CSS compilation and native export tests.`);

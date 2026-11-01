@@ -85,6 +85,20 @@ router.patch("/conversations/:id/brief", async (req, res) => {
   if (!Object.keys(changes).length) throw new ConsultationError(400, "No brief fields supplied.");
   res.json(UpdateBriefResponse.parse(await repository.editBrief(res.locals.owner, id, changes, input.data.revision)));
 });
+router.get("/conversations/:id/blueprint", async (req, res) => {
+  const { id } = GetConversationParams.parse(req.params);
+  res.json(await repository.getBlueprint(res.locals.owner, id));
+});
+router.patch("/conversations/:id/blueprint", async (req, res) => {
+  const { id } = GetConversationParams.parse(req.params);
+  const owner = res.locals.owner as string;
+  res.json(await repository.mutateBlueprint(owner, id, req.body, 'update'));
+});
+router.post("/conversations/:id/blueprint/regenerate", async (req, res) => {
+  const { id } = GetConversationParams.parse(req.params);
+  const owner = res.locals.owner as string;
+  res.json(await repository.mutateBlueprint(owner, id, req.body, 'regenerate'));
+});
 router.post("/voice/sessions", async (req, res) => {
   const { conversationId } = CreateVoiceSessionBody.parse(req.body);
   if (!await repository.get(res.locals.owner, conversationId)) throw new ConsultationError(404, "Conversation not found");

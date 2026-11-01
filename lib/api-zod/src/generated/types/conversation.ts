@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { Blueprint } from './blueprint';
 import type { Brief } from './brief';
 import type { Message } from './message';
 import type { ResponseDepth } from './responseDepth';
@@ -17,4 +18,5 @@ export interface Conversation {
   updatedAt: Date;
   messages: Message[];
   brief: Brief;
+  blueprint?: Blueprint;
 }

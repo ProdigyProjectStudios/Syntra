@@ -10,6 +10,14 @@ import { createNativeRuntime } from '../shared/native-runtime';
 import { NativeTranscript, nativeTranscriptPair, type NativeTranscriptPart } from '../shared/native-transcript';
 import type { Depth, VoiceEvent } from '../shared/types';
 import { SERVICE_AREAS } from './fixtures';
+import { BLUEPRINT_VERSION_CONFLICT, BLUEPRINT_VERSION_CONFLICT_MESSAGE, BLUEPRINT_CHANGE_REJECTED, BLUEPRINT_CHANGE_REJECTED_PREFIX } from '../shared/blueprint-storage';
+async function blueprintResult<T>(promise: Promise<T>): Promise<T> {
+  try { return await promise; } catch (error) {
+    if (error instanceof Error && error.message === BLUEPRINT_VERSION_CONFLICT_MESSAGE) throw Object.assign(new Error(error.message), { code: BLUEPRINT_VERSION_CONFLICT });
+    if (error instanceof Error && error.message.startsWith(BLUEPRINT_CHANGE_REJECTED_PREFIX)) throw Object.assign(new Error(error.message), { code: BLUEPRINT_CHANGE_REJECTED });
+    throw error;
+  }
+}
 
 /** Host-supplied stable IDs/timestamps: the export did not include the AgentContent definition. */
 export interface TranscriptIdentity {
@@ -58,6 +66,11 @@ export function useAgentPlaceRuntime() {
       briefs: {
         get: id => trpc.syntra.getBrief.query({ id }),
         update: (id, changes, revision) => trpc.syntra.updateBrief.mutate({ id, changes, revision }),
+      },
+      blueprints: {
+        get: id => trpc.syntra.getBlueprint.query({ id }),
+        update: (id, input) => blueprintResult(trpc.syntra.updateBlueprint.mutate({ id, ...input })),
+        regenerate: (id, input) => blueprintResult(trpc.syntra.regenerateBlueprint.mutate({ id, ...input })),
       },
       turns: {
         begin: (id, input) => trpc.syntra.beginTurn.mutate({ id, ...input }),

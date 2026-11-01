@@ -3,6 +3,7 @@ import { useAdvisor, OPENING_STEPS } from '@/lib/advisor';
 import { AdvisorOrb, StepChips, Stream } from '@/components/advisor-ui';
 import { OPEN_VOICE_EVENT } from '@/components/voice';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { TextSpecialistSwitch, BlueprintNextStep } from '@/components/text-specialist-switch';
 
 export default function Discover() {
   const { conversation, sending, pendingText, loadingConversation } = useAdvisor();
@@ -13,7 +14,9 @@ export default function Discover() {
   if (hasHistory) {
     return (
       <div className="pt-2">
+        <TextSpecialistSwitch />
         <Stream />
+        <BlueprintNextStep />
       </div>
     );
   }
@@ -41,7 +44,7 @@ export default function Discover() {
           <span className="text-ember glow-text font-normal">We will scope the first build.</span>
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground/70 sm:mt-6 sm:text-lg">
-          I’m Syntra, Digital Prodigy’s AI build advisor. Tell me your idea—I’ll help shape it into a clear, editable brief.
+          I’m Syntra, Digital Prodigy’s AI build advisor. Tell me your idea—I’ll help shape it into a clear brief and an actionable Solution Blueprint.
         </p>
         <p className="mt-6 hidden font-medium sm:block">What would make the biggest difference if it existed next quarter?</p>
       </motion.div>

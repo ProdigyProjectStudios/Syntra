@@ -102,3 +102,40 @@ The repository still requires the host's native admission gate before model
 execution and trusted terminal lifecycle evidence. Browser disconnect and timeout
 are not terminal-failure proof. None of these transfer changes connects Azure to
 AgentPlace or changes the free Luna requirement.
+
+## Solution Blueprint addition
+
+The generated shared domain now includes `blueprint.ts` and
+`blueprint-storage.ts`. Keep them with the same native consultation repository;
+do not provision a second model, database, transcript or voice transport.
+
+Register the additional `getBlueprint`, `updateBlueprint` and
+`regenerateBlueprint` procedures from the supplied Syntra router. The native
+compatibility bindings expose these optional runtime capabilities. Existing hosts
+without them remain compatible and must not pretend edits are connected.
+`regenerateBlueprint` means **Update from brief**: deterministic reconciliation,
+not a second Luna invocation.
+
+The version-1 private native session record gains an optional Blueprint envelope
+containing its current document and immutable mutation receipts. Missing fields
+initialize to an empty document; existing session files are not reset. The host's
+existing atomic session gate protects edits, version comparison and receipt writes.
+Retain receipts for the bounded consultation; do not remove an uncertain mutation
+ID or replace it when retrying. A confirmed retry returns the newest document,
+never an old snapshot that overwrites customer corrections.
+
+`updateSyntraBrief` accepts optional bounded Blueprint contributions. They are
+staged with the same typed/native voice turn and are persisted only by the
+existing trusted success hooks. Failed/canceled drafts do not update the Blueprint.
+Native voice transcripts still belong solely to the host. The supplied browser
+bindings invalidate and reload shared state rather than resubmitting a transcript.
+
+Syntra, Kryon (technical) and Nyx (automation) are perspectives over one native
+Luna consultation. Persisted role IDs stay `syntra`, `technical`, `automation`.
+This adds structured specialist outputs; it does not establish unsupported native
+voice profile switching. The real host must validate free Luna, identity/session
+hooks, atomic storage and actual realtime audio before assessment publication.
+
+The Replit JSONB migration under `lib/db/migrations` is **not** an AgentPlace
+migration. Do not copy its Express server, PostgreSQL admission gate or Azure
+credentials into the native host.

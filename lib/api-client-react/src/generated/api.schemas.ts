@@ -106,19 +106,15 @@ export interface Brief {
   nextStep: string | null;
 }
 
-export interface Conversation {
-  id: number;
-  title: string;
-  depth: ResponseDepth;
-  createdAt: string;
-  updatedAt: string;
-  messages: Message[];
-  brief: Brief;
-}
+export type BlueprintStatus = typeof BlueprintStatus[keyof typeof BlueprintStatus];
 
-export interface ConversationInput {
-  depth: ResponseDepth;
-}
+
+export const BlueprintStatus = {
+  confirmed: 'confirmed',
+  recommendation: 'recommendation',
+  assumption: 'assumption',
+  manual: 'manual',
+} as const;
 
 /**
  * Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.
@@ -131,6 +127,171 @@ export const SpecialistId = {
   technical: 'technical',
   automation: 'automation',
 } as const;
+
+export type BlueprintItemSource = typeof BlueprintItemSource[keyof typeof BlueprintItemSource];
+
+
+export const BlueprintItemSource = {
+  brief: 'brief',
+  specialist: 'specialist',
+  manual: 'manual',
+} as const;
+
+export interface BlueprintDetail {
+  /** @maxLength 60 */
+  label: string;
+  /** @maxLength 300 */
+  value: string;
+}
+
+export type BlueprintQuantityStatus = typeof BlueprintQuantityStatus[keyof typeof BlueprintQuantityStatus];
+
+
+export const BlueprintQuantityStatus = {
+  confirmed: 'confirmed',
+  assumption: 'assumption',
+} as const;
+
+export interface BlueprintQuantity {
+  /** @minimum 0 */
+  value: number;
+  status: BlueprintQuantityStatus;
+  /** @maxLength 2000 */
+  evidence: string;
+}
+
+export interface BlueprintCalculation {
+  monthlyVolume: BlueprintQuantity;
+  minutesBefore: BlueprintQuantity;
+  minutesAfter: BlueprintQuantity;
+  hourlyCost?: BlueprintQuantity;
+  /** @maxLength 12 */
+  currency?: string;
+}
+
+export interface BlueprintItem {
+  /** @maxLength 80 */
+  id: string;
+  /** @maxLength 160 */
+  title: string;
+  /** @maxLength 1200 */
+  detail: string;
+  status: BlueprintStatus;
+  /** @maxLength 2000 */
+  evidence: string;
+  specialist: SpecialistId;
+  source: BlueprintItemSource;
+  reviewRequired?: boolean;
+  /** @maxItems 6 */
+  details?: BlueprintDetail[];
+  calculation?: BlueprintCalculation;
+}
+
+export type BlueprintVersionSource = typeof BlueprintVersionSource[keyof typeof BlueprintVersionSource];
+
+
+export const BlueprintVersionSource = {
+  brief: 'brief',
+  specialist: 'specialist',
+  manual: 'manual',
+  regenerate: 'regenerate',
+} as const;
+
+export type BlueprintSectionKey = typeof BlueprintSectionKey[keyof typeof BlueprintSectionKey];
+
+
+export const BlueprintSectionKey = {
+  objectives: 'objectives',
+  services: 'services',
+  architecture: 'architecture',
+  integrations: 'integrations',
+  workflows: 'workflows',
+  roadmap: 'roadmap',
+  risks: 'risks',
+  tradeoffs: 'tradeoffs',
+  value: 'value',
+  decisions: 'decisions',
+} as const;
+
+export interface BlueprintHistoryItem {
+  /** @maxLength 160 */
+  title: string;
+  /** @maxLength 240 */
+  detail: string;
+  status: BlueprintStatus;
+}
+
+export interface BlueprintChangeRecord {
+  section: BlueprintSectionKey;
+  /** @maxLength 80 */
+  itemId: string;
+  before: BlueprintHistoryItem | null;
+  after: BlueprintHistoryItem | null;
+}
+
+export interface BlueprintVersion {
+  /** @minimum 0 */
+  version: number;
+  createdAt: string;
+  source: BlueprintVersionSource;
+  specialist: SpecialistId;
+  /** @maxItems 10 */
+  changedSections: BlueprintSectionKey[];
+  /** @maxItems 24 */
+  changes: BlueprintChangeRecord[];
+}
+
+export type BlueprintSections = {
+  /** @maxItems 8 */
+  objectives: BlueprintItem[];
+  /** @maxItems 8 */
+  services: BlueprintItem[];
+  /** @maxItems 8 */
+  architecture: BlueprintItem[];
+  /** @maxItems 8 */
+  integrations: BlueprintItem[];
+  /** @maxItems 8 */
+  workflows: BlueprintItem[];
+  /** @maxItems 8 */
+  roadmap: BlueprintItem[];
+  /** @maxItems 8 */
+  risks: BlueprintItem[];
+  /** @maxItems 8 */
+  tradeoffs: BlueprintItem[];
+  /** @maxItems 8 */
+  value: BlueprintItem[];
+  /** @maxItems 8 */
+  decisions: BlueprintItem[];
+};
+
+export interface Blueprint {
+  /** @minimum 0 */
+  version: number;
+  /** @minimum 0 */
+  briefRevision: number;
+  /** ISO timestamp after the first saved version; empty for an untouched version-zero blueprint. */
+  updatedAt: string;
+  sections: BlueprintSections;
+  /** @maxItems 5 */
+  history: BlueprintVersion[];
+  /** @items.maxLength 100 */
+  removedItemIds: string[];
+}
+
+export interface Conversation {
+  id: number;
+  title: string;
+  depth: ResponseDepth;
+  createdAt: string;
+  updatedAt: string;
+  messages: Message[];
+  brief: Brief;
+  blueprint?: Blueprint;
+}
+
+export interface ConversationInput {
+  depth: ResponseDepth;
+}
 
 export interface MessageInput {
   specialist?: SpecialistId;
@@ -148,6 +309,7 @@ export interface AdvisorReply {
   visitorMessage: Message;
   message: Message;
   brief: Brief;
+  blueprint?: Blueprint;
   suggestedNextSteps: string[];
 }
 
@@ -189,5 +351,31 @@ export interface VoiceSession {
   conversationId: number;
   transport: string;
   detail: string;
+}
+
+export interface BlueprintEdit {
+  section: BlueprintSectionKey;
+  /** @maxLength 80 */
+  itemId: string;
+  /** @maxLength 160 */
+  title?: string;
+  /** @maxLength 1200 */
+  detail?: string;
+  /** @maxItems 6 */
+  details?: BlueprintDetail[];
+  remove?: boolean;
+}
+
+export interface BlueprintRegenerate {
+  /** @minimum 0 */
+  version: number;
+  requestId: string;
+}
+
+export interface BlueprintUpdate {
+  /** @minimum 0 */
+  version: number;
+  requestId: string;
+  edit: BlueprintEdit;
 }
 

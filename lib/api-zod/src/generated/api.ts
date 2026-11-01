@@ -70,6 +70,370 @@ export const CreateConversationBody = zod.object({
 
 export const createConversationResponseBriefRevisionMin = 0;
 
+export const createConversationResponseBlueprintVersionMin = 0;
+
+export const createConversationResponseBlueprintBriefRevisionMin = 0;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsObjectivesMax = 8;
+
+export const createConversationResponseBlueprintSectionsServicesItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsServicesItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsServicesItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsServicesItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsServicesItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsServicesItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsServicesMax = 8;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsArchitectureMax = 8;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsIntegrationsMax = 8;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsWorkflowsMax = 8;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsRoadmapMax = 8;
+
+export const createConversationResponseBlueprintSectionsRisksItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsRisksItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsRisksItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsRisksItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsRisksItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsRisksItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsRisksMax = 8;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsTradeoffsMax = 8;
+
+export const createConversationResponseBlueprintSectionsValueItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsValueItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsValueItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsValueItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsValueItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsValueItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsValueItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsValueItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsValueMax = 8;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemIdMax = 80;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemTitleMax = 160;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemDetailMax = 1200;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemDetailsMax = 6;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const createConversationResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const createConversationResponseBlueprintSectionsDecisionsMax = 8;
+
+export const createConversationResponseBlueprintHistoryItemVersionMin = 0;
+
+export const createConversationResponseBlueprintHistoryItemChangedSectionsMax = 10;
+
+export const createConversationResponseBlueprintHistoryItemChangesItemItemIdMax = 80;
+
+export const createConversationResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const createConversationResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const createConversationResponseBlueprintHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const createConversationResponseBlueprintHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const createConversationResponseBlueprintHistoryItemChangesMax = 24;
+
+export const createConversationResponseBlueprintHistoryMax = 5;
+
+export const createConversationResponseBlueprintRemovedItemIdsItemMax = 100;
+
 
 
 export const CreateConversationResponse = zod.object({
@@ -99,7 +463,406 @@ export const CreateConversationResponse = zod.object({
   "budget": zod.string().nullable(),
   "timeline": zod.string().nullable(),
   "nextStep": zod.string().nullable()
-})
+}),
+  "blueprint": zod.object({
+  "version": zod.number().int().min(createConversationResponseBlueprintVersionMin),
+  "briefRevision": zod.number().int().min(createConversationResponseBlueprintBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsServicesItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsServicesItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsServicesItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsRisksItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsRisksItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsRisksItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsValueItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsValueItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsValueItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemIdMax),
+  "title": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemDetailsItemValueMax)
+})).max(createConversationResponseBlueprintSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(createConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(createConversationResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(createConversationResponseBlueprintSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(createConversationResponseBlueprintHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(createConversationResponseBlueprintHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(createConversationResponseBlueprintHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(createConversationResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(createConversationResponseBlueprintHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(createConversationResponseBlueprintHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(createConversationResponseBlueprintHistoryItemChangesMax)
+})).max(createConversationResponseBlueprintHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(createConversationResponseBlueprintRemovedItemIdsItemMax))
+}).optional()
 })
 
 
@@ -112,6 +875,370 @@ export const GetConversationParams = zod.object({
 })
 
 export const getConversationResponseBriefRevisionMin = 0;
+
+export const getConversationResponseBlueprintVersionMin = 0;
+
+export const getConversationResponseBlueprintBriefRevisionMin = 0;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsObjectivesMax = 8;
+
+export const getConversationResponseBlueprintSectionsServicesItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsServicesItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsServicesItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsServicesItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsServicesItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsServicesItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsServicesMax = 8;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsArchitectureMax = 8;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsIntegrationsMax = 8;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsWorkflowsMax = 8;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsRoadmapMax = 8;
+
+export const getConversationResponseBlueprintSectionsRisksItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsRisksItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsRisksItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsRisksItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsRisksItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsRisksItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsRisksMax = 8;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsTradeoffsMax = 8;
+
+export const getConversationResponseBlueprintSectionsValueItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsValueItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsValueItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsValueItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsValueItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsValueItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsValueItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsValueItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsValueMax = 8;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemIdMax = 80;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemTitleMax = 160;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemDetailMax = 1200;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemDetailsMax = 6;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getConversationResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const getConversationResponseBlueprintSectionsDecisionsMax = 8;
+
+export const getConversationResponseBlueprintHistoryItemVersionMin = 0;
+
+export const getConversationResponseBlueprintHistoryItemChangedSectionsMax = 10;
+
+export const getConversationResponseBlueprintHistoryItemChangesItemItemIdMax = 80;
+
+export const getConversationResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const getConversationResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const getConversationResponseBlueprintHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const getConversationResponseBlueprintHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const getConversationResponseBlueprintHistoryItemChangesMax = 24;
+
+export const getConversationResponseBlueprintHistoryMax = 5;
+
+export const getConversationResponseBlueprintRemovedItemIdsItemMax = 100;
 
 
 
@@ -142,7 +1269,406 @@ export const GetConversationResponse = zod.object({
   "budget": zod.string().nullable(),
   "timeline": zod.string().nullable(),
   "nextStep": zod.string().nullable()
-})
+}),
+  "blueprint": zod.object({
+  "version": zod.number().int().min(getConversationResponseBlueprintVersionMin),
+  "briefRevision": zod.number().int().min(getConversationResponseBlueprintBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsServicesItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsServicesItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsServicesItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsRisksItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsRisksItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsRisksItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsValueItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsValueItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsValueItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemIdMax),
+  "title": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemDetailsItemValueMax)
+})).max(getConversationResponseBlueprintSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getConversationResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getConversationResponseBlueprintSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(getConversationResponseBlueprintHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(getConversationResponseBlueprintHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(getConversationResponseBlueprintHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(getConversationResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(getConversationResponseBlueprintHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(getConversationResponseBlueprintHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(getConversationResponseBlueprintHistoryItemChangesMax)
+})).max(getConversationResponseBlueprintHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(getConversationResponseBlueprintRemovedItemIdsItemMax))
+}).optional()
 })
 
 
@@ -166,6 +1692,370 @@ export const SendMessageBody = zod.object({
 })
 
 export const sendMessageResponseBriefRevisionMin = 0;
+
+export const sendMessageResponseBlueprintVersionMin = 0;
+
+export const sendMessageResponseBlueprintBriefRevisionMin = 0;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsObjectivesMax = 8;
+
+export const sendMessageResponseBlueprintSectionsServicesItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsServicesItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsServicesItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsServicesItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsServicesItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsServicesItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsServicesMax = 8;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsArchitectureMax = 8;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsIntegrationsMax = 8;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsWorkflowsMax = 8;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsRoadmapMax = 8;
+
+export const sendMessageResponseBlueprintSectionsRisksItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsRisksItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsRisksItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsRisksItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsRisksItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsRisksItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsRisksMax = 8;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsTradeoffsMax = 8;
+
+export const sendMessageResponseBlueprintSectionsValueItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsValueItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsValueItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsValueItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsValueItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsValueItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsValueItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsValueItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsValueMax = 8;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemIdMax = 80;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemTitleMax = 160;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemDetailMax = 1200;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemDetailsMax = 6;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const sendMessageResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const sendMessageResponseBlueprintSectionsDecisionsMax = 8;
+
+export const sendMessageResponseBlueprintHistoryItemVersionMin = 0;
+
+export const sendMessageResponseBlueprintHistoryItemChangedSectionsMax = 10;
+
+export const sendMessageResponseBlueprintHistoryItemChangesItemItemIdMax = 80;
+
+export const sendMessageResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const sendMessageResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const sendMessageResponseBlueprintHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const sendMessageResponseBlueprintHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const sendMessageResponseBlueprintHistoryItemChangesMax = 24;
+
+export const sendMessageResponseBlueprintHistoryMax = 5;
+
+export const sendMessageResponseBlueprintRemovedItemIdsItemMax = 100;
 
 
 
@@ -200,6 +2090,405 @@ export const SendMessageResponse = zod.object({
   "timeline": zod.string().nullable(),
   "nextStep": zod.string().nullable()
 }),
+  "blueprint": zod.object({
+  "version": zod.number().int().min(sendMessageResponseBlueprintVersionMin),
+  "briefRevision": zod.number().int().min(sendMessageResponseBlueprintBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsValueItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsValueItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsValueItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemIdMax),
+  "title": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemDetailsItemValueMax)
+})).max(sendMessageResponseBlueprintSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(sendMessageResponseBlueprintSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(sendMessageResponseBlueprintSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(sendMessageResponseBlueprintSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(sendMessageResponseBlueprintHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(sendMessageResponseBlueprintHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(sendMessageResponseBlueprintHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(sendMessageResponseBlueprintHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(sendMessageResponseBlueprintHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(sendMessageResponseBlueprintHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(sendMessageResponseBlueprintHistoryItemChangesMax)
+})).max(sendMessageResponseBlueprintHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(sendMessageResponseBlueprintRemovedItemIdsItemMax))
+}).optional(),
   "suggestedNextSteps": zod.array(zod.string())
 })
 
@@ -275,6 +2564,2370 @@ export const UpdateBriefResponse = zod.object({
   "budget": zod.string().nullable(),
   "timeline": zod.string().nullable(),
   "nextStep": zod.string().nullable()
+})
+
+
+/**
+ * @summary Read the session's solution blueprint
+ */
+export const GetBlueprintParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const getBlueprintResponseVersionMin = 0;
+
+export const getBlueprintResponseBriefRevisionMin = 0;
+
+export const getBlueprintResponseSectionsObjectivesItemIdMax = 80;
+
+export const getBlueprintResponseSectionsObjectivesItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsObjectivesItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsObjectivesItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsObjectivesItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsObjectivesMax = 8;
+
+export const getBlueprintResponseSectionsServicesItemIdMax = 80;
+
+export const getBlueprintResponseSectionsServicesItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsServicesItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsServicesItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsServicesItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsServicesItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsServicesMax = 8;
+
+export const getBlueprintResponseSectionsArchitectureItemIdMax = 80;
+
+export const getBlueprintResponseSectionsArchitectureItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsArchitectureItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsArchitectureItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsArchitectureItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsArchitectureMax = 8;
+
+export const getBlueprintResponseSectionsIntegrationsItemIdMax = 80;
+
+export const getBlueprintResponseSectionsIntegrationsItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsIntegrationsItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsIntegrationsItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsIntegrationsMax = 8;
+
+export const getBlueprintResponseSectionsWorkflowsItemIdMax = 80;
+
+export const getBlueprintResponseSectionsWorkflowsItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsWorkflowsItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsWorkflowsItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsWorkflowsMax = 8;
+
+export const getBlueprintResponseSectionsRoadmapItemIdMax = 80;
+
+export const getBlueprintResponseSectionsRoadmapItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsRoadmapItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsRoadmapItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsRoadmapItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsRoadmapMax = 8;
+
+export const getBlueprintResponseSectionsRisksItemIdMax = 80;
+
+export const getBlueprintResponseSectionsRisksItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsRisksItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsRisksItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsRisksItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsRisksItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsRisksMax = 8;
+
+export const getBlueprintResponseSectionsTradeoffsItemIdMax = 80;
+
+export const getBlueprintResponseSectionsTradeoffsItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsTradeoffsItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsTradeoffsItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsTradeoffsMax = 8;
+
+export const getBlueprintResponseSectionsValueItemIdMax = 80;
+
+export const getBlueprintResponseSectionsValueItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsValueItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsValueItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsValueItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsValueItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsValueItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsValueItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsValueMax = 8;
+
+export const getBlueprintResponseSectionsDecisionsItemIdMax = 80;
+
+export const getBlueprintResponseSectionsDecisionsItemTitleMax = 160;
+
+export const getBlueprintResponseSectionsDecisionsItemDetailMax = 1200;
+
+export const getBlueprintResponseSectionsDecisionsItemEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const getBlueprintResponseSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const getBlueprintResponseSectionsDecisionsItemDetailsMax = 6;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const getBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const getBlueprintResponseSectionsDecisionsMax = 8;
+
+export const getBlueprintResponseHistoryItemVersionMin = 0;
+
+export const getBlueprintResponseHistoryItemChangedSectionsMax = 10;
+
+export const getBlueprintResponseHistoryItemChangesItemItemIdMax = 80;
+
+export const getBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const getBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const getBlueprintResponseHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const getBlueprintResponseHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const getBlueprintResponseHistoryItemChangesMax = 24;
+
+export const getBlueprintResponseHistoryMax = 5;
+
+export const getBlueprintResponseRemovedItemIdsItemMax = 100;
+
+
+
+export const GetBlueprintResponse = zod.object({
+  "version": zod.number().int().min(getBlueprintResponseVersionMin),
+  "briefRevision": zod.number().int().min(getBlueprintResponseBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsObjectivesItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsObjectivesItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsServicesItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsServicesItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsServicesItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsArchitectureItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsArchitectureItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsRoadmapItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsRoadmapItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsRisksItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsRisksItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsRisksItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsValueItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsValueItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsValueItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(getBlueprintResponseSectionsDecisionsItemIdMax),
+  "title": zod.string().max(getBlueprintResponseSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(getBlueprintResponseSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(getBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(getBlueprintResponseSectionsDecisionsItemDetailsItemValueMax)
+})).max(getBlueprintResponseSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(getBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(getBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(getBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(getBlueprintResponseSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(getBlueprintResponseHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(getBlueprintResponseHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(getBlueprintResponseHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(getBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(getBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(getBlueprintResponseHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(getBlueprintResponseHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(getBlueprintResponseHistoryItemChangesMax)
+})).max(getBlueprintResponseHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(getBlueprintResponseRemovedItemIdsItemMax))
+})
+
+
+/**
+ * @summary Save a version-checked visitor correction
+ */
+export const UpdateBlueprintParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const updateBlueprintBodyVersionMin = 0;
+
+export const updateBlueprintBodyEditItemIdMax = 80;
+
+export const updateBlueprintBodyEditTitleMax = 160;
+
+export const updateBlueprintBodyEditDetailMax = 1200;
+
+export const updateBlueprintBodyEditDetailsItemLabelMax = 60;
+
+export const updateBlueprintBodyEditDetailsItemValueMax = 300;
+
+export const updateBlueprintBodyEditDetailsMax = 6;
+
+
+
+export const UpdateBlueprintBody = zod.object({
+  "version": zod.number().int().min(updateBlueprintBodyVersionMin),
+  "requestId": zod.string().uuid(),
+  "edit": zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(updateBlueprintBodyEditItemIdMax),
+  "title": zod.string().max(updateBlueprintBodyEditTitleMax).optional(),
+  "detail": zod.string().max(updateBlueprintBodyEditDetailMax).optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintBodyEditDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintBodyEditDetailsItemValueMax)
+})).max(updateBlueprintBodyEditDetailsMax).optional(),
+  "remove": zod.boolean().optional()
+})
+})
+
+export const updateBlueprintResponseVersionMin = 0;
+
+export const updateBlueprintResponseBriefRevisionMin = 0;
+
+export const updateBlueprintResponseSectionsObjectivesItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsObjectivesItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsObjectivesItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsObjectivesItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsObjectivesItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsObjectivesMax = 8;
+
+export const updateBlueprintResponseSectionsServicesItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsServicesItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsServicesItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsServicesItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsServicesItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsServicesItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsServicesMax = 8;
+
+export const updateBlueprintResponseSectionsArchitectureItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsArchitectureItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsArchitectureItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsArchitectureItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsArchitectureItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsArchitectureMax = 8;
+
+export const updateBlueprintResponseSectionsIntegrationsItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsIntegrationsItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsIntegrationsItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsIntegrationsItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsIntegrationsMax = 8;
+
+export const updateBlueprintResponseSectionsWorkflowsItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsWorkflowsItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsWorkflowsItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsWorkflowsItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsWorkflowsMax = 8;
+
+export const updateBlueprintResponseSectionsRoadmapItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsRoadmapItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsRoadmapItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsRoadmapItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsRoadmapItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsRoadmapMax = 8;
+
+export const updateBlueprintResponseSectionsRisksItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsRisksItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsRisksItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsRisksItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsRisksItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsRisksItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsRisksMax = 8;
+
+export const updateBlueprintResponseSectionsTradeoffsItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsTradeoffsItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsTradeoffsItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsTradeoffsItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsTradeoffsMax = 8;
+
+export const updateBlueprintResponseSectionsValueItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsValueItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsValueItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsValueItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsValueItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsValueItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsValueItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsValueItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsValueMax = 8;
+
+export const updateBlueprintResponseSectionsDecisionsItemIdMax = 80;
+
+export const updateBlueprintResponseSectionsDecisionsItemTitleMax = 160;
+
+export const updateBlueprintResponseSectionsDecisionsItemDetailMax = 1200;
+
+export const updateBlueprintResponseSectionsDecisionsItemEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const updateBlueprintResponseSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const updateBlueprintResponseSectionsDecisionsItemDetailsMax = 6;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const updateBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const updateBlueprintResponseSectionsDecisionsMax = 8;
+
+export const updateBlueprintResponseHistoryItemVersionMin = 0;
+
+export const updateBlueprintResponseHistoryItemChangedSectionsMax = 10;
+
+export const updateBlueprintResponseHistoryItemChangesItemItemIdMax = 80;
+
+export const updateBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const updateBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const updateBlueprintResponseHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const updateBlueprintResponseHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const updateBlueprintResponseHistoryItemChangesMax = 24;
+
+export const updateBlueprintResponseHistoryMax = 5;
+
+export const updateBlueprintResponseRemovedItemIdsItemMax = 100;
+
+
+
+export const UpdateBlueprintResponse = zod.object({
+  "version": zod.number().int().min(updateBlueprintResponseVersionMin),
+  "briefRevision": zod.number().int().min(updateBlueprintResponseBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsObjectivesItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsObjectivesItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsServicesItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsServicesItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsServicesItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsArchitectureItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsArchitectureItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsRoadmapItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsRoadmapItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsRisksItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsRisksItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsRisksItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsValueItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsValueItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsValueItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(updateBlueprintResponseSectionsDecisionsItemIdMax),
+  "title": zod.string().max(updateBlueprintResponseSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(updateBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(updateBlueprintResponseSectionsDecisionsItemDetailsItemValueMax)
+})).max(updateBlueprintResponseSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(updateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(updateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(updateBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(updateBlueprintResponseSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(updateBlueprintResponseHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(updateBlueprintResponseHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(updateBlueprintResponseHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(updateBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(updateBlueprintResponseHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(updateBlueprintResponseHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(updateBlueprintResponseHistoryItemChangesMax)
+})).max(updateBlueprintResponseHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(updateBlueprintResponseRemovedItemIdsItemMax))
+})
+
+
+/**
+ * Synchronizes brief-derived content and preserves visitor edits and specialist contributions. It does not invoke another model or provision integrations.
+ * @summary Update blueprint from the canonical brief
+ */
+export const RegenerateBlueprintParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const regenerateBlueprintBodyVersionMin = 0;
+
+
+
+export const RegenerateBlueprintBody = zod.object({
+  "version": zod.number().int().min(regenerateBlueprintBodyVersionMin),
+  "requestId": zod.string().uuid()
+})
+
+export const regenerateBlueprintResponseVersionMin = 0;
+
+export const regenerateBlueprintResponseBriefRevisionMin = 0;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsObjectivesMax = 8;
+
+export const regenerateBlueprintResponseSectionsServicesItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsServicesItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsServicesItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsServicesItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsServicesItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsServicesItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsServicesItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsServicesItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsServicesMax = 8;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsArchitectureMax = 8;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsIntegrationsMax = 8;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsWorkflowsMax = 8;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsRoadmapMax = 8;
+
+export const regenerateBlueprintResponseSectionsRisksItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsRisksItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsRisksItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsRisksItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRisksItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsRisksItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsRisksItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsRisksItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsRisksMax = 8;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsTradeoffsMax = 8;
+
+export const regenerateBlueprintResponseSectionsValueItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsValueItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsValueItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsValueItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsValueItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsValueItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsValueItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsValueItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsValueMax = 8;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemIdMax = 80;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemTitleMax = 160;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemDetailMax = 1200;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax = 60;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemDetailsItemValueMax = 300;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemDetailsMax = 6;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin = 0;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax = 2000;
+
+export const regenerateBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax = 12;
+
+export const regenerateBlueprintResponseSectionsDecisionsMax = 8;
+
+export const regenerateBlueprintResponseHistoryItemVersionMin = 0;
+
+export const regenerateBlueprintResponseHistoryItemChangedSectionsMax = 10;
+
+export const regenerateBlueprintResponseHistoryItemChangesItemItemIdMax = 80;
+
+export const regenerateBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax = 160;
+
+export const regenerateBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax = 240;
+
+export const regenerateBlueprintResponseHistoryItemChangesItemAfterOneTitleMax = 160;
+
+export const regenerateBlueprintResponseHistoryItemChangesItemAfterOneDetailMax = 240;
+
+export const regenerateBlueprintResponseHistoryItemChangesMax = 24;
+
+export const regenerateBlueprintResponseHistoryMax = 5;
+
+export const regenerateBlueprintResponseRemovedItemIdsItemMax = 100;
+
+
+
+export const RegenerateBlueprintResponse = zod.object({
+  "version": zod.number().int().min(regenerateBlueprintResponseVersionMin),
+  "briefRevision": zod.number().int().min(regenerateBlueprintResponseBriefRevisionMin),
+  "updatedAt": zod.string().describe('ISO timestamp after the first saved version; empty for an untouched version-zero blueprint.'),
+  "sections": zod.object({
+  "objectives": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsObjectivesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsObjectivesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsObjectivesMax),
+  "services": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsServicesItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsServicesItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsServicesItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsServicesItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsServicesItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsServicesItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsServicesItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsServicesItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsServicesItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsServicesItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsServicesItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsServicesItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsServicesItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsServicesItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsServicesMax),
+  "architecture": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsArchitectureItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsArchitectureItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsArchitectureMax),
+  "integrations": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsIntegrationsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsIntegrationsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsIntegrationsMax),
+  "workflows": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsWorkflowsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsWorkflowsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsWorkflowsMax),
+  "roadmap": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsRoadmapItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsRoadmapItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsRoadmapMax),
+  "risks": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsRisksItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsRisksItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsRisksItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRisksItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsRisksItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsRisksItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsRisksItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRisksItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRisksItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRisksItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRisksItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsRisksItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsRisksItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsRisksItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsRisksMax),
+  "tradeoffs": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsTradeoffsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsTradeoffsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsTradeoffsMax),
+  "value": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsValueItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsValueItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsValueItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsValueItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsValueItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsValueItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsValueItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsValueItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsValueItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsValueItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsValueItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsValueItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsValueItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsValueItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsValueItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsValueMax),
+  "decisions": zod.array(zod.object({
+  "id": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemIdMax),
+  "title": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemEvidenceMax),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "source": zod.enum(['brief', 'specialist', 'manual']),
+  "reviewRequired": zod.boolean().optional(),
+  "details": zod.array(zod.object({
+  "label": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemDetailsItemLabelMax),
+  "value": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemDetailsItemValueMax)
+})).max(regenerateBlueprintResponseSectionsDecisionsItemDetailsMax).optional(),
+  "calculation": zod.object({
+  "monthlyVolume": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemCalculationMonthlyVolumeEvidenceMax)
+}),
+  "minutesBefore": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesBeforeEvidenceMax)
+}),
+  "minutesAfter": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemCalculationMinutesAfterEvidenceMax)
+}),
+  "hourlyCost": zod.object({
+  "value": zod.number().min(regenerateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostValueMin),
+  "status": zod.enum(['confirmed', 'assumption']),
+  "evidence": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemCalculationHourlyCostEvidenceMax)
+}).optional(),
+  "currency": zod.string().max(regenerateBlueprintResponseSectionsDecisionsItemCalculationCurrencyMax).optional()
+}).optional()
+})).max(regenerateBlueprintResponseSectionsDecisionsMax)
+}),
+  "history": zod.array(zod.object({
+  "version": zod.number().int().min(regenerateBlueprintResponseHistoryItemVersionMin),
+  "createdAt": zod.coerce.date(),
+  "source": zod.enum(['brief', 'specialist', 'manual', 'regenerate']),
+  "specialist": zod.enum(['syntra', 'technical', 'automation']).describe('Consultation perspective within the same model, conversation and project brief. Omitted historical values mean syntra.'),
+  "changedSections": zod.array(zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions'])).max(regenerateBlueprintResponseHistoryItemChangedSectionsMax),
+  "changes": zod.array(zod.object({
+  "section": zod.enum(['objectives', 'services', 'architecture', 'integrations', 'workflows', 'roadmap', 'risks', 'tradeoffs', 'value', 'decisions']),
+  "itemId": zod.string().max(regenerateBlueprintResponseHistoryItemChangesItemItemIdMax),
+  "before": zod.union([zod.object({
+  "title": zod.string().max(regenerateBlueprintResponseHistoryItemChangesItemBeforeOneTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseHistoryItemChangesItemBeforeOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()]),
+  "after": zod.union([zod.object({
+  "title": zod.string().max(regenerateBlueprintResponseHistoryItemChangesItemAfterOneTitleMax),
+  "detail": zod.string().max(regenerateBlueprintResponseHistoryItemChangesItemAfterOneDetailMax),
+  "status": zod.enum(['confirmed', 'recommendation', 'assumption', 'manual'])
+}),zod.null()])
+})).max(regenerateBlueprintResponseHistoryItemChangesMax)
+})).max(regenerateBlueprintResponseHistoryMax),
+  "removedItemIds": zod.array(zod.string().max(regenerateBlueprintResponseRemovedItemIdsItemMax))
 })
 
 

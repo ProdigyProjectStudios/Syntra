@@ -2,8 +2,12 @@
 
 Syntra's canonical React/TypeScript frontend and consultation domain are versioned here, developed in the engineering workspace, previewed in Replit, and transferred into AgentPlace without redesigning the interface.
 
+The shared consultation now develops an editable Solution Blueprint alongside its eight-field brief. Syntra qualifies the opportunity, Kryon explores the architecture, and Nyx maps automation with human review. Their recommendations feed one versioned deliverable with evidence, assumptions, preserved corrections and Markdown export. The proof register records exactly which source, browser and provider claims have been verified.
+
 ## Start here
 
+- **[Solution Blueprint runbook](docs/SOLUTION-BLUEPRINT.md)** — shared specialist deliverable, corrections, versioning and realistic customer journey.
+- **[Proof register](docs/PROOF-REGISTER.md)** — approved claims, source dates, commit evidence and explicit verification limits.
 - **[Release hardening — 1 November](docs/RELEASE-HARDENING.md)** — five-agent implementation, live production evidence, measured improvements and remaining release gates.
 - **[Production voice recovery](docs/VOICE-PRODUCTION-RECOVERY.md)** — actual cloud exchanges through the deployed recorder, audio-startup repairs and physical-device limitations.
 - **[AgentPlace handoff guide](docs/AGENTPLACE-HANDOFF.md)** — repository boundaries, validation and native runtime ownership.
@@ -33,6 +37,6 @@ Run the frontend and API using their configured Replit workflows. Generated tran
 
 AgentPlace retains its native AI, realtime voice and session infrastructure. Development-only services must stay behind typed adapters and must not replace the host runtime. Voice is not operational merely because the neural animation is visible: a real connected audio transport is required. No booking or enquiry may claim success without a verified provider receipt.
 
-The optional Azure development adapter implements continuous speech recognition, streamed PCM playback, interruption and transcript synchronization. It is disabled by default and excluded from the native transfer. Syntra, Caelis and Veyra use one consultation model, conversation and project brief; the two specialist names are provisional. Live provider quality, device behavior and native execution still require the checks in the voice guide.
+The optional Azure development adapter implements continuous speech recognition, streamed PCM playback, interruption and transcript synchronization. It is disabled by default and excluded from the native transfer. Syntra, Kryon (Technical Architect) and Nyx (Automation & Workflow Specialist) use one consultation model, conversation and project brief. Their persisted role IDs remain `syntra`, `technical` and `automation`. Live provider quality, device behavior and native execution still require the checks in the voice guide.
 
 Do not commit credentials, copy an older exported frontend over the canonical UI, or deploy as part of an export.

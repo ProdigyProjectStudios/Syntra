@@ -25,8 +25,8 @@ function captionMatches(previous: Caption | null, next: Caption) {
 
 export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: boolean; onClose: () => void; onConnectionFailed?: () => void }) {
   const { runtime, native, scope } = useRuntime();
-  const { getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey } = useRuntimeKeys();
-  const { ensureVoiceConversation: ensureConversation, depth } = useAdvisor();
+  const { getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey, getGetBlueprintQueryKey } = useRuntimeKeys();
+  const { ensureVoiceConversation: ensureConversation, depth, specialist: sharedSpecialist, setSpecialist: setSharedSpecialist } = useAdvisor();
   const qc = useQueryClient();
   const reduceMotion = useReducedMotion();
   const compact = useMediaQuery('(max-width: 639px)');
@@ -37,7 +37,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
   const [connection, setConnection] = useState<VoiceConnection | null>(null);
   const [muted, setMuted] = useState(false);
   const [controlPending, setControlPending] = useState(false);
-  const [specialist, setSpecialist] = useState<SpecialistId>('syntra');
+  const [specialist, setSpecialist] = useState<SpecialistId>(sharedSpecialist);
   const [inputSpeaking, setInputSpeaking] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
@@ -54,6 +54,8 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
   const recoveryRef = useRef<HTMLDivElement>(null);
   const depthRef = useRef(depth);
   depthRef.current = depth;
+  const sharedSpecialistRef = useRef(sharedSpecialist); sharedSpecialistRef.current = sharedSpecialist;
+  const setSharedSpecialistRef = useRef(setSharedSpecialist); setSharedSpecialistRef.current = setSharedSpecialist;
   const specialistRef = useRef(specialist);
   specialistRef.current = specialist;
   const switchingRef = useRef(false);
@@ -68,8 +70,8 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
     setFailure(null); setCaption(null); setTransportState('connecting');
     setConnection(null); setMuted(false); setControlPending(false); amplitude.current = 0;
     setInputSpeaking(false); setSwitching(false); setSelectionNotice(null); switchingRef.current = false;
-    if (!runtime.voice.available) return;
-    const initialSpecialist = runtime.voice.specialists?.includes(specialistRef.current) ? specialistRef.current : 'syntra';
+    if (!runtime.voice.available) { specialistRef.current = sharedSpecialistRef.current; setSpecialist(sharedSpecialistRef.current); return; }
+    const initialSpecialist = runtime.voice.specialists?.includes(sharedSpecialistRef.current) ? sharedSpecialistRef.current : 'syntra';
     specialistRef.current = initialSpecialist; setSpecialist(initialSpecialist);
     const controller = new AbortController();
     const closeFailure: VoiceFailure = {
@@ -86,6 +88,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
           // The adapter may restore a pending turn with a different role after reload.
           if (event.specialist !== specialistRef.current) setCaption(null);
           specialistRef.current = event.specialist; setSpecialist(event.specialist);
+          if (runtime.voice.specialists?.includes(event.specialist)) setSharedSpecialistRef.current(event.specialist);
           break;
         case 'input':
           setInputSpeaking(event.speaking);
@@ -124,6 +127,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
           if (voiceConversationId) {
             void qc.invalidateQueries({ queryKey: getGetConversationQueryKey(voiceConversationId) });
             void qc.invalidateQueries({ queryKey: getGetBriefQueryKey(voiceConversationId) });
+            void qc.invalidateQueries({ queryKey: getGetBlueprintQueryKey(voiceConversationId) });
             void qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
           }
           break;
@@ -167,7 +171,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
       if (connectionRef.current === ownedConnection) connectionRef.current = null;
       lifecycle.dispose();
     };
-  }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey]);
+  }, [open, attempt, ensureConversation, runtime, scope, qc, getGetConversationQueryKey, getGetBriefQueryKey, getListConversationsQueryKey, getGetBlueprintQueryKey]);
 
   useEffect(() => {
     if (!open || !stageRef.current) return;
@@ -283,7 +287,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
     try {
       await current.setSpecialist(id);
       if (connectionRef.current !== current) return;
-      specialistRef.current = id; setSpecialist(id); setCaption(null);
+      specialistRef.current = id; setSpecialist(id); setSharedSpecialistRef.current(id); setCaption(null);
       amplitude.current = 0;
     } catch (error) {
       if (connectionRef.current === current) setSelectionNotice(error instanceof Error ? error.message : 'The specialist could not change. Your current conversation is still open.');

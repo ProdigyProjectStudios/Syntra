@@ -29,6 +29,7 @@ export interface NativePorts {
     /** Read the single canonical persisted pair; never fabricate IDs or append a voice transcript. */
     pair(responseId: string, depth: Depth): { visitorMessage: Message; message: Message } | null;
   };
+  blueprints?: NonNullable<ConsultationRuntime["blueprints"]>;
   services(): Promise<ServiceArea[]>;
   booking: BookingAdapter;
   voice: VoiceAdapter;
@@ -59,6 +60,11 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
       get: (id, signal) => scoped(() => ports.briefs.get(id, signal)),
       update: (id, changes, revision) => scoped(() => ports.briefs.update(id, changes, revision)),
     },
+    ...(ports.blueprints ? { blueprints: {
+      get: (id: number, signal?: AbortSignal) => scoped(() => ports.blueprints!.get(id, signal)),
+      regenerate: (id: number, input: import('./blueprint.ts').BlueprintMutation) => scoped(() => ports.blueprints!.regenerate(id, input)),
+      update: (id: number, input: import('./blueprint.ts').BlueprintUpdateInput) => scoped(() => ports.blueprints!.update(id, input)),
+    } } : {}),
     services: () => scoped(() => ports.services()),
     booking: { contacts: () => scoped(() => ports.booking.contacts()),
       ...(ports.booking.book ? { book: (id: number, consent: boolean) => scoped(async () => {
@@ -114,7 +120,8 @@ export function createNativeRuntime(ports: NativePorts): ConsultationRuntime {
           const pair = ports.messaging.pair(responseId, input.depth);
           if (!pair) throw new Error("The native transcript is still settling. Retry to reload this completed turn, not resend it.");
           assertScope();
-          return { ...pair, brief, suggestedNextSteps: [], specialist };
+          const blueprint = ports.blueprints ? await scoped(() => ports.blueprints!.get(id)) : undefined;
+          return { ...pair, brief, ...(blueprint ? { blueprint } : {}), suggestedNextSteps: [], specialist };
         } finally { sending = false; }
       },
     },

@@ -147,19 +147,23 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 px-4 pt-4 sm:px-6 lg:pt-5" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
-          <div className="flex min-w-0 items-center gap-3">
-            <img src={logo} alt="Digital Prodigy" className="h-8 w-8 object-contain drop-shadow-[0_0_8px_rgba(0,255,255,.4)] lg:hidden" />
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <img src={logo} alt="Digital Prodigy" className="h-8 w-8 shrink-0 object-contain drop-shadow-[0_0_8px_rgba(0,255,255,.4)] lg:hidden" />
             <div className="min-w-0">
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-                <span className={cn('h-1.5 w-1.5 rounded-full', sending ? 'bg-primary halo animate-pulse' : 'bg-primary/60')} />
+              <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[.12em] text-muted-foreground sm:text-[10px] sm:tracking-[0.3em]">
+                <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', sending ? 'bg-primary halo animate-pulse' : 'bg-primary/60')} />
                 <AnimatePresence mode="wait">
-                  <motion.span key={current?.label ?? 'x'} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="text-primary/80">{current ? `${current.code} ${current.label}` : 'Off-grid'}</motion.span>
+                  <motion.span key={current?.label ?? 'x'} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="whitespace-nowrap text-primary/80" data-testid="text-route-label">
+                    <span className="sr-only">{current ? `${current.code} ${current.label}` : 'Off-grid'}</span>
+                    <span aria-hidden="true" className="sm:hidden"><span className="hidden min-[375px]:inline">{current?.code} </span>{current?.label === 'Project Brief' ? 'Brief' : current?.label ?? 'Off-grid'}</span>
+                    <span aria-hidden="true" className="hidden sm:inline">{current ? `${current.code} ${current.label}` : 'Off-grid'}</span>
+                  </motion.span>
                 </AnimatePresence>
               </div>
               <div className="mt-0.5 hidden truncate text-sm text-foreground/70 sm:block" data-testid="text-conversation-title">{conversation?.title ?? 'New session'}</div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <DepthSwitch compact />
             <button onClick={openHistory} data-testid="button-open-history" aria-label="Sessions" className="grid h-9 w-9 place-items-center rounded-full glass lg:hidden"><History className="h-4 w-4" /></button>
           </div>

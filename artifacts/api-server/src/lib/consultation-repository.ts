@@ -5,6 +5,8 @@ import { withPostgresQueryDeadline } from "./postgres-query-deadline.ts";
 import { db, type DatabaseClient, conversationsTable as sessions, messagesTable as messages, briefsTable as briefs, turnsTable } from "@workspace/db";
 import {
   BRIEF_KEYS, EMPTY_FIELDS, ConsultationError, manualBrief, mergeBrief, normalizeSpecialist,
+  readBlueprintStore, mutateBlueprintStore, evolveBlueprint,
+  type Blueprint, type BlueprintMutation, type BlueprintUpdateInput,
   type Brief, type Conversation, type ConversationRepository, type Depth, type Message, type TurnReply,
 } from "@workspace/consultation";
 
@@ -29,11 +31,15 @@ export function withConsultationTransaction<T>(client: DatabaseClient, work: (tr
 }
 
 /** Nested commitTurn operations become savepoints on the lock-owning transaction. */
-export function repositoryForTransaction(transaction: ConsultationTransaction): ConversationRepository {
+export interface BlueprintRepository extends ConversationRepository {
+  getBlueprint(owner: string, id: number): Promise<Blueprint>;
+  mutateBlueprint(owner: string, id: number, input: BlueprintMutation | BlueprintUpdateInput, kind: 'update' | 'regenerate'): Promise<Blueprint>;
+}
+export function repositoryForTransaction(transaction: ConsultationTransaction): BlueprintRepository {
   return createRepository(transaction);
 }
 
-function createRepository(database: Pick<Database, 'select' | 'insert' | 'update' | 'transaction'>): ConversationRepository {
+function createRepository(database: Pick<Database, 'select' | 'insert' | 'update' | 'transaction'>): BlueprintRepository {
   return {
   async list(owner) {
     const rows = await database.select({
@@ -47,7 +53,7 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
       const [s] = await tx.insert(sessions).values({ ownerHash: owner, depth }).returning();
       const [b] = await tx.insert(briefs).values({ conversationId: s.id }).returning();
       const [m] = await tx.insert(messages).values({ conversationId: s.id, role: "advisor", content: OPENING, depth }).returning();
-      return { ...session(s), messages: [message(m)], brief: brief(b) };
+      return { ...session(s), messages: [message(m)], brief: brief(b), blueprint: readBlueprintStore(s.blueprint).document };
     });
   },
   async get(owner, id) {
@@ -55,16 +61,16 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
     if (!s) return null;
     const ms = await database.select().from(messages).where(eq(messages.conversationId, id)).orderBy(messages.id);
     const [b] = await database.select().from(briefs).where(eq(briefs.conversationId, id));
-    return { ...session(s), messages: ms.map(message), brief: b ? brief(b) : { ...EMPTY_FIELDS, revision: 0, provenance: {} } };
+    return { ...session(s), messages: ms.map(message), brief: b ? brief(b) : { ...EMPTY_FIELDS, revision: 0, provenance: {} }, blueprint: readBlueprintStore(s.blueprint).document };
   },
   async replay(owner, id, requestId) {
-    const [row] = await database.select({ response: turnsTable.response }).from(turnsTable)
+    const [row] = await database.select({ response: turnsTable.response, blueprint: sessions.blueprint }).from(turnsTable)
       .innerJoin(sessions, eq(sessions.id, turnsTable.conversationId))
       .where(and(owned(owner, id), eq(turnsTable.requestId, requestId)));
     if (!row) return null;
     const [latest] = await database.select().from(briefs).where(eq(briefs.conversationId, id));
     // Replay immutable messages, but never replay a stale brief over a newer manual correction.
-    return { ...row.response as TurnReply, brief: brief(latest) };
+    return { ...row.response as TurnReply, brief: brief(latest), blueprint: readBlueprintStore(row.blueprint).document };
   },
   async commitTurn(owner, before, input, result) {
     return database.transaction(async tx => {
@@ -75,7 +81,7 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
         const original = receipt.response as TurnReply;
         if (original.visitorMessage.content !== input.content || original.visitorMessage.depth !== input.depth || normalizeSpecialist(original.specialist) !== normalizeSpecialist(input.specialist)) throw new ConsultationError(409, "This request ID was already used for a different message or specialist.");
         const [latest] = await tx.select().from(briefs).where(eq(briefs.conversationId, s.id));
-        return { ...original, brief: brief(latest) };
+        return { ...original, brief: brief(latest), blueprint: readBlueprintStore(s.blueprint).document };
       }
       const [last] = await tx.select().from(messages).where(eq(messages.conversationId, s.id)).orderBy(desc(messages.id)).limit(1);
       if (last?.id !== before.messages.at(-1)?.id) throw new ConsultationError(409, "The conversation changed. Reload it and retry your message.");
@@ -87,12 +93,21 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
         if (JSON.stringify(current.provenance[key]) !== JSON.stringify(before.brief.provenance[key]) || current[key] !== before.brief[key]) delete changes[key];
       }
       const merged = mergeBrief(current, { ...result, changes }, [...before.messages.filter(m => m.role === "visitor").map(m => m.content), input.content], input.content);
+      const blueprint = readBlueprintStore(s.blueprint);
+      blueprint.document = evolveBlueprint(blueprint.document, merged, result.blueprintChanges ?? [], {
+        visitorHistory: [...before.messages.filter(m => m.role === 'visitor').map(m => m.content), input.content],
+        latest: input.content, specialist: normalizeSpecialist(input.specialist), source: 'specialist',
+      });
       const [visitor] = await tx.insert(messages).values({ conversationId: s.id, role: "visitor", content: input.content, depth: input.depth }).returning();
       const [advisor] = await tx.insert(messages).values({ conversationId: s.id, role: "advisor", content: result.reply, depth: input.depth }).returning();
       await tx.update(briefs).set(merged).where(eq(briefs.conversationId, s.id));
-      await tx.update(sessions).set({ depth: input.depth, ...(result.title ? { title: result.title } : {}) }).where(eq(sessions.id, s.id));
-      const reply: TurnReply = { visitorMessage: message(visitor), message: message(advisor), brief: merged, suggestedNextSteps: result.suggestedNextSteps, specialist: normalizeSpecialist(input.specialist) };
-      await tx.insert(turnsTable).values({ conversationId: s.id, requestId: input.requestId, response: reply });
+      await tx.update(sessions).set({ blueprint, depth: input.depth, ...(result.title ? { title: result.title } : {}) }).where(eq(sessions.id, s.id));
+      const reply: TurnReply = { blueprint: blueprint.document, visitorMessage: message(visitor), message: message(advisor), brief: merged, suggestedNextSteps: result.suggestedNextSteps, specialist: normalizeSpecialist(input.specialist) };
+      // Blueprint is canonical on the consultation, with its own bounded history.
+      // Retry receipts keep the immutable pair; replay attaches the newest document
+      // instead of duplicating a potentially large/private Blueprint on every turn.
+      const { blueprint: _document, ...receiptReply } = reply;
+      await tx.insert(turnsTable).values({ conversationId: s.id, requestId: input.requestId, response: receiptReply });
       return reply;
     });
   },
@@ -103,8 +118,25 @@ function createRepository(database: Pick<Database, 'select' | 'insert' | 'update
       const [b] = await tx.select().from(briefs).where(eq(briefs.conversationId, id)).for("update");
       const updated = manualBrief(brief(b), changes, revision);
       await tx.update(briefs).set(updated).where(eq(briefs.conversationId, id));
-      await tx.update(sessions).set({ updatedAt: new Date() }).where(eq(sessions.id, id));
+      const blueprint = readBlueprintStore(s.blueprint);
+      blueprint.document = evolveBlueprint(blueprint.document, updated, [], { visitorHistory: [], latest: '', source: 'brief' });
+      await tx.update(sessions).set({ blueprint, updatedAt: new Date() }).where(eq(sessions.id, id));
       return updated;
+    });
+  },
+  async getBlueprint(owner, id) {
+    const [row] = await database.select({ blueprint: sessions.blueprint }).from(sessions).where(owned(owner, id));
+    if (!row) throw new ConsultationError(404, 'Conversation not found');
+    return readBlueprintStore(row.blueprint).document;
+  },
+  async mutateBlueprint(owner, id, input, kind) {
+    return database.transaction(async tx => {
+      const [row] = await tx.select().from(sessions).where(owned(owner, id)).for('update');
+      if (!row) throw new ConsultationError(404, 'Conversation not found');
+      const [savedBrief] = await tx.select().from(briefs).where(eq(briefs.conversationId, id)).for('update');
+      const blueprint = await mutateBlueprintStore(readBlueprintStore(row.blueprint), input, kind, brief(savedBrief));
+      await tx.update(sessions).set({ blueprint, updatedAt: new Date() }).where(eq(sessions.id, id));
+      return blueprint.document;
     });
   },
   };

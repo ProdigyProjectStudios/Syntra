@@ -64,6 +64,9 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
   const bloom = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
+  // Caption/recovery changes resize the stage. Keep the same animation lifetime
+  // when rebuilding the canvas so speech cannot replay the assembly sequence.
+  const motionRef = useRef<{ born: number; t: number; yaw: number; smooth: number; vis: number; errMix: number } | null>(null);
 
   // Static topology — built once.
   const topo = useMemo(() => {
@@ -223,8 +226,9 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
 
     let raf = 0;
     let last = performance.now();
-    const born = still ? last - 10000 : last;
-    let t = still ? 40 : 0, yaw = 0, smooth = 0, vis = still ? 1 : 0, errMix = 0;
+    const previous = motionRef.current ?? { born: still ? last - 10000 : last, t: still ? 40 : 0, yaw: 0, smooth: 0, vis: still ? 1 : 0, errMix: 0 };
+    const born = previous.born;
+    let { t, yaw, smooth, vis, errMix } = previous;
 
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
@@ -450,7 +454,10 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
       if (!still) raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      motionRef.current = { born, t, yaw, smooth, vis, errMix };
+      cancelAnimationFrame(raf);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size, topo, still, mobile]);
 

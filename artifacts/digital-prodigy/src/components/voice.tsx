@@ -334,7 +334,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
           <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,.75))' }} />
 
           <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-3 px-5 py-4 sm:px-8 sm:py-5" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
-            <div className="flex min-w-0 items-center gap-2.5 font-mono text-[9px] uppercase tracking-[.22em] text-white/45 sm:text-[10px] sm:tracking-[.3em]">
+            <div className="sr-only min-w-0 items-center gap-2.5 font-mono text-[9px] uppercase tracking-[.22em] text-white/45 sm:not-sr-only sm:flex sm:text-[10px] sm:tracking-[.3em]">
               <span className="relative flex h-1.5 w-1.5 shrink-0">
                 <span className={cn('absolute inset-0 rounded-full', failure ? 'bg-rose-400' : 'bg-primary', available && !failure && !muted && 'motion-safe:animate-ping opacity-60')} />
                 <span className={cn('relative h-1.5 w-1.5 rounded-full', failure ? 'bg-rose-400' : 'bg-primary')} />
@@ -343,14 +343,16 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
               <span role="status" className={cn('truncate', failure ? 'text-rose-300/80' : 'text-primary/80')} data-testid="status-voice-state">{label}</span>
             </div>
             <button ref={closeButtonRef} onClick={onClose} aria-label="Close voice conversation" data-testid="button-close-voice"
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-white/45 transition hover:bg-white/[.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+              className="ml-auto grid h-10 w-10 shrink-0 self-start place-items-center rounded-full text-white/45 transition hover:bg-white/[.05] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
               <X className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
-          <div aria-hidden="true" className="shrink-0 pt-[calc(3.5rem+env(safe-area-inset-top))]" />
-          <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
-            lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
+          <div aria-hidden="true" className="shrink-0 pt-[calc(7rem+env(safe-area-inset-top))] sm:pt-[calc(4.5rem+env(safe-area-inset-top))]" />
+          <div className="pointer-events-none absolute left-1/2 z-20 -translate-x-1/2 top-[max(.5rem,env(safe-area-inset-top))]">
+            <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
+              lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
+          </div>
 
           <div ref={stageRef} className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center" style={{ marginBottom: `calc(${stageBottom}px + env(safe-area-inset-bottom))` }}>
             <motion.div initial={reduceMotion ? false : { scale: .94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
@@ -365,6 +367,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
 
             <div ref={detailsRef} className="relative z-10 -mt-4 w-full max-w-2xl shrink-0 px-6 text-center sm:-mt-6">
               <div className="mb-3" data-testid="voice-active-specialist">
+                <p aria-hidden="true" className="mb-2 font-mono text-[8px] uppercase tracking-[.2em] text-white/45 sm:hidden">{label}</p>
                 <motion.p key={profile.id} initial={reduceMotion ? false : { opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduceMotion ? 0 : .24 }} className="font-display text-[15px] font-light tracking-[.18em]" style={{ color: visual.color }}>{profile.name}</motion.p>
                 <p className="mt-1 font-mono text-[8px] uppercase tracking-[.18em] text-white/35">{profile.title}</p>

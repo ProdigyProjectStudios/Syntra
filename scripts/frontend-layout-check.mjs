@@ -328,7 +328,7 @@ async function fixture(page) {
         "Visible interaction canvas missing",
       );
       await page
-        .getByTestId(width < 640 ? "button-speak-mobile" : "button-speak")
+        .getByTestId("button-speak-mobile")
         .click();
       await page.waitForTimeout(600);
       await page.evaluate(() =>
@@ -367,6 +367,21 @@ async function fixture(page) {
       );
       assert.equal(voice.focus, "button-close-voice");
       assert.equal(voice.inert, true);
+      assert(voice.rail.top <= 24, `Specialist orbs are not at the top at ${width}px`);
+      assert(Math.abs((voice.rail.left + voice.rail.right) / 2 - width / 2) <= 2,
+        `Specialist orbs are not centered at ${width}px`);
+      assert.equal(await page.getByTestId("button-expand-specialists").count(), 0);
+      assert.equal(await page.getByTestId("button-collapse-specialists").count(), 0);
+      await page.getByTestId("button-voice-specialist-automation").hover();
+      await page.getByTestId("voice-specialist-tooltip").waitFor();
+      const hover = await page.getByTestId("voice-specialist-tooltip").boundingBox();
+      assert(hover.x >= 0 && hover.x + hover.width <= width, `Hover panel overflows at ${width}px`);
+      assert(hover.y + hover.height < height / 2, `Hover panel covers central orb at ${width}px`);
+      await page.screenshot({ path: `${out}/${width}-voice-hover.png` });
+      await page.getByTestId("button-voice-specialist-automation").focus();
+      await page.keyboard.press("Escape");
+      await page.getByTestId("voice-specialist-tooltip").waitFor({ state: "detached" });
+      assert.equal(await page.getByTestId("voice-specialist-tooltip").count(), 0);
       assert(
         await page.evaluate(() => window.__preparedWithGesture),
         "Audio preparation lost the opening gesture",
@@ -406,7 +421,7 @@ async function fixture(page) {
       }));
       assert.equal(
         restored.focus,
-        width < 640 ? "button-speak-mobile" : "button-speak",
+        "button-speak-mobile",
       );
       assert.equal(restored.inert, false);
       assert(
@@ -417,7 +432,7 @@ async function fixture(page) {
         window.__failNextConnect = true;
       });
       await page
-        .getByTestId(width < 640 ? "button-speak-mobile" : "button-speak")
+        .getByTestId("button-speak-mobile")
         .click();
       await page.getByTestId("button-retry-voice").waitFor();
       assert(
@@ -529,6 +544,7 @@ async function fixture(page) {
       if ((await page.locator('details[aria-label="Project dossier"]').getAttribute("open")) === null) {
         await page.getByTestId("button-toggle-dossier").click();
       }
+      await page.waitForTimeout(400);
       const handoffOverflow = await page.evaluate(() => {
         const root = document.querySelector('[data-testid="syntra-handoff"]');
         return [root, ...root.querySelectorAll("*")]

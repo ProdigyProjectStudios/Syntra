@@ -34,7 +34,8 @@ export default function Discover() {
           <AdvisorOrb size={132} mobileSize={shortMobile ? 56 : 80} thinking={sending} />
         </button>
         <div className="hidden font-mono text-[10px] uppercase leading-relaxed tracking-[0.3em] text-muted-foreground/70 sm:block">
-          <span className="text-primary/80">Touch the core</span><br />to speak with it
+          <span className="text-primary/80">Touch the core</span><br />
+          <span className="text-[#67e8f9] [text-shadow:0_0_8px_#22d3ee99,0_0_20px_#38bdf866]">Speak with it</span>
         </div>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }}>

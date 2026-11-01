@@ -523,6 +523,29 @@ async function fixture(page) {
       await page.screenshot({ path: `${out}/${width}-blueprint.png` });
       voice.blueprintLayout = blueprintLayout;
       voice.specialistGeometry = specialistGeometry;
+      await page.getByRole("link", { name: "Book", exact: true }).click();
+      await page.getByTestId("button-toggle-dossier").waitFor();
+      await page.waitForTimeout(600);
+      if ((await page.locator('details[aria-label="Project dossier"]').getAttribute("open")) === null) {
+        await page.getByTestId("button-toggle-dossier").click();
+      }
+      const handoffOverflow = await page.evaluate(() => {
+        const root = document.querySelector('[data-testid="syntra-handoff"]');
+        return [root, ...root.querySelectorAll("*")]
+          .filter(element => element.clientWidth > 0 &&
+            !element.closest('[aria-hidden="true"]') &&
+            !["absolute", "fixed"].includes(getComputedStyle(element).position) &&
+            !["hidden", "clip"].includes(getComputedStyle(element).overflowX) &&
+            element.scrollWidth > element.clientWidth + 1)
+          .map(element => ({
+            tag: element.tagName,
+            testId: element.getAttribute("data-testid"),
+            width: element.clientWidth,
+            content: element.scrollWidth,
+          }));
+      });
+      assert.deepEqual(handoffOverflow, [], `Nested Book overflow at ${width}px`);
+      await page.screenshot({ path: `${out}/${width}-book.png` });
       // Browser-level viewport shrink emulates keyboard geometry only; no physical keyboard claim.
       if (width < 640) {
         await page.setViewportSize({ width, height: Math.round(height * 0.6) });

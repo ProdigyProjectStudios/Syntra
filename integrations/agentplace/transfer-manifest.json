@@ -541,7 +541,7 @@
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/book.tsx",
       "source": "artifacts/digital-prodigy/src/pages/book.tsx",
-      "sha256": "08d2c1c59d519d6a60f397670ee88a7ceb7cb67ceac5e5bbd1221b74579c0f16"
+      "sha256": "a151175e598d9bb1f29f30fe1d0b904b81dae80007b50e9662f2943b55b70790"
     },
     {
       "path": "agent-dev-client/src/app/agent/syntra-app/frontend/pages/brief.tsx",

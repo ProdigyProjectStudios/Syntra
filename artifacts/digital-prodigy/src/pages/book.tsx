@@ -58,13 +58,13 @@ function Dossier({ brief }: { brief: Brief | undefined }) {
   const [expanded, setExpanded] = useState(desktop);
   useEffect(() => setExpanded(desktop), [desktop]);
   return (
-    <details open={expanded} onToggle={event => setExpanded(event.currentTarget.open)} className="group/dossier relative overflow-hidden rounded-[22px] glass edge-light p-4 sm:p-5" aria-label="Project dossier">
-      <summary className="relative flex cursor-pointer list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden" data-testid="button-toggle-dossier">
-        <div className="flex items-center gap-3">
+    <details open={expanded} onToggle={event => setExpanded(event.currentTarget.open)} className="group/dossier relative min-w-0 overflow-hidden rounded-[22px] glass edge-light p-4 sm:p-5" aria-label="Project dossier">
+      <summary className="relative flex min-w-0 cursor-pointer list-none items-center justify-between gap-2 sm:gap-4 [&::-webkit-details-marker]:hidden" data-testid="button-toggle-dossier">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <AdvisorOrb size={36} live />
-          <div>
-            <div className="flex items-center gap-2 font-display text-[13px] tracking-tight text-foreground">PROJECT DOSSIER <ChevronDown className="h-3.5 w-3.5 text-primary/70 transition-transform group-open/dossier:rotate-180" /></div>
-            <p className="mt-1 font-mono text-[9px] uppercase tracking-[.22em] text-muted-foreground">Live consultation data</p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1 font-display text-[11px] tracking-tight text-foreground sm:gap-2 sm:text-[13px]"><span className="min-w-0">PROJECT DOSSIER</span> <ChevronDown className="h-3.5 w-3.5 shrink-0 text-primary/70 transition-transform group-open/dossier:rotate-180" /></div>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[.12em] text-muted-foreground sm:tracking-[.22em]">Live consultation data</p>
           </div>
         </div>
         <div className="shrink-0 text-right" data-testid="status-handoff-completeness">
@@ -86,7 +86,7 @@ function Dossier({ brief }: { brief: Brief | undefined }) {
                 <span className="font-mono text-[9px] uppercase tracking-[.12em] text-muted-foreground">{label}</span>
                 <StatusLabel status={brief?.provenance[key]?.status} />
               </div>
-              <p className={cn('whitespace-pre-wrap break-words text-[12px] leading-relaxed', value ? 'text-foreground/90' : 'italic text-muted-foreground/60')}>
+              <p className={cn('whitespace-pre-wrap [overflow-wrap:anywhere] text-[12px] leading-relaxed', value ? 'text-foreground/90' : 'italic text-muted-foreground/60')}>
                 {value || 'Awaiting detail'}
               </p>
             </div>
@@ -210,7 +210,7 @@ function BookWorkspace() {
         ))}
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.92fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 [&>div]:min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.92fr)]">
         <div className="space-y-4">
           <motion.section
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45 }}

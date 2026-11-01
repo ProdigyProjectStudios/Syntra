@@ -349,14 +349,14 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
           </div>
 
           <div aria-hidden="true" className="shrink-0 pt-[calc(7rem+env(safe-area-inset-top))] sm:pt-[calc(4.5rem+env(safe-area-inset-top))]" />
-          <div className="pointer-events-none absolute left-1/2 z-20 -translate-x-1/2 top-[max(.5rem,env(safe-area-inset-top))]">
+          <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center top-[max(.5rem,env(safe-area-inset-top))]">
             <VoiceSpecialistRail active={specialist} onSelect={id => void chooseSpecialist(id)} supported={supported}
               lockedReason={lockedReason} switching={switching} compact={compact} preview={!available} state={state} amplitude={amplitude} />
           </div>
 
           <div ref={stageRef} className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center" style={{ marginBottom: `calc(${stageBottom}px + env(safe-area-inset-bottom))` }}>
             <motion.div initial={reduceMotion ? false : { scale: .94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: reduceMotion ? 0 : 1, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none relative z-[5] shrink-0">
+              transition={{ duration: reduceMotion ? 0 : 1, ease: [0.16, 1, 0.3, 1] }} className="pointer-events-none relative z-[5] shrink-0" data-testid="voice-primary-core">
               <motion.div animate={{ filter: `hue-rotate(${failure ? 0 : visual.hue}deg)` }} transition={{ duration: reduceMotion ? 0 : .55 }}>
                 <NeuralCore state={state} amplitude={amplitude} size={size} />
               </motion.div>

@@ -214,6 +214,7 @@ async function fixture(page) {
       await page.waitForTimeout(800);
       const entry = await page.evaluate(() => ({
         width: innerWidth,
+        platforms: document.querySelector('[data-testid="platform-orbs"]').getBoundingClientRect().toJSON(),
         scrollWidth: document.documentElement.scrollWidth,
         composer: document
           .querySelector('[data-testid="input-message"]')
@@ -231,6 +232,8 @@ async function fixture(page) {
         width,
         `Horizontal overflow at ${width}px`,
       );
+      assert(Math.abs((entry.platforms.left + entry.platforms.right) / 2 - width / 2) <= 2,
+        `Platform orbs are not centered in the page at ${width}px`);
       assert(
         entry.composer.bottom <= height,
         `Composer outside viewport at ${width}px`,
@@ -244,8 +247,9 @@ async function fixture(page) {
         1,
       );
       await page.screenshot({ path: `${out}/${width}-discover.png` });
-      const activeRadio = page.locator('[role="radio"][aria-checked="true"]');
-      await activeRadio.focus();
+      await page.getByTestId("button-depth-toggle").focus();
+      await page.keyboard.press("ArrowLeft");
+      await page.waitForFunction(() => document.activeElement?.getAttribute("role") === "radio");
       await page.keyboard.press("ArrowRight");
       const depth = await page
         .locator('[role="radio"][aria-checked="true"]')
@@ -351,6 +355,7 @@ async function fixture(page) {
           transcript: rect('[data-testid="voice-transcript"]'),
           controls: rect('[data-testid="button-end-voice"]'),
           rail: rect('[data-testid="voice-specialist-rail"]'),
+          core: rect('[data-testid="voice-primary-core"]'),
           focus: document.activeElement?.getAttribute("data-testid"),
           inert: document.querySelector(".contents")?.inert,
         };
@@ -370,11 +375,27 @@ async function fixture(page) {
       assert(voice.rail.top <= 24, `Specialist orbs are not at the top at ${width}px`);
       assert(Math.abs((voice.rail.left + voice.rail.right) / 2 - width / 2) <= 2,
         `Specialist orbs are not centered at ${width}px`);
+      assert(Math.abs((voice.rail.left + voice.rail.right - voice.core.left - voice.core.right) / 2) <= 2,
+        `Specialist orbs are not aligned with the main sphere at ${width}px`);
       assert.equal(await page.getByTestId("button-expand-specialists").count(), 0);
       assert.equal(await page.getByTestId("button-collapse-specialists").count(), 0);
       await page.getByTestId("button-voice-specialist-automation").hover();
       await page.getByTestId("voice-specialist-tooltip").waitFor();
       const hover = await page.getByTestId("voice-specialist-tooltip").boundingBox();
+      for (const specialist of ["syntra", "technical", "automation", "syntra", "automation"]) {
+        await page.getByTestId(`button-voice-specialist-${specialist}`).hover();
+        const samples = await page.evaluate(async () => {
+          const positions = [];
+          for (let frame = 0; frame < 12; frame++) {
+            positions.push(...[...document.querySelectorAll('[data-testid="voice-specialist-tooltip"]')]
+              .map(element => element.getBoundingClientRect().top));
+            await new Promise(requestAnimationFrame);
+          }
+          return positions;
+        });
+        assert(samples.length > 0 && samples.every(top => Math.abs(top - hover.y) <= 2),
+          `Specialist hover panels jump during transitions at ${width}px`);
+      }
       assert(hover.x >= 0 && hover.x + hover.width <= width, `Hover panel overflows at ${width}px`);
       assert(hover.y + hover.height < height / 2, `Hover panel covers central orb at ${width}px`);
       await page.screenshot({ path: `${out}/${width}-voice-hover.png` });

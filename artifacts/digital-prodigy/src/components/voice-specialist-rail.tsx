@@ -95,14 +95,14 @@ export function VoiceSpecialistRail({ active, onSelect, supported, lockedReason,
           );
         })}
 
-        <div className={cn('pointer-events-none absolute z-30',
+        <div className={cn('pointer-events-none absolute z-30 grid',
           compact ? 'left-1/2 top-full mt-1.5 -translate-x-1/2'
             : 'left-1/2 top-full mt-1.5 -translate-x-1/2 lg:left-full lg:top-0 lg:ml-2.5 lg:mt-0 lg:translate-x-0')}>
           <AnimatePresence>
             {hoverProfile && (
               <motion.div key={hoverProfile.id} initial={{ opacity: 0, x: compact ? 0 : -3 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                 transition={{ duration: reduceMotion ? 0 : .14 }}
-                className="w-[212px] max-w-[calc(100vw-32px)] rounded-xl border border-white/[.07] bg-[#070b17]/90 px-3 py-2 text-left shadow-lg backdrop-blur-xl"
+                className="col-start-1 row-start-1 self-start w-[212px] max-w-[calc(100vw-32px)] rounded-xl border border-white/[.07] bg-[#070b17]/90 px-3 py-2 text-left shadow-lg backdrop-blur-xl"
                 role="tooltip" data-testid="voice-specialist-tooltip">
                 <div className="flex items-baseline gap-2">
                   <span className="h-1 w-1 shrink-0 translate-y-[-2px] rounded-full" style={{ background: SPECIALIST_VISUALS[hoverProfile.id].color }} />

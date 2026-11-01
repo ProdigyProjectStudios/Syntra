@@ -7,8 +7,8 @@ const platforms = [
 ];
 
 export function PlatformOrbits() {
-  return <nav aria-label="Digital Prodigy platforms" className="flex shrink-0 flex-col items-center pt-2">
-    <div className="flex items-center gap-5">
+  return <nav aria-label="Digital Prodigy platforms" className="flex shrink-0 flex-col items-center pt-2 lg:-ml-[72px]">
+    <div className="flex items-center gap-5" data-testid="platform-orbs">
       {platforms.map((platform, index) =>
           <a key={platform.name} href={platform.href} target="_blank" rel="noopener noreferrer" aria-label={`${platform.name} (opens in a new tab)`}
             className="group flex flex-col items-center gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-primary">

@@ -72,10 +72,10 @@ export function DepthSwitch({ compact = false }: { compact?: boolean }) {
 }
 
 /* ---------- Composer ---------- */
-export function Composer({ onSpeak }: { onSpeak: () => void }) {
+export function Composer({ onSpeak, voiceOpen = false }: { onSpeak: () => void; voiceOpen?: boolean }) {
   const { send, sending, specialist, conversation, conversationId, ensureVoiceConversation } = useAdvisor();
   const profile = getSpecialistProfile(specialist);
-  const speech = useChatSpeech(ensureVoiceConversation, profile.voiceId, conversationId);
+  const speech = useChatSpeech(ensureVoiceConversation, profile.voiceId, conversationId, voiceOpen);
   const latestReply = conversation?.messages.filter(message => message.role === 'advisor').at(-1)?.content;
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);

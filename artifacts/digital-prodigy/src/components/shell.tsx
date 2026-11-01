@@ -226,7 +226,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
         </div>
 
         <div className="px-4 pb-4 sm:px-6 sm:pb-6" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-          <div className="mx-auto max-w-3xl"><Composer onSpeak={openVoice} /></div>
+          <div className="mx-auto max-w-3xl"><Composer onSpeak={openVoice} voiceOpen={voice} /></div>
         </div>
       </div>
 

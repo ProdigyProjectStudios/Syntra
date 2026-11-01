@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /** Owns only chat audio. No message is sent until the visitor presses Send. */
-export function useChatSpeech(ensureConversation: () => Promise<number>, voiceName: string, scope: number | null) {
+export function useChatSpeech(ensureConversation: () => Promise<number>, voiceName: string, scope: number | null, suspended = false) {
   const [mode, setMode] = useState<'idle' | 'loading' | 'dictating' | 'playing'>('idle');
   const [error, setError] = useState('');
   const lifetime = useRef<AbortController | null>(null);
@@ -13,6 +13,10 @@ export function useChatSpeech(ensureConversation: () => Promise<number>, voiceNa
     setMode('idle');
   };
   useEffect(() => () => { lifetime.current?.abort(); release.current(); }, []);
+  // Every voice entry path must release chat capture before the voice console connects.
+  useLayoutEffect(() => {
+    if (suspended) stop();
+  }, [suspended]);
   // Starting the first recording creates a conversation; only stop on a later session switch.
   const previousScope = useRef(scope);
   useEffect(() => {
@@ -21,6 +25,7 @@ export function useChatSpeech(ensureConversation: () => Promise<number>, voiceNa
   }, [scope]);
 
   async function begin(kind: 'dictating' | 'playing', text: string, onText?: (value: string) => void) {
+    if (suspended) return;
     stop(); setError(''); setMode('loading');
     const controller = new AbortController(); lifetime.current = controller;
     const valid = () => !controller.signal.aborted;

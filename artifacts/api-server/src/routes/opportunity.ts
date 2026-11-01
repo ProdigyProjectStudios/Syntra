@@ -40,7 +40,7 @@ router.post("/opportunity/analyze", async (req, res): Promise<void> => {
     res.setHeader("Cache-Control", "no-store");
     res.json(analysis);
   } catch (error) {
-    req.log.error({ error }, "Opportunity analysis failed");
+    req.log.error({ errorType: error instanceof Error ? error.name : "unknown" }, "Opportunity analysis failed");
     res.status(502).json({ error: "Syntra could not complete this analysis. Please try again." });
   }
 });

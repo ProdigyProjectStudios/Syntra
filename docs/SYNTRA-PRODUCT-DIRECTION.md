@@ -16,7 +16,9 @@ The sequence is **decide → verify → run**. Each step should create a useful 
 
 **Success measure:** Among visitors who start an analysis, track completion, export, and advisor continuation separately. Review a small set of outputs across markets for specificity, credible non-build alternatives, unsupported claims and usefulness of first experiments. Do not optimize only for consultancy bookings.
 
-## 2. Evidence Room — verify (next build)
+## 2. Evidence Room — verify (first release implemented)
+
+The implemented release accepts pasted or imported text excerpts, reviews a decision against up to three sources, validates exact quotations, shows gaps and conflicts, and hands a revised decision to Action Studio. PDF ingestion, connected sources, private team workspaces and revision history remain future work. See `EVIDENCE-ROOM.md` for limits.
 
 **User promise:** Attach or connect the actual process notes, requirements, policy documents and system constraints behind a decision. Syntra links each important assertion to a source, flags contradictions and unknowns, and revises the decision canvas when evidence changes.
 
@@ -28,7 +30,9 @@ The sequence is **decide → verify → run**. Each step should create a useful 
 
 **Success measure:** Whether teams return with more evidence, revise a decision, and can trace the key recommendation to sources. A grounded answer with useful uncertainty is the quality target.
 
-## 3. Action Studio — run (subsequent build)
+## 3. Action Studio — run (planning and scorecard implemented)
+
+The implemented release creates editable milestones, suggested owner roles, approval gates and evaluation cases. Users record real observations and a verdict, export the plan, and explicitly save a draft in their browser. It does not execute integrations or run a workflow. See `ACTION-STUDIO.md` for limits.
 
 **User promise:** Convert a selected experiment into an executable, measurable workflow: owner, inputs, acceptance criteria, human approval points, integration steps, evaluation cases and a live outcome scorecard.
 

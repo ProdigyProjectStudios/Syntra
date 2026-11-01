@@ -36,7 +36,8 @@ export default function DecisionLab() {
   const [challenge, setChallenge] = useState(EXAMPLES[0].challenge);
   const [constraints, setConstraints] = useState('');
   const [result, setResult] = useState<OpportunityAnalysis | null>(null);
-  const [lastInput, setLastInput] = useState({ market: '', challenge: '' });
+  const [handoffError, setHandoffError] = useState('');
+  const [lastInput, setLastInput] = useState({ market: '', challenge: '', constraints: '' });
   const analysis = useAnalyzeOpportunity();
   const { send, sending } = useAdvisor();
   const [, navigate] = useLocation();
@@ -52,7 +53,7 @@ export default function DecisionLab() {
     setResult(null);
     try {
       const next = await analysis.mutateAsync({ data: { market: market.trim(), challenge: challenge.trim(), constraints: constraints.trim() } });
-      setLastInput({ market: market.trim(), challenge: challenge.trim() });
+      setLastInput({ market: market.trim(), challenge: challenge.trim(), constraints: constraints.trim() });
       setResult(next);
     } catch {
       // The mutation state renders the API error below.
@@ -75,6 +76,21 @@ export default function DecisionLab() {
     const route = result.routes[result.recommendedRoute];
     void send(`I used Syntra's Decision Lab for ${lastInput.market}. My challenge: ${lastInput.challenge}\n\nThe recommended path was ${route.name}: ${route.firstRelease}. The first experiment was ${result.firstExperiment}. Key unknowns: ${result.questions.join('; ')}. Help me challenge these assumptions and shape a practical first release.`);
     navigate('/');
+  }
+
+  function continueToTool(destination: 'evidence' | 'action') {
+    if (!result) return;
+    try {
+      const route = result.routes[result.recommendedRoute];
+      if (destination === 'evidence') {
+        sessionStorage.setItem('syntra.evidence.seed', JSON.stringify({ decision: `Constraints: ${lastInput.constraints || 'None supplied'}\nProposed path: ${route.name}. ${route.firstRelease}\nContext: ${lastInput.challenge}`.slice(0, 2000) }));
+      } else {
+        sessionStorage.setItem('syntra.action.seed', JSON.stringify({ market: lastInput.market, experiment: result.firstExperiment.slice(0, 2000), successSignal: result.successSignal.slice(0, 400), constraints: lastInput.constraints || result.assumptions.join('; ').slice(0, 1000) }));
+      }
+      navigate(destination === 'evidence' ? '/evidence' : '/action');
+    } catch {
+      setHandoffError('Your browser blocked the handoff. Export this canvas and open the next tool from the navigation.');
+    }
   }
 
   return (
@@ -106,6 +122,11 @@ export default function DecisionLab() {
       </div>
 
       {result && <motion.section ref={resultRef} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mt-7 space-y-5" aria-label="Decision canvas" data-testid="decision-results">
+        <div className="flex flex-wrap gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+          <button type="button" onClick={() => continueToTool('evidence')} className="rounded-full border border-primary/30 px-4 py-2 text-sm text-primary">Verify with your evidence <ArrowRight className="ml-2 inline h-4 w-4" /></button>
+          <button type="button" onClick={() => continueToTool('action')} className="rounded-full border border-primary/30 px-4 py-2 text-sm text-primary">Plan the first experiment <ArrowRight className="ml-2 inline h-4 w-4" /></button>
+          {handoffError && <p role="alert" className="text-xs text-ember">{handoffError}</p>}
+        </div>
         <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">Decision canvas / {lastInput.market}</div><h2 className="mt-2 font-display text-2xl font-light leading-tight tracking-tight sm:text-3xl">{result.headline}</h2></div><button type="button" onClick={download} className="flex items-center gap-2 rounded-full border border-primary/25 px-3 py-2 text-xs text-primary transition hover:bg-primary/10" data-testid="button-download"><Download className="h-3.5 w-3.5" /> Export</button></div>
         <div className="grid gap-3 sm:grid-cols-2"><Insight label="The friction" text={result.diagnosis} /><Insight label="Value at stake" text={result.valueAtStake} /></div>
         <div><div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground"><Layers3 className="h-3.5 w-3.5" /> Three credible paths</div><div className="grid gap-3 lg:grid-cols-3">{result.routes.map((route, index) => <div key={`${route.name}-${index}`} className={`rounded-[24px] border p-5 ${index === result.recommendedRoute ? 'border-primary/45 bg-primary/[0.08] shadow-[inset_0_1px_0_hsl(187_92%_69%/.15)]' : 'border-border bg-card/70'}`}><div className="flex items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground"><span>Path 0{index + 1}</span><span>{route.effort} effort</span></div><h3 className="mt-3 text-base font-semibold">{route.name}</h3>{index === result.recommendedRoute && <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary"><Check className="h-3 w-3" /> Start here</span>}<p className="mt-3 text-sm leading-relaxed text-foreground/75">{route.approach}</p><div className="mt-4 border-t border-border pt-3 text-xs leading-relaxed"><div className="font-mono uppercase tracking-wider text-primary/80">First release</div><p className="mt-1 text-foreground/75">{route.firstRelease}</p><div className="mt-3 font-mono uppercase tracking-wider text-muted-foreground">Tradeoff</div><p className="mt-1 text-foreground/65">{route.tradeoff}</p><div className="mt-3 font-mono uppercase tracking-wider text-muted-foreground">Main risk</div><p className="mt-1 text-foreground/65">{route.mainRisk}</p></div></div>)}</div></div>

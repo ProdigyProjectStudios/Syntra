@@ -12,6 +12,24 @@ import type { Conversation, ResponseDepth } from '@workspace/api-client-react';
 
 const KEY = 'dp.activeConversation';
 
+function readStoredConversation(): number | null {
+  try {
+    const value = Number(localStorage.getItem(KEY));
+    return Number.isSafeInteger(value) && value > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeConversation(id: number | null) {
+  try {
+    if (id !== null) localStorage.setItem(KEY, String(id));
+    else localStorage.removeItem(KEY);
+  } catch {
+    // Conversation state remains usable in memory when browser storage is blocked.
+  }
+}
+
 type Ctx = {
   conversationId: number | null;
   setConversationId: (id: number | null) => void;
@@ -32,10 +50,9 @@ const AdvisorCtx = createContext<Ctx | null>(null);
 
 export function AdvisorProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  const [conversationId, setId] = useState<number | null>(() => {
-    const v = Number(localStorage.getItem(KEY));
-    return v > 0 ? v : null;
-  });
+  const [conversationId, setId] = useState<number | null>(readStoredConversation);
+  const idRef = useRef(conversationId);
+  idRef.current = conversationId;
   const [depth, setDepth] = useState<ResponseDepth>('detailed');
   const [pendingText, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -57,21 +74,19 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (conversationId && convQ.isError && (convQ.error as { status?: number })?.status === 404) {
+      idRef.current = null;
       setId(null);
-      localStorage.removeItem(KEY);
+      storeConversation(null);
     }
   }, [conversationId, convQ.isError, convQ.error]);
 
   const setConversationId = useCallback((id: number | null) => {
+    idRef.current = id;
     setId(id);
     setSteps([]);
     setError(null);
-    if (id) localStorage.setItem(KEY, String(id));
-    else localStorage.removeItem(KEY);
+    storeConversation(id);
   }, []);
-
-  const idRef = useRef(conversationId);
-  idRef.current = conversationId;
 
   const ensureConversation = useCallback(async () => {
     if (idRef.current) return idRef.current;
@@ -79,7 +94,7 @@ export function AdvisorProvider({ children }: { children: ReactNode }) {
     qc.setQueryData(getGetConversationQueryKey(conv.id), conv);
     idRef.current = conv.id;
     setId(conv.id);
-    localStorage.setItem(KEY, String(conv.id));
+    storeConversation(conv.id);
     qc.invalidateQueries({ queryKey: getListConversationsQueryKey() });
     return conv.id;
   }, [qc]);

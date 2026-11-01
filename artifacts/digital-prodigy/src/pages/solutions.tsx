@@ -15,7 +15,7 @@ export default function Solutions() {
   return (
     <div>
       <div className="mb-8">
-        <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">03 / Directions</div>
+        <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-ion">05 / Directions</div>
         <h1 className="font-display text-3xl font-light tracking-[-0.03em] sm:text-[2.75rem] sm:leading-[1.05]">Four ways to build. <span className="text-ember glow-text">Pick a vector.</span></h1>
         <p className="mt-3 max-w-xl text-foreground/65">Choose a direction and the advisor will open that thread. Or ignore all four and describe the idea in your own words.</p>
       </div>

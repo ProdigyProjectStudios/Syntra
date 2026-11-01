@@ -1,6 +1,6 @@
 # Digital Prodigy — AI Build Advisor
 
-_Syntra is an AI decision and build advisor for Digital Prodigy: a visitor can compare three ways to solve a problem in Decision Lab, then turn the best path into a scoped project brief across five experiences — Discover, Decision Lab, Solutions, Project Brief, Book._
+_Syntra is an AI decision and build advisor for Digital Prodigy. Visitors can compare approaches in Decision Lab, review their own source excerpts in Evidence Room, and shape a measurable pilot in Action Studio. Discover, Solutions, Project Brief and Book support the consulting journey._
 
 ## Run & Operate
 

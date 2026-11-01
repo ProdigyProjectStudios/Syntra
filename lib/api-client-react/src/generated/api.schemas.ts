@@ -80,6 +80,242 @@ export interface OpportunityAnalysis {
   confidenceReason: string;
 }
 
+export interface EvidenceSource {
+  /** @pattern ^[a-zA-Z0-9_-]{1,50}$ */
+  id: string;
+  /**
+     * @minLength 2
+     * @maxLength 100
+     */
+  title: string;
+  /**
+     * @minLength 80
+     * @maxLength 6000
+     */
+  text: string;
+}
+
+export interface EvidenceInput {
+  /**
+     * @minLength 20
+     * @maxLength 2000
+     */
+  decision: string;
+  /**
+     * @minItems 1
+     * @maxItems 3
+     */
+  sources: EvidenceSource[];
+}
+
+export interface EvidenceCitation {
+  sourceId: string;
+  /**
+     * @minLength 12
+     * @maxLength 300
+     */
+  quote: string;
+}
+
+export type EvidenceClaimAssessment = typeof EvidenceClaimAssessment[keyof typeof EvidenceClaimAssessment];
+
+
+export const EvidenceClaimAssessment = {
+  SUPPORTED: 'SUPPORTED',
+  CONFLICTED: 'CONFLICTED',
+  UNCLEAR: 'UNCLEAR',
+} as const;
+
+export interface EvidenceClaim {
+  /**
+     * @minLength 15
+     * @maxLength 450
+     */
+  statement: string;
+  assessment: EvidenceClaimAssessment;
+  /**
+     * @minLength 20
+     * @maxLength 500
+     */
+  explanation: string;
+  /** @maxItems 3 */
+  citations: EvidenceCitation[];
+}
+
+export type EvidenceAnalysisStance = typeof EvidenceAnalysisStance[keyof typeof EvidenceAnalysisStance];
+
+
+export const EvidenceAnalysisStance = {
+  TEST: 'TEST',
+  REVISE: 'REVISE',
+  PAUSE: 'PAUSE',
+} as const;
+
+export interface EvidenceAnalysis {
+  /**
+     * @minLength 8
+     * @maxLength 150
+     */
+  headline: string;
+  stance: EvidenceAnalysisStance;
+  /**
+     * @minLength 30
+     * @maxLength 700
+     */
+  revisedDecision: string;
+  /**
+     * @minLength 25
+     * @maxLength 700
+     */
+  rationale: string;
+  /**
+     * @minItems 3
+     * @maxItems 6
+     */
+  claims: EvidenceClaim[];
+  /**
+     * @minItems 2
+     * @maxItems 4
+     * @items.minLength 15
+     * @items.maxLength 350
+     */
+  gaps: string[];
+  /**
+     * @minLength 25
+     * @maxLength 500
+     */
+  nextValidationStep: string;
+}
+
+export interface ActionInput {
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  market: string;
+  /**
+     * @minLength 40
+     * @maxLength 2000
+     */
+  experiment: string;
+  /**
+     * @minLength 10
+     * @maxLength 400
+     */
+  successSignal: string;
+  /** @maxLength 1000 */
+  constraints?: string;
+}
+
+export interface ActionMeasurement {
+  /**
+     * @minLength 5
+     * @maxLength 200
+     */
+  metric: string;
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  baselineNeeded: string;
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  observationMethod: string;
+  /**
+     * @minLength 10
+     * @maxLength 200
+     */
+  reviewPoint: string;
+}
+
+export interface ActionMilestone {
+  /**
+     * @minLength 3
+     * @maxLength 100
+     */
+  name: string;
+  /**
+     * @minLength 10
+     * @maxLength 350
+     */
+  deliverable: string;
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  ownerRole: string;
+  /**
+     * @minLength 10
+     * @maxLength 350
+     */
+  acceptanceCriteria: string;
+  /** @nullable */
+  approvalGate: string | null;
+}
+
+export interface ActionEvaluationCase {
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  scenario: string;
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  expectedBehavior: string;
+  /**
+     * @minLength 10
+     * @maxLength 300
+     */
+  failureSignal: string;
+}
+
+export interface ActionPlan {
+  /**
+     * @minLength 8
+     * @maxLength 140
+     */
+  title: string;
+  /**
+     * @minLength 20
+     * @maxLength 400
+     */
+  hypothesis: string;
+  /**
+     * @minLength 20
+     * @maxLength 400
+     */
+  decisionRule: string;
+  measurement: ActionMeasurement;
+  /**
+     * @minItems 3
+     * @maxItems 5
+     */
+  milestones: ActionMilestone[];
+  /**
+     * @minItems 3
+     * @maxItems 5
+     */
+  evaluationCases: ActionEvaluationCase[];
+  /**
+     * @minItems 2
+     * @maxItems 4
+     * @items.minLength 5
+     * @items.maxLength 250
+     */
+  assumptions: string[];
+  /**
+     * @minItems 1
+     * @maxItems 3
+     * @items.minLength 10
+     * @items.maxLength 250
+     */
+  stopConditions: string[];
+}
+
 export interface HealthStatus {
   status: string;
 }

@@ -6,6 +6,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import Discover from '@/pages/discover';
 import DecisionLab from '@/pages/decision-lab';
+import EvidenceRoom from '@/pages/evidence-room';
+import ActionStudio from '@/pages/action-studio';
 import Solutions from '@/pages/solutions';
 import BriefPage from '@/pages/brief';
 import Book from '@/pages/book';
@@ -24,6 +26,8 @@ function Router() {
         <Switch location={location}>
           <Route path="/" component={Discover} />
           <Route path="/lab" component={DecisionLab} />
+          <Route path="/evidence" component={EvidenceRoom} />
+          <Route path="/action" component={ActionStudio} />
           <Route path="/solutions" component={Solutions} />
           <Route path="/brief" component={BriefPage} />
           <Route path="/book" component={Book} />

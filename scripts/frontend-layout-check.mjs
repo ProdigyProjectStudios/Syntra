@@ -479,6 +479,7 @@ async function fixture(page) {
           specialistGeometry.x + specialistGeometry.width <= width,
         "Specialist controls overflow",
       );
+      await page.getByTestId("button-depth-toggle").click();
       await page.getByTestId("button-depth-deep_dive").click();
       await page
         .getByTestId(width >= 1024 ? "link-project-brief" : "link-m-03")

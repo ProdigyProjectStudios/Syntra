@@ -202,6 +202,7 @@ async function expectBlueprintDepth(page, depth, expandedKeys) {
 }
 try {
   const { ctx, page, errors } = await context();
+  await page.getByTestId('button-depth-toggle').click();
   await page.getByTestId('button-depth-deep_dive').click();
   await page.evaluate(() => window.__SYNTRA_TEST__.loseNextMessage());
   await page.getByTestId('input-message').fill('Synthetic project request for safe retry.');
@@ -298,6 +299,7 @@ try {
   const jp = journey.page;
   const snapshot = () => jp.evaluate(() => window.__SYNTRA_TEST__.snapshot());
   const bottleneck = 'We run 100 cases per month, each taking 30 minutes of email approval chasing. We need a portal with named human reviewers; our project-system API access still needs verification.';
+  await jp.getByTestId('button-depth-toggle').click();
   await jp.getByTestId('button-depth-deep_dive').click();
   await jp.getByTestId('input-message').fill(bottleneck);
   await jp.getByTestId('button-send').click();
@@ -326,10 +328,13 @@ try {
   const valueItem = jp.getByTestId('blueprint-item-approval-capacity');
   assert.equal(await valueItem.getByTestId('status-blueprint-approval-capacity').textContent(), 'Assumption');
   assert.match(await valueItem.textContent(), /33\.33 hours\/month/);
+  await jp.getByTestId('button-depth-toggle').click();
   await jp.getByTestId('button-depth-concise').click();
   await expectBlueprintDepth(jp, 'concise', []);
+  await jp.getByTestId('button-depth-toggle').click();
   await jp.getByTestId('button-depth-detailed').click();
   await expectBlueprintDepth(jp, 'detailed', ['objectives', 'architecture', 'workflows', 'roadmap']);
+  await jp.getByTestId('button-depth-toggle').click();
   await jp.getByTestId('button-depth-deep_dive').click();
   await expectBlueprintDepth(jp, 'deep_dive', sectionKeys);
   await jp.screenshot({ path: `${out}/blueprint-390.png` });
@@ -431,6 +436,7 @@ try {
   const ap = android.page;
   assert.ok(await ap.evaluate(() => navigator.maxTouchPoints > 0));
   assert.match(await ap.evaluate(() => navigator.userAgent), /Android.*Chrome/);
+  await ap.getByTestId('button-depth-toggle').tap();
   await ap.getByTestId('button-depth-deep_dive').tap();
   await ap.getByTestId('input-message').fill(bottleneck);
   await ap.getByTestId('button-send').tap();

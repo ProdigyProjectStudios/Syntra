@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowUp, ArrowUpRight, RotateCw, Mic, Volume2, Square, LoaderCircle } from 'lucide-react';
 import { useChatSpeech } from '@/hooks/use-chat-speech';
 import { useListConversations } from '@/lib/runtime-hooks';
@@ -36,36 +36,116 @@ export function AdvisorOrb({ size: requestedSize = 56, mobileSize, thinking = fa
 }
 
 /* ---------- Depth switcher ---------- */
+/** One neural orb, anchored right; the three depths unfold leftward on hover, tap or focus. */
 export function DepthSwitch({ compact = false }: { compact?: boolean }) {
   const { depth, setDepth } = useAdvisor();
+  const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const group = useRef<HTMLDivElement>(null);
+  const suppressFocusOpen = useRef(false);
+  const currentIndex = Math.max(0, DEPTHS.findIndex(d => d.id === depth));
+  const current = DEPTHS[currentIndex];
+  const returnFocus = () => {
+    suppressFocusOpen.current = true;
+    trigger.current?.focus({ preventScroll: true });
+    suppressFocusOpen.current = false;
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: PointerEvent) => {
+      if (root.current && !event.composedPath().includes(root.current)) setOpen(false);
+    };
+    const escape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      if (root.current?.contains(document.activeElement)) returnFocus();
+    };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', escape);
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape); };
+  }, [open]);
+
+  const focusRadio = (index: number) => requestAnimationFrame(() => group.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[index]?.focus());
+
   return (
     <div className="flex items-center gap-3">
       {!compact && <span className="hidden xl:block font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Next reply depth</span>}
-      <div role="radiogroup" aria-label="Response depth" className="relative flex rounded-full glass p-1">
-        {DEPTHS.map((d, i) => {
-          const active = depth === d.id;
-          return (
-            <Tooltip key={d.id}><TooltipTrigger asChild><button
-              role="radio"
-              aria-checked={active}
-              aria-label={d.label}
-              tabIndex={active ? 0 : -1}
-              onKeyDown={event => {
-                const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
-                const index = event.key === 'Home' ? 0 : event.key === 'End' ? DEPTHS.length - 1 : direction ? (i + direction + DEPTHS.length) % DEPTHS.length : -1;
-                if (index < 0) return;
-                event.preventDefault();
-                setDepth(DEPTHS[index].id);
-                event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[index]?.focus();
-              }}
-              data-testid={`button-depth-${d.id}`}
-              onClick={() => setDepth(d.id)}
-              className={cn('relative z-10 flex min-h-9 min-w-9 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary text-xs font-semibold transition-colors', active ? 'text-primary ring-1 ring-primary/25 bg-primary/5' : 'text-muted-foreground hover:text-foreground')}
-            >
-              <AdvisorOrb size={18 + i * 7} live={active} />
-            </button></TooltipTrigger><TooltipContent side="bottom" sideOffset={12} className="rounded-2xl border border-primary/20 bg-[#080d1b]/95 px-4 py-3 shadow-[0_12px_40px_#0008] backdrop-blur-xl"><p className="text-sm text-primary">{d.label}</p><p className="mt-1 text-xs text-white/50">{d.hint}</p></TooltipContent></Tooltip>
-          );
-        })}
+      <div
+        ref={root}
+        className="relative h-9 w-9 shrink-0"
+        onPointerEnter={e => { if (e.pointerType === 'mouse') setOpen(true); }}
+        onPointerLeave={e => {
+          if (e.pointerType === 'mouse' && !(root.current?.contains(document.activeElement) && document.activeElement?.matches(':focus-visible'))) setOpen(false);
+        }}
+        onFocus={e => { const t = e.target as HTMLElement; if (!suppressFocusOpen.current && (t !== trigger.current || t.matches(':focus-visible'))) setOpen(true); }}
+        onBlur={e => { if (!root.current?.contains(e.relatedTarget as Node | null)) setOpen(false); }}
+      >
+        <motion.div
+          ref={group}
+          role="radiogroup"
+          aria-label="Response depth"
+          inert={!open}
+          aria-hidden={!open}
+          initial={false}
+          animate={open ? { opacity: 1, x: 0, scaleX: 1 } : { opacity: 0, x: reduce ? 0 : 12, scaleX: reduce ? 1 : 0.55 }}
+          transition={reduce ? { duration: 0 } : { duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          style={{ transformOrigin: 'right center' }}
+          className={cn('absolute right-full top-1/2 z-50 mr-1.5 flex -translate-y-1/2 rounded-full glass p-1 shadow-[0_12px_40px_-12px_hsl(210_95%_55%/.5)]', !open && 'pointer-events-none')}
+        >
+          {DEPTHS.map((d, i) => {
+            const active = depth === d.id;
+            return (
+              <Tooltip key={d.id}><TooltipTrigger asChild><button
+                type="button"
+                role="radio"
+                aria-checked={active}
+                aria-label={d.label}
+                tabIndex={active ? 0 : -1}
+                onKeyDown={event => {
+                  const direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 0;
+                  const index = event.key === 'Home' ? 0 : event.key === 'End' ? DEPTHS.length - 1 : direction ? (i + direction + DEPTHS.length) % DEPTHS.length : -1;
+                  if (index < 0) return;
+                  event.preventDefault();
+                  setDepth(DEPTHS[index].id);
+                  focusRadio(index);
+                }}
+                data-testid={`button-depth-${d.id}`}
+                onClick={event => {
+                  setDepth(d.id);
+                  setOpen(false);
+                  if (event.detail === 0) returnFocus();
+                  else (event.currentTarget as HTMLButtonElement).blur();
+                }}
+                className={cn('relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary transition-colors', active ? 'text-primary ring-1 ring-primary/25 bg-primary/5' : 'text-muted-foreground hover:text-foreground')}
+              >
+                <AdvisorOrb size={14 + i * 5} live={active && open} />
+              </button></TooltipTrigger><TooltipContent side="bottom" sideOffset={12} className="rounded-2xl border border-primary/20 bg-[#080d1b]/95 px-4 py-3 shadow-[0_12px_40px_#0008] backdrop-blur-xl"><p className="text-sm text-primary">{d.label}</p><p className="mt-1 text-xs text-white/50">{d.hint}</p></TooltipContent></Tooltip>
+            );
+          })}
+        </motion.div>
+        <button
+          ref={trigger}
+          type="button"
+          aria-expanded={open}
+          aria-haspopup="true"
+          aria-label={`Response depth: ${current.label}. ${open ? 'Hide' : 'Show'} depth options`}
+          data-testid="button-depth-toggle"
+          onClick={event => {
+            if ((event.nativeEvent as PointerEvent).pointerType === 'mouse') setOpen(true);
+            else setOpen(o => !o);
+          }}
+          onKeyDown={event => {
+            if (['ArrowLeft', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'Enter', ' '].includes(event.key)) {
+              event.preventDefault(); setOpen(true); focusRadio(currentIndex);
+            }
+          }}
+          className={cn('relative grid h-9 w-9 place-items-center rounded-full glass transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary', open && 'shadow-[0_0_0_1px_hsl(187_92%_69%/.35)]')}
+        >
+          <AdvisorOrb size={14 + currentIndex * 5} live />
+        </button>
       </div>
     </div>
   );

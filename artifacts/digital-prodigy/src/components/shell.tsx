@@ -45,7 +45,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
   return (
     <div className="env dark relative flex h-[100dvh] w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-0 z-0 grid-floor" />
-      <NeuralField energy={sending || voice ? 1 : 0} />
+      <div className={onTool ? 'pointer-events-none absolute inset-0 opacity-20' : 'contents'}><NeuralField energy={sending || voice ? 1 : 0} /></div>
 
       {/* Slim instrument rail */}
       <aside className="relative z-20 hidden w-[72px] shrink-0 flex-col items-center py-5 lg:flex">
@@ -122,7 +122,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -12, filter: 'blur(8px)' }}
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                className="mx-auto max-w-4xl py-6"
+                className={cn('mx-auto py-6', location === '/lab' || location === '/action' ? 'max-w-[1240px] lg:px-6 xl:px-10' : 'max-w-4xl')}
               >
                 {children(location)}
               </motion.div>

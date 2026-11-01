@@ -94,9 +94,9 @@ export default function DecisionLab() {
   }
 
   return (
-    <div className="pb-12">
-      <div className="grid items-start gap-4 md:grid-cols-[minmax(0,0.83fr)_minmax(0,1.17fr)]">
-      <div className="relative overflow-hidden rounded-[30px] border border-primary/15 bg-[radial-gradient(circle_at_80%_20%,hsl(187_92%_69%/.13),transparent_42%),linear-gradient(130deg,hsl(229_49%_10%/.85),hsl(236_48%_5%/.7))] p-6 md:sticky md:top-4 md:min-h-[430px]">
+    <div className="tool-workspace pb-12">
+      <div className="tool-entry grid items-start gap-4 md:grid-cols-[minmax(0,0.83fr)_minmax(0,1.17fr)]">
+      <div className="tool-intro relative overflow-hidden rounded-[30px] border border-primary/15 bg-[radial-gradient(circle_at_80%_20%,hsl(187_92%_69%/.13),transparent_42%),linear-gradient(130deg,hsl(229_49%_10%/.85),hsl(236_48%_5%/.7))] p-6 md:sticky md:top-4 md:min-h-[430px]">
         <div className="absolute -right-6 -top-5 opacity-40 sm:right-3 sm:top-2"><AdvisorOrb size={92} live={false} /></div>
         <div className="relative max-w-[650px]">
           <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-primary"><Sparkles className="h-3.5 w-3.5" /> 02 / Decision Lab</div>
@@ -106,17 +106,17 @@ export default function DecisionLab() {
         </div>
       </div>
 
-      <form onSubmit={run} className="edge-light glass rounded-[28px] p-5 sm:p-7" data-testid="form-decision-lab">
+      <form onSubmit={run} className="tool-form edge-light glass rounded-[28px] p-5 sm:p-7" data-testid="form-decision-lab">
         <div className="mb-5 flex items-center gap-3"><Layers3 className="h-4 w-4 text-primary" /><div><h2 className="text-sm font-semibold">Start with a real decision</h2><p className="text-xs text-muted-foreground">Try a sample, then replace it with your own situation.</p></div></div>
         <div className="mb-5 flex flex-wrap gap-2" aria-label="Sample scenarios">
           {EXAMPLES.map((example) => <button key={example.label} type="button" onClick={() => { setMarket(example.market); setChallenge(example.challenge); setResult(null); analysis.reset(); }} className="rounded-full border border-border bg-background/30 px-3 py-1.5 text-xs text-foreground/70 transition hover:border-primary/40 hover:text-primary" data-testid={`sample-${example.market.toLowerCase()}`}>{example.label}</button>)}
         </div>
-        <div className="grid gap-4">
+        <div className="tool-fields grid gap-4">
           <label className="block text-xs font-medium text-foreground/80">Market or context<input value={market} onChange={(event) => setMarket(event.target.value)} required minLength={2} maxLength={80} className="mt-2 w-full rounded-2xl border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary/50" placeholder="e.g. Education, logistics, internal operations" data-testid="input-market" /></label>
           <label className="block text-xs font-medium text-foreground/80">What is happening today, and what should improve?<textarea value={challenge} onChange={(event) => setChallenge(event.target.value)} required minLength={40} maxLength={3000} rows={5} className="mt-2 w-full resize-y rounded-2xl border border-border bg-background/60 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition focus:border-primary/50" placeholder="Describe the workflow, friction, people involved and desired outcome." data-testid="input-challenge" /><span className="mt-1 block text-right font-mono text-[10px] text-muted-foreground">{challenge.trim().length} / 3000</span></label>
           <label className="block text-xs font-medium text-foreground/80">Constraints <span className="font-normal text-muted-foreground">(optional)</span><input value={constraints} onChange={(event) => setConstraints(event.target.value)} maxLength={1000} className="mt-2 w-full rounded-2xl border border-border bg-background/60 px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary/50" placeholder="e.g. Keep a human approval step; use existing tools first" data-testid="input-constraints" /></label>
         </div>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-4"><p className="max-w-md text-xs leading-relaxed text-muted-foreground">This canvas is generated on demand and is not saved by the Decision Lab. Do not enter secrets or sensitive personal data.</p><button type="submit" disabled={analysis.isPending || challenge.trim().length < 40 || market.trim().length < 2} className="group flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_25px_hsl(187_92%_69%/.22)] transition hover:shadow-[0_0_32px_hsl(187_92%_69%/.38)] disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-analyze">{analysis.isPending ? <><RotateCw className="h-4 w-4 animate-spin" /> Mapping options…</> : <>Map the opportunity <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></>}</button></div>
+        <div className="tool-submit mt-5 flex flex-wrap items-center justify-between gap-4"><p className="max-w-md text-xs leading-relaxed text-muted-foreground">This canvas is generated on demand and is not saved by the Decision Lab. Do not enter secrets or sensitive personal data.</p><button type="submit" disabled={analysis.isPending || challenge.trim().length < 40 || market.trim().length < 2} className="group flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_0_25px_hsl(187_92%_69%/.22)] transition hover:shadow-[0_0_32px_hsl(187_92%_69%/.38)] disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-analyze">{analysis.isPending ? <><RotateCw className="h-4 w-4 animate-spin" /> Mapping options…</> : <>Map the opportunity <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></>}</button></div>
         {analysis.isError && <p role="alert" className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">The analysis could not complete. Check the input or try again shortly.</p>}
       </form>
       </div>

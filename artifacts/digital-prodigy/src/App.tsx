@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import Discover from '@/pages/discover';
 import DecisionLab from '@/pages/decision-lab';
+import '@/styles/tool-workspace.css';
 import EvidenceRoom from '@/pages/evidence-room';
 import ActionStudio from '@/pages/action-studio';
 import Solutions from '@/pages/solutions';

@@ -23,6 +23,6 @@ export function PlatformOrbits() {
           </a>
       )}
     </div>
-    <p className="mt-2 font-mono text-[8px] uppercase tracking-[.28em] text-white/45">Solving Expensive Problems</p>
+    <p className="mt-2 font-mono text-[8px] uppercase tracking-[.28em] text-white/45 [text-shadow:0_0_6px_#ffffff80,0_0_16px_#ffffff40]">Solving Expensive Problems</p>
   </nav>;
 }

@@ -113,7 +113,9 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
     <div ref={shell} className="env dark relative flex h-[var(--syntra-viewport-height,100dvh)] w-full overflow-hidden"
       style={{ top: 'var(--syntra-viewport-top, 0px)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}>
       <div className="pointer-events-none absolute inset-0 z-0 grid-floor" />
-      <DeferredVisuals energy={sending || voice ? 1 : 0} paused={voice || hist} />
+      <div className={cn('pointer-events-none absolute inset-0', onTool && 'opacity-20')}>
+        <DeferredVisuals energy={sending || voice ? 1 : 0} paused={voice || hist} />
+      </div>
 
       <VisualActivityProvider value={!voice && !hist}>
       <div className="contents" inert={voice || hist}>
@@ -203,7 +205,7 @@ export function Shell({ children }: { children: (location: string) => ReactNode 
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: reduceMotion ? 0 : mobile ? -4 : -12, filter: mobile || reduceMotion ? 'none' : 'blur(8px)' }}
                 transition={{ duration: reduceMotion ? 0 : mobile ? 0.2 : 0.55, ease: [0.16, 1, 0.3, 1] }}
-                className="mx-auto max-w-4xl py-1 sm:py-6"
+                className={cn('mx-auto py-1 sm:py-6', readyLocation === '/lab' || readyLocation === '/action' ? 'max-w-[1240px] lg:px-6 xl:px-10' : 'max-w-4xl')}
               >
                 {children(readyLocation)}
               </motion.div>

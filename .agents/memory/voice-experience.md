@@ -21,3 +21,9 @@ Use natural pitch, cadence and speed. Do not add robotic effects, modulation, ar
 **Why:** The user explicitly approved natural specialist delivery and prohibited these effects.
 
 **How to apply:** Preserve the approved selection documented in the repository; do not substitute voices or add delivery processing during integration.
+
+Speak a short acknowledgement while the AI prepares its answer, rather than leaving silence after the visitor speaks.
+
+**Why:** The user explicitly requested spoken phrases such as “Let me look into this” and “analysing your data” during the thinking gap.
+
+**How to apply:** Use the selected specialist's natural voice. Keep acknowledgements interruptible and separate from persisted conversation messages; do not delay the answer to finish them.

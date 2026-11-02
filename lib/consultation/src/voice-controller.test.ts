@@ -75,6 +75,25 @@ function fixture(options: Partial<Options> = {}, initialPending?: TurnInput) {
   };
 }
 
+test("voice allowance rejection explains the limit and reuses the exact saved request on retry", async () => {
+  const f = fixture();
+  f.setSend(async () => { throw { status: 429, data: { error: "Syntra's daily AI allowance has been reached." } }; });
+  f.say("allowance-turn", "Please review this project.");
+  await settle();
+  assert.equal(f.sends.length, 1);
+  assert.ok(f.events.some(event => event.type === "error" && /midnight UTC/.test(event.message) && event.recovery === "turn"));
+  const original = structuredClone(f.sends[0]);
+  assert.deepEqual(f.pending.at(-1), original);
+  f.setSend(async input => reply(input));
+  f.controller.retryTurn();
+  await settle();
+  assert.equal(f.sends.length, 2);
+  assert.deepEqual(f.sends[1], original);
+  assert.equal(f.pending.at(-1), null);
+  assert.equal(f.spoken.length, 1);
+  f.controller.close();
+});
+
 test("voice silence and interim captions never invent a conversation turn", async () => {
   const f = fixture();
   f.runClock();

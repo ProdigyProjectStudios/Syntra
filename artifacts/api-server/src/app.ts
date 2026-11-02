@@ -35,7 +35,15 @@ app.use("/api", router);
 const handleError: ErrorRequestHandler = (error, req, res, _next) => {
   const status = error instanceof ConsultationError ? error.status : error.name === "ZodError" || error.type === "entity.parse.failed" ? 400 : error.status === 413 ? 413 : 502;
   // Never log transcripts, provider request bodies, cookies or personal brief data.
-  req.log.warn({ status, errorType: error.name ?? "Error" }, "Consultation request failed");
+  const reason = error instanceof ConsultationError && status === 429
+    ? error.message.startsWith("Syntra's daily AI allowance") ? "daily_ai_allowance"
+      : error.message.startsWith("Syntra's shared AI allowance") ? "shared_ai_allowance"
+      : error.message === "Please wait a minute before sending more messages." ? "visitor_message_rate" : "other_rate_limit"
+    : undefined;
+  req.log.warn({ status, errorType: error.name ?? "Error", ...(reason ? { reason } : {}) }, "Consultation request failed");
+  if (reason === "daily_ai_allowance") {
+    res.setHeader("Retry-After", String(Math.max(1, Math.ceil((Math.ceil((Date.now() + 1) / 86_400_000) * 86_400_000 - Date.now()) / 1000))));
+  }
   res.status(status).json({ ...(error instanceof BlueprintVersionConflict || error instanceof BlueprintChangeRejected ? { code: error.code } : {}), error: error instanceof ConsultationError ? error.message : status === 400 ? "Invalid request." : status === 413 ? "Request too large." : "The request outcome could not be confirmed. Your saved conversation is available; retry the original request to confirm its outcome." });
 };
 app.use(handleError);

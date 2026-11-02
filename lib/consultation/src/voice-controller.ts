@@ -1,3 +1,4 @@
+import { voiceTurnFailureMessage } from "./voice-turn-failure.ts";
 import type { Depth, SpecialistId, TurnInput, TurnReply, VoiceEvent } from "./types.ts";
 import { normalizeSpecialist } from "./specialists.ts";
 
@@ -447,13 +448,13 @@ export class ConversationVoiceController {
         this.diagnostic("playback", "blocked", attempt.epoch !== this.epoch ? "different-epoch" : "input-pending");
       }
       this.drain();
-    } catch {
+    } catch (error) {
       if (this.closed) return;
       this.active = null;
       this.failed = attempt;
-      this.error(this.queued.length
+      this.error(voiceTurnFailureMessage(error) ?? (this.queued.length
         ? "The earlier response could not be confirmed. Your newer words are held here; retry the original request first."
-        : "The response could not be confirmed. Retry this request; your words and request ID are preserved.", "turn");
+        : "The response could not be confirmed. Retry this request; your words and request ID are preserved."), "turn");
       this.refreshState();
       this.diagnostic(requested && !attempt.reply ? "model" : "admission", "failed");
     }

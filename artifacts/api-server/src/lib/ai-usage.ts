@@ -2,6 +2,9 @@ import { pool } from "@workspace/db";
 import { ConsultationError } from "@workspace/consultation";
 
 type Counter = { key: string; amount: number; limit: number; expiresAt: Date };
+const exhausted = (counter: Counter) => new ConsultationError(429, counter.key.startsWith("global:")
+  ? "Syntra's daily AI allowance has been reached. It resets at midnight UTC. Please retry your original request after the reset."
+  : "Syntra's shared AI allowance has been reached. Please try again later.");
 const configuredLimit = (key: string, fallback: number) => {
   const value = process.env[key];
   if (value === undefined) return fallback;
@@ -20,14 +23,14 @@ export async function reserveUsage(counters: Counter[]): Promise<void> {
     await client.query("SET LOCAL statement_timeout = '5s'");
     await client.query("SELECT pg_advisory_xact_lock(hashtext('syntra:ai:usage'))");
     for (const counter of counters) {
-      if (counter.amount > counter.limit) throw new ConsultationError(429, "Syntra's shared AI allowance has been reached. Please try again later.");
+      if (counter.amount > counter.limit) throw exhausted(counter);
       const result = await client.query(
         `INSERT INTO ai_usage_windows (key, used, expires_at) VALUES ($1, $2, $3)
          ON CONFLICT (key) DO UPDATE SET used = ai_usage_windows.used + EXCLUDED.used
          WHERE ai_usage_windows.used + EXCLUDED.used <= $4 RETURNING used`,
         [counter.key, counter.amount, counter.expiresAt, counter.limit],
       );
-      if (!result.rowCount) throw new ConsultationError(429, "Syntra's shared AI allowance has been reached. Please try again later.");
+      if (!result.rowCount) throw exhausted(counter);
     }
     await client.query("DELETE FROM ai_usage_windows WHERE expires_at < now() - interval '2 days'");
     await client.query("COMMIT");

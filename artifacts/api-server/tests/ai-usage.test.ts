@@ -63,6 +63,14 @@ test("an amount above the global limit is rejected before inserting", async () =
   assert.ok(!usage.calls.some((sql: string) => sql.includes("INSERT")));
 });
 
+test("global allowance exhaustion explains the UTC reset while counters stay rolled back", async () => {
+  const usage = await accounting(0);
+  await assert.rejects(usage.reserveUsage([{ ...counter, key: "global:tokens:test" }]), error =>
+    error.status === 429 && /daily AI allowance/.test(error.message) && /midnight UTC/.test(error.message));
+  assert.equal(usage.calls.at(-1), "ROLLBACK");
+  assert.ok(!usage.calls.includes("COMMIT"));
+});
+
 test("an uncertain rollback destroys rather than reuses the connection", async () => {
   const usage = await accounting(0, true);
   await assert.rejects(usage.reserveUsage([counter]), { status: 429 });

@@ -558,7 +558,9 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
                 state, ...connectionProbe?.snapshot(),
               });
             }
-            emit({ type: 'amplitude', value: Math.min(1, Math.max(inputLevel, rms(output)) * 6) });
+            // While output is active, follow the actual speaker audio, not room/mic noise.
+            const level = state === 'speaking' || Boolean(cancelSynthesis) || acknowledgement.playing ? rms(output) : inputLevel;
+            emit({ type: 'amplitude', value: Math.min(1, level * 6) });
             if (!muted) {
               const event = onset.sample(inputLevel, state === 'speaking' || acknowledgement.playing, asrActive || Boolean(localCandidate), time);
               if (localCandidate?.timer !== undefined && onset.isElevated(inputLevel)) {

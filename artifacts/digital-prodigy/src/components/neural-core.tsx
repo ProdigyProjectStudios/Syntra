@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { useVisualActivity } from '@/hooks/use-visual-activity';
+import { advanceSpeechPhase, smoothSpeechLevel } from '../lib/speech-motion.ts';
 
 export type CoreState = 'connecting' | 'idle' | 'speaking' | 'error';
 
@@ -66,7 +67,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
   stateRef.current = state;
   // Caption/recovery changes resize the stage. Keep the same animation lifetime
   // when rebuilding the canvas so speech cannot replay the assembly sequence.
-  const motionRef = useRef<{ born: number; t: number; yaw: number; smooth: number; vis: number; errMix: number } | null>(null);
+  const motionRef = useRef<{ born: number; t: number; currentPhase: number; yaw: number; smooth: number; vis: number; errMix: number } | null>(null);
 
   // Static topology — built once.
   const topo = useMemo(() => {
@@ -226,9 +227,9 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
 
     let raf = 0;
     let last = performance.now();
-    const previous = motionRef.current ?? { born: still ? last - 10000 : last, t: still ? 40 : 0, yaw: 0, smooth: 0, vis: still ? 1 : 0, errMix: 0 };
+    const previous = motionRef.current ?? { born: still ? last - 10000 : last, t: still ? 40 : 0, currentPhase: still ? 40 : 0, yaw: 0, smooth: 0, vis: still ? 1 : 0, errMix: 0 };
     const born = previous.born;
-    let { t, yaw, smooth, vis, errMix } = previous;
+    let { t, currentPhase, yaw, smooth, vis, errMix } = previous;
 
     const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
 
@@ -241,8 +242,9 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
       t += dt * speed;
       const st = stateRef.current;
       const target = st === 'speaking' ? (external ? amplitude.current : 0.34 + 0.2 * Math.sin(t * 1.7) * Math.sin(t * 0.63)) : st === 'connecting' ? 0.12 + 0.08 * Math.sin(t * 3) : st === 'error' ? 0 : external ? Math.max(0.035, amplitude.current * 0.75) : 0.035;
-      smooth += (target - smooth) * Math.min(1, dt * 3.2);
+      smooth = smoothSpeechLevel(smooth, target, dt);
       const amp = smooth;
+      currentPhase = advanceSpeechPhase(currentPhase, dt * speed, amp);
       errMix += ((st === 'error' ? 1 : 0) - errMix) * Math.min(1, dt * 3);
       const asm = Math.min(1, (now - born) / 2200);
       const a = 1 - Math.pow(1 - asm, 3); // assemble ease
@@ -310,9 +312,8 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
       // ---- radial currents (implode + expand simultaneously)
       {
         const sp = errMix > 0.5 ? spriteRose : spriteCyan;
-        const speedK = 1 + amp * 0.6;
         for (let i = 0; i < M; i++) {
-          const u = (motes[i * 6 + 3] + t * motes[i * 6 + 4] * speedK) % 1;
+          const u = (motes[i * 6 + 3] + currentPhase * motes[i * 6 + 4]) % 1;
           const out = motes[i * 6 + 5] === 1;
           const env = Math.pow(Math.sin(Math.PI * u), 1.4) * vis * a;
           if (env < 0.01) continue;
@@ -455,7 +456,7 @@ export function NeuralCore({ size, state = 'idle', amplitude, nodes: requestedNo
     };
     raf = requestAnimationFrame(frame);
     return () => {
-      motionRef.current = { born, t, yaw, smooth, vis, errMix };
+      motionRef.current = { born, t, currentPhase, yaw, smooth, vis, errMix };
       cancelAnimationFrame(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

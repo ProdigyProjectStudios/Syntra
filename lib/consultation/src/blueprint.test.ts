@@ -23,11 +23,11 @@ const contribution = (overrides: Partial<BlueprintContribution> = {}): Blueprint
 });
 const initial = () => evolveBlueprint(undefined, brief(), [], context);
 
-test('Kryon and Nyx rebrand leaves persisted roles and real Azure voice profiles stable', () => {
+test('approved British voices preserve specialist roles and Syntra voice', () => {
   assert.deepEqual(SPECIALISTS.map(item => [item.id, item.name, item.title, item.voiceId]), [
     ['syntra', 'Syntra', 'Principal Consultant', 'en-GB-SoniaNeural'],
-    ['technical', 'Kryon', 'Technical Architect', 'en-GB-LibbyNeural'],
-    ['automation', 'Nyx', 'Automation & Workflow Specialist', 'en-GB-BellaNeural'],
+    ['technical', 'Kryon', 'Technical Architect', 'en-GB-OllieMultilingualNeural'],
+    ['automation', 'Nyx', 'Automation & Workflow Specialist', 'en-GB-AdaMultilingualNeural'],
   ]);
   assert.match(SPECIALISTS[1].guidance, /calm, exact/);
   assert.match(SPECIALISTS[2].guidance, /human handoffs, accountability/);

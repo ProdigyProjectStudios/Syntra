@@ -8,6 +8,7 @@ import { VoiceDiagnostics, type VoiceMetric } from './voice-diagnostics.ts';
 import { RecognitionIdentityTracker } from './recognition-identity.ts';
 import { observeSpeechConnection } from './speech-connection-diagnostics.ts';
 import { createAudioPreparation } from './audio-preparation.ts';
+import { ThinkingAcknowledgement } from './thinking-acknowledgement.ts';
 
 type SpeechSdk = typeof import('microsoft-cognitiveservices-speech-sdk');
 interface SpeechToken { token: string; region: string; expiresAt: number }
@@ -15,6 +16,8 @@ export interface AzureVoiceOptions {
   enabled?: boolean;
   loadSdk?: () => Promise<SpeechSdk>;
   audioPreparation?: ReturnType<typeof createAudioPreparation>;
+  /** Disable ephemeral acknowledgement audio for transport-only tests. */
+  thinkingAcknowledgements?: boolean;
 }
 const pendingKey = (id: number) => `syntra.development.voice.pending.v1:${id}`;
 const aborted = () => new DOMException('Voice closed.', 'AbortError');
@@ -134,6 +137,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
       let state = 'connecting';
       let specialist = normalizeSpecialist(options?.specialist);
       let pendingId: string | undefined;
+      const acknowledgement = new ThinkingAcknowledgement();
       const notify = (event: VoiceEvent) => { if (!outerSignal.aborted) release(() => onEvent(event)); };
       const emit = (event: VoiceEvent) => {
         if (closed || outerSignal.aborted) return;
@@ -141,6 +145,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
         notify(event);
       };
       const stopPlayback = () => {
+        acknowledgement.stop();
         const started = performance.now();
         const hadOutput = Boolean(cancelSynthesis);
         cancelSynthesis?.(); player?.stop();
@@ -384,8 +389,12 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             // must eventually become an uncertain original intent, never a new send.
             const timer = window.setTimeout(() => deadline.abort(new Error('The response is taking longer than expected. Recover the original request before continuing.')), 120_000);
             if (lifetime.signal.aborted) abort();
+            if (adapterOptions.thinkingAcknowledgements !== false) acknowledgement.start(speak);
             try { return await abortable(runtime.messages.send(id, input), deadline.signal); }
-            finally { window.clearTimeout(timer); lifetime.signal.removeEventListener('abort', abort); }
+            finally {
+              acknowledgement.stop();
+              window.clearTimeout(timer); lifetime.signal.removeEventListener('abort', abort);
+            }
           }, speak, stopPlayback, emit,
           getDepth: () => options?.depth ?? 'detailed', getSpecialist: () => specialist, pendingTurn: restored,
           onTurnPhase: event => diagnostics.phase(event),
@@ -551,7 +560,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             }
             emit({ type: 'amplitude', value: Math.min(1, Math.max(inputLevel, rms(output)) * 6) });
             if (!muted) {
-              const event = onset.sample(inputLevel, state === 'speaking', asrActive || Boolean(localCandidate), time);
+              const event = onset.sample(inputLevel, state === 'speaking' || acknowledgement.playing, asrActive || Boolean(localCandidate), time);
               if (localCandidate?.timer !== undefined && onset.isElevated(inputLevel)) {
                 window.clearTimeout(localCandidate.timer);
                 localCandidate.timer = window.setTimeout(abandonLocalOnlyInput, 5_000);

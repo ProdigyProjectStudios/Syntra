@@ -232,7 +232,7 @@ function fixture() {
     newStream: () => new Stream(),
     mediaCalls: () => mediaCalls, tokenCalls: () => tokenCalls,
     pendingTimers: () => timers.size, pendingFrames: () => frames.size,
-    adapter: (load = loadSdk) => createAzureVoiceAdapter(runtime, { enabled: true, loadSdk: load }),
+    adapter: (load = loadSdk, thinkingAcknowledgements = false) => createAzureVoiceAdapter(runtime, { enabled: true, loadSdk: load, thinkingAcknowledgements }),
     setMedia: (implementation: typeof getMedia) => { getMedia = implementation; },
     setToken: (implementation: typeof fetchToken) => { fetchToken = implementation; },
     setSend: (implementation: typeof send) => { send = implementation; },
@@ -402,6 +402,33 @@ test("Azure final offset refinement keeps the original partial correlated", asyn
   assert.equal(f.sends.length, 1, "A refined start beyond a short partial span must not leave recognition pending");
   const final = f.events.filter(event => event.type === "transcript" && event.role === "visitor" && event.final).at(-1)!;
   assert.equal(final.id, interim.id);
+});
+
+test("Azure thinking acknowledgement uses the selected voice, stays out of turns and stops before the reply", async t => {
+  const f = fixture();
+  const pending = deferred<TurnReply>();
+  f.setSend(() => pending.promise);
+  const connection = await f.adapter(f.loadSdk, true).connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  await connection.setSpecialist!("technical");
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.();
+  recognizer.partial("thinking-turn", "Plan the integration", 100, 100);
+  recognizer.speechEndDetected?.();
+  recognizer.final("thinking-turn", "Plan the integration.", 100, 100);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1);
+  assert.equal(f.syntheses.length, 1);
+  const acknowledgement = f.syntheses[0];
+  assert.equal(acknowledgement.config.speechSynthesisVoiceName, getSpecialistProfile("technical").voiceId);
+  acknowledgement.audio();
+  pending.resolve(resultFor(f.sends[0]));
+  await settle();
+  assert.equal(acknowledgement.closes, 1);
+  assert.equal(f.contexts[0].sources[0].stopped, true);
+  assert.equal(f.syntheses.length, 2);
+  assert.equal(f.sends.length, 1, "Acknowledgements must never be sent as messages");
+  assert.equal(f.events.some(event => event.type === "transcript" && event.text?.includes("Let me look")), false);
 });
 
 test("Azure accepts audio beyond a refined final end and suppresses its late duplicate during new input", async t => {

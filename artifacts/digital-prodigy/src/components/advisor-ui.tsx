@@ -228,8 +228,8 @@ export function Composer({ onSpeak, voiceOpen = false }: { onSpeak: () => void; 
           />
 
           <div className="ml-auto flex items-center gap-1">
-          <button type="button" onClick={() => speech.mode !== 'idle' ? speech.finish() : speech.dictate(value, setValue)}
-            disabled={sending || speech.mode === 'playing'} aria-label={speech.mode === 'dictating' ? 'Finish dictation' : speech.mode === 'loading' ? 'Cancel speech' : 'Dictate message'}
+          <button type="button" onClick={() => speech.mode === 'dictating' || speech.mode === 'loading' ? speech.finish() : speech.dictate(value, setValue)}
+            disabled={sending} aria-label={speech.mode === 'dictating' ? 'Finish dictation' : speech.mode === 'loading' ? 'Cancel speech' : 'Dictate message'}
             aria-pressed={speech.mode === 'dictating'} data-testid="button-dictate"
             className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-primary transition hover:bg-primary/10 disabled:opacity-35 focus-visible:ring-1 focus-visible:ring-primary">
             {speech.mode === 'loading' ? <LoaderCircle className="h-4 w-4 animate-spin" /> : speech.mode === 'dictating' ? <Square className="h-4 w-4 fill-current" /> : <Mic className="h-4 w-4" />}

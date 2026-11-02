@@ -33,3 +33,9 @@ Speak a short acknowledgement while the AI prepares a complex answer, not for gr
 **Why:** The user requested spoken phrases such as “Let me look into this” during the thinking gap, then clarified these should only occur for complex answers, never simple conversation such as “hello” or “hi”.
 
 **How to apply:** Use the selected specialist's natural voice. Keep acknowledgements interruptible and separate from persisted conversation messages; do not delay the answer to finish them.
+
+Reuse valid short-lived Azure authorization for repeated chat speech actions in the same owned consultation, without storing tokens persistently or sharing them across consultations.
+
+**Why:** Repeated dictation/read-aloud toggles exhausted the separate voice-token issuance allowance even while Azure authentication was healthy. Increasing the model's daily allowance does not resolve that limit.
+
+**How to apply:** Keep authorization in tab memory, respect expiry with a safety margin, and clear it when the consultation changes. Preserve server-side ownership checks and issuance limits.

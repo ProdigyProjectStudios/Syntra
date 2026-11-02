@@ -8,7 +8,7 @@ import { VoiceDiagnostics, type VoiceMetric } from './voice-diagnostics.ts';
 import { RecognitionIdentityTracker } from './recognition-identity.ts';
 import { observeSpeechConnection } from './speech-connection-diagnostics.ts';
 import { createAudioPreparation } from './audio-preparation.ts';
-import { ThinkingAcknowledgement } from './thinking-acknowledgement.ts';
+import { ThinkingAcknowledgement, needsThinkingAcknowledgement } from './thinking-acknowledgement.ts';
 
 type SpeechSdk = typeof import('microsoft-cognitiveservices-speech-sdk');
 interface SpeechToken { token: string; region: string; expiresAt: number }
@@ -389,7 +389,7 @@ export function createAzureVoiceAdapter(runtime: Pick<ConsultationRuntime, 'mess
             // must eventually become an uncertain original intent, never a new send.
             const timer = window.setTimeout(() => deadline.abort(new Error('The response is taking longer than expected. Recover the original request before continuing.')), 120_000);
             if (lifetime.signal.aborted) abort();
-            if (adapterOptions.thinkingAcknowledgements !== false) acknowledgement.start(speak);
+            if (adapterOptions.thinkingAcknowledgements !== false && needsThinkingAcknowledgement(input.content)) acknowledgement.start(speak);
             try { return await abortable(runtime.messages.send(id, input), deadline.signal); }
             finally {
               acknowledgement.stop();

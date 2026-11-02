@@ -413,9 +413,9 @@ test("Azure thinking acknowledgement uses the selected voice, stays out of turns
   await connection.setSpecialist!("technical");
   const recognizer = f.recognizers[0];
   recognizer.speechStartDetected?.();
-  recognizer.partial("thinking-turn", "Plan the integration", 100, 100);
+  recognizer.partial("thinking-turn", "How should we design the integration", 100, 100);
   recognizer.speechEndDetected?.();
-  recognizer.final("thinking-turn", "Plan the integration.", 100, 100);
+  recognizer.final("thinking-turn", "How should we design the integration between our CRM and portal?", 100, 100);
   f.advance(1000); await settle();
   assert.equal(f.sends.length, 1);
   assert.equal(f.syntheses.length, 1);
@@ -429,6 +429,25 @@ test("Azure thinking acknowledgement uses the selected voice, stays out of turns
   assert.equal(f.syntheses.length, 2);
   assert.equal(f.sends.length, 1, "Acknowledgements must never be sent as messages");
   assert.equal(f.events.some(event => event.type === "transcript" && event.text?.includes("Let me look")), false);
+});
+
+test("Azure greetings go directly to the real reply without an acknowledgement", async t => {
+  const f = fixture();
+  const pending = deferred<TurnReply>();
+  f.setSend(() => pending.promise);
+  const connection = await f.adapter(f.loadSdk, true).connect(1, f.capture, new AbortController().signal);
+  t.after(async () => { await connection.close(); f.restore(); });
+  const recognizer = f.recognizers[0];
+  recognizer.speechStartDetected?.();
+  recognizer.partial("greeting-turn", "Hello", 100, 100);
+  recognizer.speechEndDetected?.();
+  recognizer.final("greeting-turn", "Hello", 100, 100);
+  f.advance(1000); await settle();
+  assert.equal(f.sends.length, 1, "The normal AI response must still be requested");
+  assert.equal(f.syntheses.length, 0, "No filler speech, even while waiting");
+  pending.resolve(resultFor(f.sends[0]));
+  await settle();
+  assert.equal(f.syntheses.length, 1, "Only the actual reply is spoken");
 });
 
 test("Azure accepts audio beyond a refined final end and suppresses its late duplicate during new input", async t => {

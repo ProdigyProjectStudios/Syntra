@@ -22,8 +22,14 @@ Use natural pitch, cadence and speed. Do not add robotic effects, modulation, ar
 
 **How to apply:** Preserve the approved selection documented in the repository; do not substitute voices or add delivery processing during integration.
 
-Speak a short acknowledgement while the AI prepares its answer, rather than leaving silence after the visitor speaks.
+The speaking orb should move smoothly with the voice response, not use jarring or exaggerated speaking animations.
 
-**Why:** The user explicitly requested spoken phrases such as “Let me look into this” and “analysing your data” during the thinking gap.
+**Why:** The user explicitly said the speaking animation was too jarring and should feel like it is speaking with the voice.
+
+**How to apply:** Keep voice-driven motion restrained, continuous across state changes and responsive to spoken audio.
+
+Speak a short acknowledgement while the AI prepares a complex answer, not for greetings, simple conversation or straightforward factual answers.
+
+**Why:** The user requested spoken phrases such as “Let me look into this” during the thinking gap, then clarified these should only occur for complex answers, never simple conversation such as “hello” or “hi”.
 
 **How to apply:** Use the selected specialist's natural voice. Keep acknowledgements interruptible and separate from persisted conversation messages; do not delay the answer to finish them.

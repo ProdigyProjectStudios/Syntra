@@ -10,6 +10,7 @@ import { NeuralCore, type CoreState } from '@/components/neural-core';
 import { VoiceSpecialistRail, SPECIALIST_VISUALS } from '@/components/voice-specialist-rail';
 import { VoiceConnectionLifecycle, isLocalVoiceNotice, reconnectFailure } from '@/components/voice-connection-lifecycle';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { ThinkingIndicator } from '@/components/thinking-indicator';
 
 /** Any surface can open voice mode by dispatching this window event. */
 export const OPEN_VOICE_EVENT = 'dp:open-voice';
@@ -385,8 +386,9 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
                 </div>
               ) : caption?.text ? (
                 <div>
-                  <div className="mb-2 font-mono text-[9px] uppercase tracking-[.25em] text-primary/65">
+                  <div className="mb-2 flex min-h-[15px] items-center justify-center gap-3 font-mono text-[9px] uppercase tracking-[.25em] text-primary/65">
                     {caption.role === 'visitor' ? 'You' : profile.name}{!caption.final && <span className="text-white/30"> / live</span>}
+                    {transportState === 'thinking' && <ThinkingIndicator label="Thinking" className="whitespace-nowrap text-[9px]" />}
                   </div>
                   <div ref={captionRef} className="max-h-[min(19dvh,160px)] overflow-y-auto overscroll-contain scroll-thin"
                     tabIndex={0} aria-label={caption.role === 'visitor' ? 'Your live transcript' : `${profile.name} response`} data-testid="voice-transcript">
@@ -401,7 +403,7 @@ export function VoiceConsole({ open, onClose, onConnectionFailed }: { open: bool
                   {!available ? 'Voice is not connected in this environment. Continue your consultation in chat.' :
                     muted ? 'Your microphone is paused. Unmute when you are ready.' :
                     transportState === 'connecting' ? 'Connecting your microphone and voice.' :
-                    transportState === 'thinking' ? 'Preparing your response…' : 'Go ahead. I’m listening.'}
+                    transportState === 'thinking' ? <ThinkingIndicator label="Preparing your response" className="text-[9px]" /> : 'Go ahead. I’m listening.'}
                 </p>
               )}
             </div>

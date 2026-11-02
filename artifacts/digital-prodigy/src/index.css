@@ -194,7 +194,16 @@
 .thinking .anim-breathe { animation-duration: 1.2s; }
 .thinking .anim-spin { animation-duration: 3s; }
 .thinking .anim-spin-rev { animation-duration: 4s; }
+/* ThinkingIndicator — fixed-size, transform/opacity only */
+@keyframes ti-orbit { to { transform: rotate(360deg) } }
+@keyframes ti-run { 0% { transform: translateX(-100%); opacity: 0 } 25%,75% { opacity: 1 } 100% { transform: translateX(260%); opacity: 0 } }
+.ti-orbit { position: relative; width: 12px; height: 12px; flex-shrink: 0; border-radius: 9999px; border: 1px solid hsl(187 92% 69% / .18); animation: ti-orbit 1.4s linear infinite; }
+.ti-dot { position: absolute; top: -2px; left: 50%; width: 3px; height: 3px; margin-left: -1.5px; border-radius: 9999px; background: hsl(187 92% 78%); box-shadow: 0 0 6px hsl(187 92% 69% / .7); }
+.ti-trace { position: relative; width: 28px; height: 1px; flex-shrink: 0; overflow: hidden; background: hsl(187 92% 69% / .12); }
+.ti-trace > span { position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, hsl(187 92% 72%), transparent); animation: ti-run 1.8s cubic-bezier(.6,0,.4,1) infinite; }
 @media (prefers-reduced-motion: reduce) {
+  .ti-orbit, .ti-trace > span { animation: none !important; }
+  .ti-trace > span { left: 30%; opacity: .6; }
   .anim-breathe, .anim-spin, .anim-spin-rev, .anim-scan, .anim-bar, .constellation-signal { animation: none !important; }
 }
 

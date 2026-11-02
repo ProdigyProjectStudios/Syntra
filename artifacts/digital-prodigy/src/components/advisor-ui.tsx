@@ -9,6 +9,7 @@ import { DEPTHS, useAdvisor } from '@/lib/advisor';
 import { NeuralCore } from '@/components/neural-core';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { ThinkingIndicator } from '@/components/thinking-indicator';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 /* ---------- Living advisor presence ---------- */
@@ -298,14 +299,7 @@ export function ThinkingRow() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-3" data-testid="status-thinking">
       <AdvisorOrb size={22} thinking />
-      <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-        Composing
-        <span className="flex h-3 items-center gap-[3px]">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <span key={i} className="h-3 w-[2px] rounded bg-primary anim-bar" style={{ animationDelay: `${i * 0.12}s` }} />
-          ))}
-        </span>
-      </div>
+      <ThinkingIndicator label="Composing" />
     </motion.div>
   );
 }
